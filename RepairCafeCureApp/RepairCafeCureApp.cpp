@@ -46,7 +46,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 
 	// TODO: replace application ID string below with unique ID string; recommended
 	// format for string is CompanyName.ProductName.SubProduct.VersionInformation
-	SetAppID(_T("RepairCafeCureApp.AppID.NoVersion"));
+	SetAppID(_T("RepairCafeCureApp.AppID.0.0.1.0"));
 
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
@@ -93,7 +93,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	// Change the registry key under which our settings are stored
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
-	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	SetRegistryKey(_T("artvabas\\Repair cafe cure"));
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
 
 
