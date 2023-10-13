@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\artvabas">
+      <UniqueIdentifier>{a114570c-14bb-4dd8-ba6f-724193d3a798}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas">
+      <UniqueIdentifier>{c7ed2498-7ae1-4140-9e1d-31d5daae42ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries">
+      <UniqueIdentifier>{316c8d40-b8d4-47f0-a4cc-404a83db3c0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RepairCafeCureApp.h">
@@ -39,6 +48,9 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CDatabaseConnection.h">
+      <Filter>Header Files\artvabas</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -55,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CDatabaseConnection.cpp">
+      <Filter>Source Files\artvabas</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -105,5 +120,10 @@
     <Image Include="res\Toolbar256.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\Cryptopp890\x64\Output\Release\cryptlib.lib">
+      <Filter>libraries</Filter>
+    </Library>
   </ItemGroup>
 </Project>

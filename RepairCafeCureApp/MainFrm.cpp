@@ -113,12 +113,6 @@ BOOL CMainFrame::CreateCaptionBar()
 	BOOL bNameValid;
 
 	CString strTemp, strTemp2;
-	bNameValid = strTemp.LoadString(IDS_CAPTION_BUTTON);
-	ASSERT(bNameValid);
-	m_wndCaptionBar.SetButton(strTemp, ID_TOOLS_OPTIONS, CMFCCaptionBar::ALIGN_LEFT, FALSE);
-	bNameValid = strTemp.LoadString(IDS_CAPTION_BUTTON_TIP);
-	ASSERT(bNameValid);
-	m_wndCaptionBar.SetButtonToolTip(strTemp);
 
 	bNameValid = strTemp.LoadString(IDS_CAPTION_TEXT);
 	ASSERT(bNameValid);
@@ -131,6 +125,17 @@ BOOL CMainFrame::CreateCaptionBar()
 	ASSERT(bNameValid);
 	m_wndCaptionBar.SetImageToolTip(strTemp, strTemp2);
 
+	//*******************************************************************************
+	// Make a new ComboBox
+	CComboBox* pComboBox = new CComboBox;
+	// Make Combobox visible
+	pComboBox->Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar, IDC_CAPTION_NAME_COMBOBOX);
+
+	// Add items to combobox
+	pComboBox->AddString(_T("Item 1"));
+	pComboBox->AddString(_T("Item 2"));
+	pComboBox->AddString(_T("Item 3"));
+	//*********************************************************************************************
 	return TRUE;
 }
 

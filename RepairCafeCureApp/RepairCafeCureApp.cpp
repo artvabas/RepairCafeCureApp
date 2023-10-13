@@ -22,6 +22,8 @@
 #include "RepairCafeCureAppDoc.h"
 #include "RepairCafeCureAppView.h"
 
+#include "CDatabaseConnection.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -50,6 +52,8 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+	artvabas::rcc::database::CDatabaseConnection db;
+	
 }
 
 // The one and only CRepairCafeCureApp object

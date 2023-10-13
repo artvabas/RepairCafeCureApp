@@ -16,7 +16,7 @@ namespace artvabas
 
 				// Operations
 			private:
-				std::string ConnectionString();
+				CString ConnectionString(bool bLoad = true);
 
 				// Overrides
 			public:
