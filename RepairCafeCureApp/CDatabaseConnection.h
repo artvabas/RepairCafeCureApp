@@ -18,10 +18,11 @@ namespace artvabas
 			private:
 				CString GetConnectionString();
 				CString CreateConnectionString();
-				void EncryptCredentials(CString& strUser, CString& strPassword);
-				void DecryptCredentials(CString& strUser, CString& strPassword);
+				void EncryptCredentials(CString strUser, CString strPassword);
+				void DecryptCredentials(std::string& chpUser, std::string& chpPassword, CString& strUser, CString& strPassword);
 				void RemoveCredentials(CString& strUser, CString& strPassword, CString& strDsn);
-				void SaveConnectionString(CString& strDsn, CString& strUser, CString& strPassword);
+				void SaveConnectionString(CString& strUser, CString& strPassword, CString& strDsn);
+				void AddCredentials(CString& strUser, CString& strPassword, CString& strDsn);
 
 				// Overrides
 			public:

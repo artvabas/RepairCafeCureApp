@@ -128,8 +128,8 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\Libraries\Debug\cryptlib.lib">
-      <Filter>libraries\Debug</Filter>
+    <Library Include="..\..\Cryptopp890\x64\Output\Release\cryptlib.lib">
+      <Filter>libraries\Release</Filter>
     </Library>
   </ItemGroup>
 </Project>
