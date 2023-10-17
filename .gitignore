@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /RepairCafeCureApp/CDatabaseConnection.h
 /RepairCafeCureApp/CDatabaseConnection.cpp
 /RepairCafeCureApp/cryptlib.lib
+/RepairCafeCureApp/securitydata.h
