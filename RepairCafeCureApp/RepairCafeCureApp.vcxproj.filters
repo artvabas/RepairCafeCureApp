@@ -57,6 +57,9 @@
     <ClInclude Include="CDatabaseConnection.h">
       <Filter>Header Files\artvabas</Filter>
     </ClInclude>
+    <ClInclude Include="securitydata.h">
+      <Filter>Header Files\artvabas</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">

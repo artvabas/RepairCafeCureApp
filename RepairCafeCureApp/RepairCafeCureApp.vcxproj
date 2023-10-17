@@ -195,6 +195,7 @@
     <ClInclude Include="RepairCafeCureAppDoc.h" />
     <ClInclude Include="RepairCafeCureAppView.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="securitydata.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
