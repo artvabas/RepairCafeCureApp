@@ -18,6 +18,7 @@
 #endif
 
 #include "resource.h"       // main symbols
+#include "CDatabaseConnection.h"
 
 
 // CRepairCafeCureApp:
@@ -26,9 +27,18 @@
 
 class CRepairCafeCureApp : public CWinAppEx
 {
+private:
+		artvabas::rcc::database::CDatabaseConnection m_dbConnection;
+		CView* m_pAppView;
+		CView* m_pCustomerView;
+		CView* m_pWorkorderView;
+
 public:
 	CRepairCafeCureApp() noexcept;
 
+private:
+	enum ViewType { VIEW_APP, VIEW_CUSTOMER, VIEW_WORKORDER };
+	CView* SwitchView(ViewType vtView);
 
 // Overrides
 public:
@@ -42,6 +52,9 @@ public:
 
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
+	afx_msg void OnCustomerView();
+	afx_msg void OnAppView();
+	afx_msg void OnWorkorderView();
 };
 
 extern CRepairCafeCureApp theApp;

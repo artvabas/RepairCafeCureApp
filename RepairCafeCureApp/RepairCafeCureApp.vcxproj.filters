@@ -60,6 +60,12 @@
     <ClInclude Include="securitydata.h">
       <Filter>Header Files\artvabas</Filter>
     </ClInclude>
+    <ClInclude Include="CCustomerView.h">
+      <Filter>Header Files\artvabas</Filter>
+    </ClInclude>
+    <ClInclude Include="CWorkorderView.h">
+      <Filter>Header Files\artvabas</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -78,6 +84,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CDatabaseConnection.cpp">
+      <Filter>Source Files\artvabas</Filter>
+    </ClCompile>
+    <ClCompile Include="CCustomerView.cpp">
+      <Filter>Source Files\artvabas</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorkorderView.cpp">
       <Filter>Source Files\artvabas</Filter>
     </ClCompile>
   </ItemGroup>

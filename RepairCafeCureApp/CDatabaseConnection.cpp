@@ -45,7 +45,6 @@
 */
 
 #include "pch.h"
-#include "resource.h"
 #include "securitydata.h"	// For security reasons, this file is not included in the repository.
 #include "CDatabaseConnection.h"
 
