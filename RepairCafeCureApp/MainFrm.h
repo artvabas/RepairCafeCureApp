@@ -24,6 +24,10 @@ protected: // create from serialization only
 // Attributes
 public:
 
+private:
+	CComboBox* pComboBox;
+
+
 // Operations
 public:
 

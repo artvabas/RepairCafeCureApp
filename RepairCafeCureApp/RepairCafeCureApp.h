@@ -20,6 +20,7 @@
 #include "resource.h"       // main symbols
 #include "CDatabaseConnection.h"
 
+using namespace artvabas::rcc::database;
 
 // CRepairCafeCureApp:
 // See RepairCafeCureApp.cpp for the implementation of this class
@@ -28,13 +29,15 @@
 class CRepairCafeCureApp : public CWinAppEx
 {
 private:
-		artvabas::rcc::database::CDatabaseConnection m_dbConnection;
+		
+		CDatabaseConnection* m_dbConnection;
 		CView* m_pAppView;
 		CView* m_pCustomerView;
 		CView* m_pWorkorderView;
 
 public:
 	CRepairCafeCureApp() noexcept;
+	virtual ~CRepairCafeCureApp();
 
 private:
 	enum ViewType { VIEW_APP, VIEW_CUSTOMER, VIEW_WORKORDER };
@@ -55,6 +58,13 @@ public:
 	afx_msg void OnCustomerView();
 	afx_msg void OnAppView();
 	afx_msg void OnWorkorderView();
+
+	public:
+		/// <summary>
+		/// Gets the database connection.
+		/// </summary>
+		/// <returns>artvabas::rcc::database::CDatabaseConnection&</returns>
+		inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
 };
 
 extern CRepairCafeCureApp theApp;

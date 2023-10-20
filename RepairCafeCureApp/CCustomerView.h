@@ -13,8 +13,12 @@ namespace artvabas
 			{
 				DECLARE_DYNCREATE(CCustomerView)
 
+			private:
+				CString m_strSearchCustomerSurname;
+				CButton m_btnCustomerSurnameSearch;
+
 			public:
-				CCustomerView();           // protected constructor used by dynamic creation
+				CCustomerView();          
 				virtual ~CCustomerView();
 
 			public:
@@ -27,11 +31,16 @@ namespace artvabas
 				virtual void Dump(CDumpContext& dc) const;
 #endif
 #endif
+			private:
+				virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 			protected:
 				virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 				DECLARE_MESSAGE_MAP()
+			private:
+				afx_msg void OnClickedCustomViewButtonSearch();
+				afx_msg void OnChangeCustomViewEditBoxSurnameSearch();
 			};
 		}
 	}

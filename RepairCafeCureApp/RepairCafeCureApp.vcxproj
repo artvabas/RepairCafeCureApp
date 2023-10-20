@@ -216,6 +216,7 @@
     <ClCompile Include="RepairCafeCureAppView.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="RepairCafeCureApp.reg" />
     <None Include="res\RepairCafeCureApp.rc2" />
     <None Include="res\ribbon.mfcribbon-ms" />

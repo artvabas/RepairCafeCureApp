@@ -42,10 +42,16 @@ END_MESSAGE_MAP()
 CMainFrame::CMainFrame() noexcept
 {
 	// TODO: add member initialization code here
+	pComboBox = new CComboBox();
 }
 
 CMainFrame::~CMainFrame()
 {
+	if (pComboBox != nullptr)
+	{
+		delete pComboBox;
+		pComboBox = nullptr;
+	}	
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -127,14 +133,14 @@ BOOL CMainFrame::CreateCaptionBar()
 
 	//*******************************************************************************
 	// Make a new ComboBox
-	CComboBox* pComboBox = new CComboBox;
 	// Make Combobox visible
-	pComboBox->Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar, IDC_CAPTION_NAME_COMBOBOX);
+	pComboBox->Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar, IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME);
 
 	// Add items to combobox
 	pComboBox->AddString(_T("Item 1"));
 	pComboBox->AddString(_T("Item 2"));
 	pComboBox->AddString(_T("Item 3"));
+	auto f = theApp.GetDatabaseConnection();
 	//*********************************************************************************************
 	return TRUE;
 }

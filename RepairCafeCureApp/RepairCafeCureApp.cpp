@@ -53,6 +53,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	: m_pAppView(NULL)
 	, m_pCustomerView(NULL)
 	, m_pWorkorderView(NULL)
+	, m_dbConnection(new CDatabaseConnection())
 
 {
 
@@ -64,6 +65,16 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	// Place all significant initialization in InitInstance
 	
 }
+
+CRepairCafeCureApp::~CRepairCafeCureApp()
+{
+	if (NULL != m_dbConnection)
+	{
+		delete m_dbConnection;
+		m_dbConnection = NULL;
+	}
+}
+
 
 CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 {
@@ -85,7 +96,7 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 			break;
 	}
 
-	// Exchange view window IDs so RecalcLayout() works.
+	
 #ifndef _WIN32
 	UINT temp = ::GetWindowWord(pActiveView->m_hWnd, GWW_ID);
 	::SetWindowWord(pActiveView->m_hWnd, GWW_ID, ::GetWindowWord(pNewView->m_hWnd, GWW_ID));
@@ -105,7 +116,6 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 }
 
 // The one and only CRepairCafeCureApp object
-
 CRepairCafeCureApp theApp;
 
 
@@ -192,6 +202,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	CView* pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
 	m_pAppView = pView;
 
+	
 	m_pCustomerView = (CView*)new CCustomerView;
 	if (NULL == m_pCustomerView) return FALSE;
 
@@ -212,14 +223,12 @@ BOOL CRepairCafeCureApp::InitInstance()
 	newContext.m_pCurrentDoc = pDoc;
 
 	// The ID of the initial active view is AFX_IDW_PANE_FIRST.
-	// Incrementing this value by one for additional views works
-	// in the standard document/view case but the technique cannot
-	// be extended for the CSplitterWnd case.
+	// Incrementing this value by one for additional views
 	UINT viewCustomerID = AFX_IDW_PANE_FIRST + 1;
 	UINT viewWorkorderID = AFX_IDW_PANE_FIRST + 2;
 	CRect rect(0, 0, 0, 0); // Gets resized later.
 
-	// Create the new view. In this example, the view persists for
+	// Create the new view. The view persists for
 	// the life of the application. The application automatically
 	// deletes the view when the application is closed.
 	m_pCustomerView->Create(NULL, _T("Customer"), WS_CHILD, rect, m_pMainWnd, viewCustomerID, &newContext);
@@ -313,9 +322,6 @@ void CRepairCafeCureApp::SaveCustomState()
 }
 
 // CRepairCafeCureApp message handlers
-
-
-
 
 
 void CRepairCafeCureApp::OnCustomerView()

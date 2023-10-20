@@ -31,14 +31,16 @@
 #define IDS_CAPTION_IMAGE_TEXT          235
 #define IDS_EDIT_MENU                   306
 #define IDR_RIBBON                      307
-#define IDC_CAPTION_NAME_COMBOBOX       310
-#define IDS_ODBC_DRIVER                 311
 #define IDD_CUSTOMER_FORM               312
 #define IDD_WORKORDER_FORM              313
+#define IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME 314
+#define IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH 1001
+#define IDC_CUSTVIEW_BUTTON_SEARCH      1002
+#define IDC_BUTTON1                     1003
+#define IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER 1003
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_WORKORDER_VIEW               32774
-#define ID_BUTTON4                      32775
 #define ID_APP_VIEW                     32775
 
 // Next default values for new objects
@@ -47,7 +49,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        314
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1000
-#define _APS_NEXT_SYMED_VALUE           314
+#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_SYMED_VALUE           315
 #endif
 #endif
