@@ -28,7 +28,7 @@ using namespace artvabas::rcc::database;
 
 class CRepairCafeCureApp : public CWinAppEx
 {
-private:
+private: // private members
 		
 		CDatabaseConnection* m_dbConnection;
 		CView* m_pAppView;

@@ -25,7 +25,7 @@ protected: // create from serialization only
 public:
 
 private:
-	CComboBox* pComboBox;
+	CComboBox* m_pCmbCaptionBarEmployeeName;
 
 
 // Operations
@@ -59,6 +59,8 @@ protected:
 	afx_msg void OnFilePrint();
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnUpdateFilePrintPreview(CCmdUI* pCmdUI);
+public:
+	afx_msg void OnCaptionBarComboBoxEmployeeNameChange();
 	DECLARE_MESSAGE_MAP()
 
 	BOOL CreateCaptionBar();

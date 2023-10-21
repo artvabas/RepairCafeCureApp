@@ -35,22 +35,25 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CMainFrame::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnFilePrintPreview)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateFilePrintPreview)
+	ON_CBN_SELCHANGE(IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME, &CMainFrame::OnCaptionBarComboBoxEmployeeNameChange)
 END_MESSAGE_MAP()
+
+
 
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame() noexcept
 {
 	// TODO: add member initialization code here
-	pComboBox = new CComboBox();
+	m_pCmbCaptionBarEmployeeName = new CComboBox();
 }
 
 CMainFrame::~CMainFrame()
 {
-	if (pComboBox != nullptr)
+	if (m_pCmbCaptionBarEmployeeName != nullptr)
 	{
-		delete pComboBox;
-		pComboBox = nullptr;
+		delete m_pCmbCaptionBarEmployeeName;
+		m_pCmbCaptionBarEmployeeName = nullptr;
 	}	
 }
 
@@ -134,13 +137,15 @@ BOOL CMainFrame::CreateCaptionBar()
 	//*******************************************************************************
 	// Make a new ComboBox
 	// Make Combobox visible
-	pComboBox->Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar, IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME);
+	m_pCmbCaptionBarEmployeeName->Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar, IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME);
 
 	// Add items to combobox
-	pComboBox->AddString(_T("Item 1"));
-	pComboBox->AddString(_T("Item 2"));
-	pComboBox->AddString(_T("Item 3"));
-	auto f = theApp.GetDatabaseConnection();
+	m_pCmbCaptionBarEmployeeName->AddString(_T(""));
+	m_pCmbCaptionBarEmployeeName->AddString(_T("Item 1"));
+	m_pCmbCaptionBarEmployeeName->AddString(_T("Item 2"));
+	m_pCmbCaptionBarEmployeeName->AddString(_T("Item 3"));
+	m_pCmbCaptionBarEmployeeName->SetCurSel(0);
+	//auto f = theApp.GetDatabaseConnection();
 	//*********************************************************************************************
 	return TRUE;
 }
@@ -202,4 +207,25 @@ void CMainFrame::OnFilePrintPreview()
 void CMainFrame::OnUpdateFilePrintPreview(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(IsPrintPreview());
+}
+
+/// <summary>
+/// This function is called when the user changes the selected item in the combobox on the caption bar
+/// Get the active view and update the data
+/// </summary>
+void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
+{	
+	if(m_pCmbCaptionBarEmployeeName == nullptr) return;
+
+	CView* pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+	if (m_pCmbCaptionBarEmployeeName->GetCurSel() != 0)
+	{
+		CView* pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+		pView->SendMessage(WM_UPDATEUISTATE, 1);
+	}
+	else
+	{
+		CView* pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
+		pView->SendMessage(WM_UPDATEUISTATE, 0);
+	}
 }

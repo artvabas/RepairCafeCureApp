@@ -16,6 +16,7 @@ namespace artvabas
 			private:
 				CString m_strSearchCustomerSurname;
 				CButton m_btnCustomerSurnameSearch;
+				CButton m_btnAddNewCustomer;
 
 			public:
 				CCustomerView();          
@@ -41,6 +42,7 @@ namespace artvabas
 			private:
 				afx_msg void OnClickedCustomViewButtonSearch();
 				afx_msg void OnChangeCustomViewEditBoxSurnameSearch();
+				afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
 			};
 		}
 	}

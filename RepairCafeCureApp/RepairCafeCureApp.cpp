@@ -112,7 +112,7 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 	((CFrameWnd*)m_pMainWnd)->SetActiveView(pNewView);
 	((CFrameWnd*)m_pMainWnd)->RecalcLayout();
 	pNewView->Invalidate();
-	return pActiveView;
+	return pNewView;// pActiveView;
 }
 
 // The one and only CRepairCafeCureApp object
@@ -327,6 +327,14 @@ void CRepairCafeCureApp::SaveCustomState()
 void CRepairCafeCureApp::OnCustomerView()
 {
 	SwitchView(VIEW_CUSTOMER);
+
+	// Get a pointer to the main frame window.
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	if (pMainFrm != NULL)
+	{
+		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
+	}
 }
 
 
@@ -340,3 +348,4 @@ void CRepairCafeCureApp::OnWorkorderView()
 {
 	SwitchView(VIEW_WORKORDER);
 }
+
