@@ -61,28 +61,67 @@
 using namespace artvabas::rcc::database;
 using namespace artvabas::rcc::database::security::data;
 
-/* Constructor and destructor */
-
-/// <summary>
-/// Initializes a new instance of the <see cref="CDatabaseConnection"/> class.
-/// </summary>
 CDatabaseConnection::CDatabaseConnection()
-	: m_dataBaseInstance()
-	, m_sDriver(ODBC_DRIVER_NAME)
+	//: m_dataBaseInstance()
+	: m_sDriver(ODBC_DRIVER_NAME)
 {
 	m_strDsn = GetConnectionString();
+	
+}
+
+CDatabaseConnection::~CDatabaseConnection()
+{
+	if (IsOpen()) Close();
+}
+
+/* General public methods */
+
+/// <summary>
+/// Opens the query.
+/// </summary>
+/// <param name="rcsRecords">The CRecordSet instance as reference.</param>
+/// <param name="strQuery">The string query.</param>
+/// <returns>TRUE if successful, FALSE otherwise</returns>
+BOOL CDatabaseConnection::OpenQuery(CRecordset* rcsRecords, CString& strQuery)
+{
+	try
+	{
+		if (Open(NULL, false, false, m_strDsn))
+		{
+			rcsRecords->m_pDatabase = this;
+			rcsRecords->Open(CRecordset::forwardOnly, strQuery, CRecordset::readOnly);
+			return TRUE;
+		}
+		else
+		{
+			AfxMessageBox(_T("Unable to open database"));
+			return FALSE;
+		}
+	}
+	catch (CDBException* e)
+	{
+		AfxMessageBox(e->m_strError);
+		e->Delete();
+		return FALSE;
+	}
+	catch (...)
+	{
+		AfxMessageBox(_T("Unable to open database"));
+		return FALSE;
+	}
 }
 
 /// <summary>
-/// Finalizes an instance of the <see cref="CDatabaseConnection"/> class.
-/// Close the database connection
+/// Closes the query.
 /// </summary>
-/// <returns></returns>
-CDatabaseConnection::~CDatabaseConnection()
+/// <param name="rcsRecords">The CRecordSet instance as reference.</param>
+void CDatabaseConnection::CloseQuery(CRecordset* rcsRecords)
 {
-	if (m_dataBaseInstance.IsOpen())
-		m_dataBaseInstance.Close();
+	rcsRecords->Close();
+	Close();
 }
+
+/* General private methods */
 
 /// <summary>
 /// Gets the connection string (DSN).
@@ -258,10 +297,10 @@ CString CDatabaseConnection::CreateConnectionString()
 
 	try
 	{
-		if (m_dataBaseInstance.Open(NULL, false, false, sDsn))
+		if (/*m_dataBaseInstance.*/Open(NULL, false, false, sDsn))
 		{
-			sDsn = m_dataBaseInstance.GetConnect();
-			m_dataBaseInstance.Close();
+			sDsn = /*m_dataBaseInstance.*/GetConnect();
+			/*m_dataBaseInstance.*/Close();
 
 			//Get the credentials from the connection string
 			// User ID

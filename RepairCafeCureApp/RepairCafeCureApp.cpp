@@ -1,17 +1,47 @@
-// This MFC Samples source code demonstrates using MFC Microsoft Office Fluent User Interface
-// (the "Fluent UI") and is provided only as referential material to supplement the
-// Microsoft Foundation Classes Reference and related electronic documentation
-// included with the MFC C++ library software.
-// License terms to copy, use or distribute the Fluent UI are available separately.
-// To learn more about our Fluent UI licensing program, please visit
-// https://go.microsoft.com/fwlink/?LinkId=238214.
-//
-// Copyright (C) Microsoft Corporation
-// All rights reserved.
+/*
+	Copyright (C) 2023  artvabas
 
-// RepairCafeCureApp.cpp : Defines the class behaviors for the application.
-//
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+	To see the license for this source code, please visit:
+		<https://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit:
+		<https://artvabas.com>
+		<https://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at:
+		<https://artvabas.com/contact>
+
+*/
+
+/*
+* This file is part of RepairCafeCureApp.
+* File: RepairCafeCureApp.cpp, defines class CRepairCafeCureApp
+*
+* This class is the main application class. It is used to create the database connection and
+* to switch between the views.
+*
+* Target: Windows 10/11 64bit
+* Version: 1.0.230.0
+* Created: 11-10-2023, (dd-mm-yyyy)
+* Updated: 23-10-2023, (dd-mm-yyyy)
+* Creator: artvabasDev / artvabas
+*
+* Description: Main application class for RepairCafeCureApp
+* License: GPLv3
+*/
 #include "pch.h"
 #include "framework.h"
 #include "afxwinappex.h"
@@ -32,8 +62,10 @@
 
 using namespace artvabas::rcc::ui;
 
-// CRepairCafeCureApp
+/* Globals */
+CRepairCafeCureApp theApp; // The one and only CRepairCafeCureApp object
 
+/* Messages Maps */
 BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CRepairCafeCureApp::OnAppAbout)
 	// Standard file based document commands
@@ -46,24 +78,13 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_WORKORDER_VIEW, &CRepairCafeCureApp::OnWorkorderView)
 END_MESSAGE_MAP()
 
-
-// CRepairCafeCureApp construction
-
 CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	: m_pAppView(NULL)
 	, m_pCustomerView(NULL)
 	, m_pWorkorderView(NULL)
 	, m_dbConnection(new CDatabaseConnection())
-
 {
-
-	// TODO: replace application ID string below with unique ID string; recommended
-	// format for string is CompanyName.ProductName.SubProduct.VersionInformation
 	SetAppID(_T("RepairCafeCureApp.AppID.0.0.1.0"));
-
-	// TODO: add construction code here,
-	// Place all significant initialization in InitInstance
-	
 }
 
 CRepairCafeCureApp::~CRepairCafeCureApp()
@@ -75,64 +96,10 @@ CRepairCafeCureApp::~CRepairCafeCureApp()
 	}
 }
 
-
-CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
-{
-	CView* pActiveView = ((CFrameWnd*)m_pMainWnd)->GetActiveView();
-
-	CView* pNewView = NULL;
-
-	switch (vtView)
-	{
-		case VIEW_CUSTOMER:
-			pNewView = m_pCustomerView;
-			break;
-		case VIEW_WORKORDER:
-			pNewView = m_pWorkorderView;
-			break;
-		case VIEW_APP:
-		default:
-			pNewView = m_pAppView;
-			break;
-	}
-
-	
-#ifndef _WIN32
-	UINT temp = ::GetWindowWord(pActiveView->m_hWnd, GWW_ID);
-	::SetWindowWord(pActiveView->m_hWnd, GWW_ID, ::GetWindowWord(pNewView->m_hWnd, GWW_ID));
-	::SetWindowWord(pNewView->m_hWnd, GWW_ID, temp);
-#else
-	UINT temp = ::GetWindowLong(pActiveView->m_hWnd, GWL_ID);
-	::SetWindowLong(pActiveView->m_hWnd, GWL_ID, ::GetWindowLong(pNewView->m_hWnd, GWL_ID));
-	::SetWindowLong(pNewView->m_hWnd, GWL_ID, temp);
-#endif
-
-	pActiveView->ShowWindow(SW_HIDE);
-	pNewView->ShowWindow(SW_SHOW);
-	((CFrameWnd*)m_pMainWnd)->SetActiveView(pNewView);
-	((CFrameWnd*)m_pMainWnd)->RecalcLayout();
-	pNewView->Invalidate();
-	return pNewView;// pActiveView;
-}
-
-// The one and only CRepairCafeCureApp object
-CRepairCafeCureApp theApp;
-
-
+/* Overrides */
 // CRepairCafeCureApp initialization
-
 BOOL CRepairCafeCureApp::InitInstance()
 {
-	// InitCommonControlsEx() is required on Windows XP if an application
-	// manifest specifies use of ComCtl32.dll version 6 or later to enable
-	// visual styles.  Otherwise, any window creation will fail.
-	INITCOMMONCONTROLSEX InitCtrls;
-	InitCtrls.dwSize = sizeof(InitCtrls);
-	// Set this to include all the common control classes you want to use
-	// in your application.
-	InitCtrls.dwICC = ICC_WIN95_CLASSES;
-	InitCommonControlsEx(&InitCtrls);
-
 	CWinAppEx::InitInstance();
 
 
@@ -145,19 +112,8 @@ BOOL CRepairCafeCureApp::InitInstance()
 
 	EnableTaskbarInteraction(FALSE);
 
-	// AfxInitRichEdit2() is required to use RichEdit control
-	// AfxInitRichEdit2();
-
-	// Standard initialization
-	// If you are not using these features and wish to reduce the size
-	// of your final executable, you should remove from the following
-	// the specific initialization routines you do not need
-	// Change the registry key under which our settings are stored
-	// TODO: You should modify this string to be something appropriate
-	// such as the name of your company or organization
 	SetRegistryKey(_T("artvabas\\Repair cafe cure"));
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
-
 
 	InitContextMenuManager();
 
@@ -181,7 +137,6 @@ BOOL CRepairCafeCureApp::InitInstance()
 		return FALSE;
 	AddDocTemplate(pDocTemplate);
 
-
 	// Parse command line for standard shell commands, DDE, file open
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
@@ -189,7 +144,6 @@ BOOL CRepairCafeCureApp::InitInstance()
 	// Enable DDE Execute open
 	EnableShellOpen();
 	RegisterShellFileTypes(TRUE);
-
 
 	// Dispatch commands specified on the command line.  Will return FALSE if
 	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
@@ -202,7 +156,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	CView* pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
 	m_pAppView = pView;
 
-	
+
 	m_pCustomerView = (CView*)new CCustomerView;
 	if (NULL == m_pCustomerView) return FALSE;
 
@@ -252,6 +206,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	return TRUE;
 }
 
+// CRepairCafeCureApp exit instance 
 int CRepairCafeCureApp::ExitInstance()
 {
 	//TODO: handle additional resources you may have added
@@ -260,10 +215,123 @@ int CRepairCafeCureApp::ExitInstance()
 	return CWinAppEx::ExitInstance();
 }
 
-// CRepairCafeCureApp message handlers
+// CRepairCafeCureApp customization load/save methods
+void CRepairCafeCureApp::PreLoadState()
+{
+	BOOL bNameValid;
+	CString strName;
+	bNameValid = strName.LoadString(IDS_EDIT_MENU);
+	ASSERT(bNameValid);
+	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
+}
 
+// CRepairCafeCureApp customization load/save methods
+void CRepairCafeCureApp::LoadCustomState()
+{
+}
 
-// CAboutDlg dialog used for App About
+// CRepairCafeCureApp customization load/save methods
+void CRepairCafeCureApp::SaveCustomState()
+{
+}
+
+/*Messages Handlers*/
+
+/// <summary>
+/// This method is called when the user clicks on the Customer menu item.
+/// It switches the view to the Customer view.
+/// </summary>
+void CRepairCafeCureApp::OnCustomerView()
+{
+	SwitchView(VIEW_CUSTOMER);
+
+	// Get a pointer to the main frame window.
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	if (pMainFrm != NULL)
+	{
+		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
+	}
+}
+
+/// <summary>
+/// This method is called when the user clicks on the App menu item.
+/// It switches the view to the App view.
+/// </summary>
+void CRepairCafeCureApp::OnAppView()
+{
+	SwitchView(VIEW_APP);
+}
+
+/// <summary>
+/// This method is called when the user clicks on the Workorder menu item.
+/// It switches the view to the Workorder view.
+/// </summary>
+void CRepairCafeCureApp::OnWorkorderView()
+{
+	SwitchView(VIEW_WORKORDER);
+}
+
+/*Custom methods*/
+
+/// <summary>
+/// This method is used to switch between the views.
+/// </summary>
+/// <param name="vtView">The view to switch to.</param>
+/// <returns>CView* The new view.</returns>
+CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
+{
+	CView* pActiveView = ((CFrameWnd*)m_pMainWnd)->GetActiveView();
+	CView* pNewView = NULL;
+
+	switch (vtView)
+	{
+		case VIEW_CUSTOMER:
+			pNewView = m_pCustomerView;
+			break;
+		case VIEW_WORKORDER:
+			pNewView = m_pWorkorderView;
+			break;
+		case VIEW_APP:
+		default:
+			pNewView = m_pAppView;
+			break;
+	}
+
+#ifndef _WIN32
+	UINT temp = ::GetWindowWord(pActiveView->m_hWnd, GWW_ID);
+	::SetWindowWord(pActiveView->m_hWnd, GWW_ID, ::GetWindowWord(pNewView->m_hWnd, GWW_ID));
+	::SetWindowWord(pNewView->m_hWnd, GWW_ID, temp);
+#else
+	UINT temp = ::GetWindowLong(pActiveView->m_hWnd, GWL_ID);
+	::SetWindowLong(pActiveView->m_hWnd, GWL_ID, ::GetWindowLong(pNewView->m_hWnd, GWL_ID));
+	::SetWindowLong(pNewView->m_hWnd, GWL_ID, temp);
+#endif
+
+	pActiveView->ShowWindow(SW_HIDE);
+	pNewView->ShowWindow(SW_SHOW);
+	((CFrameWnd*)m_pMainWnd)->SetActiveView(pNewView);
+	((CFrameWnd*)m_pMainWnd)->RecalcLayout();
+	pNewView->Invalidate();
+	return pNewView;// pActiveView;
+}
+//**************************************************************************************************************
+
+/*
+* This class is part of RepairCafeCureApp.
+* class: CAboutDlg, defines class CAboutDlg
+*
+* This class is used to show the about dialog.
+*
+* Target: Windows 10/11 64bit
+* Version: 1.0.230.0
+* Created: 11-10-2023, (dd-mm-yyyy)
+* Updated: 23-10-2023, (dd-mm-yyyy)
+* Creator: artvabasDev / artvabas
+*
+* Description: Main application class for RepairCafeCureApp
+* License: GPLv3
+*/
 
 class CAboutDlg : public CDialogEx
 {
@@ -295,57 +363,12 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-// App command to run the dialog
+/// <summary>
+/// This method is called when the user clicks on the About menu item.
+/// It shows the about dialog.
+/// </summary>
 void CRepairCafeCureApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
 }
-
-// CRepairCafeCureApp customization load/save methods
-
-void CRepairCafeCureApp::PreLoadState()
-{
-	BOOL bNameValid;
-	CString strName;
-	bNameValid = strName.LoadString(IDS_EDIT_MENU);
-	ASSERT(bNameValid);
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
-}
-
-void CRepairCafeCureApp::LoadCustomState()
-{
-}
-
-void CRepairCafeCureApp::SaveCustomState()
-{
-}
-
-// CRepairCafeCureApp message handlers
-
-
-void CRepairCafeCureApp::OnCustomerView()
-{
-	SwitchView(VIEW_CUSTOMER);
-
-	// Get a pointer to the main frame window.
-	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	if (pMainFrm != NULL)
-	{
-		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
-		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
-	}
-}
-
-
-void CRepairCafeCureApp::OnAppView()
-{
-	SwitchView(VIEW_APP);
-}
-
-
-void CRepairCafeCureApp::OnWorkorderView()
-{
-	SwitchView(VIEW_WORKORDER);
-}
-

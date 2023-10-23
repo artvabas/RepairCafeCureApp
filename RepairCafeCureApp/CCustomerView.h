@@ -3,12 +3,12 @@
 
 
 // CCustomerView form view
-namespace artvabas
-{
-	namespace rcc
-	{
-		namespace ui
-		{
+//namespace artvabas
+//{
+	//namespace rcc
+	//{
+		//namespace ui
+		//{
 			class CCustomerView : public CFormView
 			{
 				DECLARE_DYNCREATE(CCustomerView)
@@ -17,6 +17,8 @@ namespace artvabas
 				CString m_strSearchCustomerSurname;
 				CButton m_btnCustomerSurnameSearch;
 				CButton m_btnAddNewCustomer;
+			public:
+				CMFCShellListCtrl m_ctrExistingCustomerList;
 
 			public:
 				CCustomerView();          
@@ -44,10 +46,6 @@ namespace artvabas
 				afx_msg void OnChangeCustomViewEditBoxSurnameSearch();
 				afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
 			};
-		}
-	}
-}
-
-
-
-
+		//}
+	//}
+//}

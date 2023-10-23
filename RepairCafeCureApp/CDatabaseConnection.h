@@ -52,15 +52,23 @@ namespace artvabas
 	{
 		namespace database
 		{
-			class CDatabaseConnection
+			class CDatabaseConnection : public CDatabase
 			{
-				// Attributes
+			// Members
 			private:
 				CString m_sDriver;
 				CString m_strDsn;
-				CDatabase m_dataBaseInstance;
+				
+			public:
+				CDatabaseConnection();
+				virtual ~CDatabaseConnection();
 
-				// Operations
+			// General Methods
+			public:
+				// inline method for getting the database instance
+				inline CDatabase* GetDatabaseInstance() { return this;};
+				BOOL OpenQuery(CRecordset* prcsRecords, CString& strQuery);
+				void CloseQuery(CRecordset* rcsRecords);
 			private:
 				CString GetConnectionString();
 				CString CreateConnectionString();
@@ -69,15 +77,6 @@ namespace artvabas
 				void RemoveCredentials(CString& strUser, CString& strPassword, CString& strDsn);
 				void SaveConnectionString(CString& strUser, CString& strPassword, CString& strDsn);
 				void AddCredentials(CString& strUser, CString& strPassword, CString& strDsn);
-
-				// Overrides
-			public:
-
-
-				// Implementation
-			public:
-				CDatabaseConnection();
-				virtual ~CDatabaseConnection();
 			};
 		}
 	}

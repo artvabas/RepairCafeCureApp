@@ -1,16 +1,47 @@
-// This MFC Samples source code demonstrates using MFC Microsoft Office Fluent User Interface
-// (the "Fluent UI") and is provided only as referential material to supplement the
-// Microsoft Foundation Classes Reference and related electronic documentation
-// included with the MFC C++ library software.
-// License terms to copy, use or distribute the Fluent UI are available separately.
-// To learn more about our Fluent UI licensing program, please visit
-// https://go.microsoft.com/fwlink/?LinkId=238214.
-//
-// Copyright (C) Microsoft Corporation
-// All rights reserved.
+/*
+	Copyright (C) 2023  artvabas
 
-// RepairCafeCureApp.h : main header file for the RepairCafeCureApp application
-//
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+	To see the license for this source code, please visit:
+		<https://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit:
+		<https://artvabas.com>
+		<https://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at:
+		<https://artvabas.com/contact>
+
+*/
+
+/*
+* This file is part of RepairCafeCureApp.
+* File: RepairCafeCureApp.h, defines class CRepairCafeCureApp
+*
+* This class is the main application class. It is used to create the database connection and
+* to switch between the views.
+*
+* Target: Windows 10/11 64bit
+* Version: 1.0.230.0
+* Created: 11-10-2023, (dd-mm-yyyy)
+* Updated: 23-10-2023, (dd-mm-yyyy)
+* Creator: artvabasDev / artvabas
+*
+* Description: Main application class for RepairCafeCureApp
+* License: GPLv3
+*/
 #pragma once
 
 #ifndef __AFXWIN_H__
@@ -22,49 +53,43 @@
 
 using namespace artvabas::rcc::database;
 
-// CRepairCafeCureApp:
-// See RepairCafeCureApp.cpp for the implementation of this class
-//
-
 class CRepairCafeCureApp : public CWinAppEx
 {
-private: // private members
-		
+// Members 
+private:
 		CDatabaseConnection* m_dbConnection;
 		CView* m_pAppView;
 		CView* m_pCustomerView;
 		CView* m_pWorkorderView;
 
+		enum ViewType { VIEW_APP, VIEW_CUSTOMER, VIEW_WORKORDER };
+
 public:
 	CRepairCafeCureApp() noexcept;
 	virtual ~CRepairCafeCureApp();
 
-private:
-	enum ViewType { VIEW_APP, VIEW_CUSTOMER, VIEW_WORKORDER };
-	CView* SwitchView(ViewType vtView);
-
 // Overrides
 public:
-	virtual BOOL InitInstance();
-	virtual int ExitInstance();
+	BOOL InitInstance() override;
+	int ExitInstance() override;
+	void PreLoadState() override;
+	void LoadCustomState() override;
+	void SaveCustomState() override;
 
-// Implementation
-	virtual void PreLoadState();
-	virtual void LoadCustomState();
-	virtual void SaveCustomState();
-
+// Merage handlers
+private:
 	afx_msg void OnAppAbout();
-	DECLARE_MESSAGE_MAP()
 	afx_msg void OnCustomerView();
 	afx_msg void OnAppView();
 	afx_msg void OnWorkorderView();
+	DECLARE_MESSAGE_MAP()
 
-	public:
-		/// <summary>
-		/// Gets the database connection.
-		/// </summary>
-		/// <returns>artvabas::rcc::database::CDatabaseConnection&</returns>
-		inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
+// General methods
+public:
+	// inline methods for getting the database connection
+	inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
+private:
+	CView* SwitchView(ViewType vtView);
 };
 
 extern CRepairCafeCureApp theApp;

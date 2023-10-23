@@ -5,7 +5,7 @@
 #include "RepairCafeCureApp.h"
 #include "CCustomerView.h"
 
-using namespace artvabas::rcc::ui;
+//using namespace artvabas::rcc::ui;
 // CCustomerView
 
 IMPLEMENT_DYNCREATE(CCustomerView, CFormView)
@@ -14,11 +14,11 @@ CCustomerView::CCustomerView()
 	: CFormView(IDD_CUSTOMER_FORM)
 	, m_strSearchCustomerSurname(_T(""))
 {
-
 }
 
 CCustomerView::~CCustomerView()
 {
+	
 }
 
 void CCustomerView::DoDataExchange(CDataExchange* pDX)
@@ -28,6 +28,7 @@ void CCustomerView::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_strSearchCustomerSurname, 50);
 	DDX_Control(pDX, IDC_CUSTVIEW_BUTTON_SEARCH, m_btnCustomerSurnameSearch);
 	DDX_Control(pDX, IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER, m_btnAddNewCustomer);
+	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_LIST, m_ctrExistingCustomerList);
 }
 
 BEGIN_MESSAGE_MAP(CCustomerView, CFormView)
@@ -88,7 +89,16 @@ BOOL CCustomerView::PreTranslateMessage(MSG* pMsg)
 void CCustomerView::OnClickedCustomViewButtonSearch()
 {
 	UpdateData(TRUE);
+	m_ctrExistingCustomerList.DeleteAllItems();
+	while (m_ctrExistingCustomerList.DeleteColumn(0));
+	m_ctrExistingCustomerList.InsertColumn(0, _T("ID"), LVCFMT_LEFT, 50);
+	m_ctrExistingCustomerList.InsertColumn(1, _T("NAME"), LVCFMT_LEFT, 50);
 
+	m_ctrExistingCustomerList.InsertItem(0, _T("1"));
+	m_ctrExistingCustomerList.SetItemText(0, 1, _T("John"));
+
+	m_ctrExistingCustomerList.InsertItem(1, _T("2"));
+	m_ctrExistingCustomerList.SetItemText(1, 1, _T("Doe"));
 }
 
 /// <summary>
