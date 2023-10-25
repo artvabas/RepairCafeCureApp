@@ -3,12 +3,12 @@
 
 
 // CCustomerView form view
-//namespace artvabas
-//{
-	//namespace rcc
-	//{
-		//namespace ui
-		//{
+namespace artvabas
+{
+	namespace rcc
+	{
+		namespace ui
+		{
 			class CCustomerView : public CFormView
 			{
 				DECLARE_DYNCREATE(CCustomerView)
@@ -28,6 +28,7 @@
 				CEdit m_ctrCustomerName;
 				CEdit m_ctrCustomerPhone;
 				CEdit m_ctrCustomerSurname;
+				CEdit m_ctrlCustomerEmail;
 
 				CString m_strSearchCustomerSurname;
 				CString m_strCustomerCellPhone;
@@ -36,6 +37,10 @@
 				CString m_strCustomerName;
 				CString m_strCustomerPhone;
 				CString m_strCustomerSurname;
+				CString m_strCustomerEmail;
+
+				bool m_bIsNewCustomer;
+				bool m_bIsDirtyCustomerDetails;
 
 			public:
 				CCustomerView();          
@@ -62,10 +67,18 @@
 				afx_msg void OnChangeCustomViewEditBoxSurnameSearch();
 				afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
 				afx_msg void OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pResult);
-			public:
 				afx_msg void OnChangeCustViewCustomerDetails();
 				afx_msg void OnClickedCustViewButtonAddNewCustomer();
+				afx_msg void OnClickedCustViewButtonCustomerAdd();
+				afx_msg void OnClickedCustViewButtonCustomerUpdate();
+
+			private:
+				void DisableCustomerSearchAndAddButtons();
+				void UpdateCustomerDetailsControls(BOOL bShow = TRUE);
+				void EnableCustomerDetailsButtons();
+				void EmptyCustomerDetailsControls();
+				void EmptyAndDisableExistingCustomersList();
 			};
-		//}
-	//}
-//}
+		}
+	}
+}

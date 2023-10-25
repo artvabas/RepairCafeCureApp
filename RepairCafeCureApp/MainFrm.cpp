@@ -287,7 +287,7 @@ BOOL CMainFrame::CreateCaptionBar()
 	m_wndStatusBar.SetInformation(strTemp);
 
 	// Add items to comboBox
-	m_pCmbCaptionBarEmployeeName->AddString(_T(""));
+	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
 	CRecordset* rs = new CRecordset();
 	CString strQuery = _T("SELECT EMPLOYEE_NAME FROM EMPLOYEE ORDER BY EMPLOYEE_NAME");
 	theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery);

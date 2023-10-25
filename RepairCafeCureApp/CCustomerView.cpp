@@ -5,7 +5,7 @@
 #include "RepairCafeCureApp.h"
 #include "CCustomerView.h"
 
-//using namespace artvabas::rcc::ui;
+using namespace artvabas::rcc::ui;
 // CCustomerView
 
 IMPLEMENT_DYNCREATE(CCustomerView, CFormView)
@@ -19,6 +19,9 @@ CCustomerView::CCustomerView()
 	, m_strCustomerName(_T(""))
 	, m_strCustomerPhone(_T(""))
 	, m_strCustomerSurname(_T(""))
+	, m_strCustomerEmail(_T(""))
+	, m_bIsNewCustomer(false)
+	, m_bIsDirtyCustomerDetails(false)
 {
 
 }
@@ -45,12 +48,14 @@ void CCustomerView::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_CUSTVIEW_CUSTOMER_NAME, m_strCustomerName);
 	DDX_Text(pDX, IDC_CUSTVIEW_CUSTOMER_PHONE, m_strCustomerPhone);
 	DDX_Text(pDX, IDC_CUSTVIEW_CUSTOMER_SURNAME, m_strCustomerSurname);
+	DDX_Text(pDX, IDC_CUSTVIEW_CUSTOMER_EMAIL, m_strCustomerEmail);
 	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_CELLPHONE, m_ctrCustomerCellPhone);
 	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_COMMENT, m_ctrCustomerComment);
 	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_LOG, m_ctrCustomerLog);
 	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_NAME, m_ctrCustomerName);
 	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_PHONE, m_ctrCustomerPhone);
 	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_SURNAME, m_ctrCustomerSurname);
+	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_EMAIL, m_ctrlCustomerEmail);
 }
 
 BEGIN_MESSAGE_MAP(CCustomerView, CFormView)
@@ -64,6 +69,9 @@ BEGIN_MESSAGE_MAP(CCustomerView, CFormView)
 	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_PHONE, &CCustomerView::OnChangeCustViewCustomerDetails)
 	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_COMMENT, &CCustomerView::OnChangeCustViewCustomerDetails)
 	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER, &CCustomerView::OnClickedCustViewButtonAddNewCustomer)
+	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_ADD, &CCustomerView::OnClickedCustViewButtonCustomerAdd)
+	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_UPDATE, &CCustomerView::OnClickedCustViewButtonCustomerUpdate)
+//ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_ASSETS, &CCustomerView::OnBnClickedCustviewButtonCustomerAssets)
 END_MESSAGE_MAP()
 
 
@@ -117,7 +125,6 @@ BOOL CCustomerView::PreTranslateMessage(MSG* pMsg)
 
 void CCustomerView::OnClickedCustomViewButtonSearch()
 {
-	UpdateData(TRUE);
 	m_btnAddNewCustomer.EnableWindow();
 	m_ctlExistingCustomersList.EnableWindow();
 
@@ -144,15 +151,24 @@ void CCustomerView::OnChangeCustomViewEditBoxSurnameSearch()
 	UpdateData(TRUE);
 	if (m_strSearchCustomerSurname.IsEmpty())
 	{
-		m_btnCustomerSurnameSearch.EnableWindow(FALSE);
-		m_btnAddNewCustomer.EnableWindow(FALSE);
+		DisableCustomerSearchAndAddButtons();
 	}
 	else
 	{
 		if(m_ctlExistingCustomersList.GetItemCount() > 0) 
 		{
-			m_ctlExistingCustomersList.DeleteAllItems();
-			m_ctlExistingCustomersList.EnableWindow(FALSE);
+			EmptyAndDisableExistingCustomersList();
+		}
+		
+		if (m_ctrCustomerSurname.IsWindowEnabled())
+		{
+			EnableCustomerDetailsButtons();
+			
+			UpdateCustomerDetailsControls(FALSE);
+
+			EmptyCustomerDetailsControls();
+
+			UpdateData(FALSE);
 		}
 
 		m_btnCustomerSurnameSearch.EnableWindow();
@@ -181,25 +197,15 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 			// nUIElement = 0 means this method is called by the framework when the view is activated, controls are accessible.	
 			if( 0 == nUIElement)
 			{
-				m_btnCustomerSurnameSearch.EnableWindow(FALSE);
-				m_btnAddNewCustomer.EnableWindow(FALSE);
-				m_btnAddCustomer.EnableWindow(FALSE);
-				m_btnCustomAssets.EnableWindow(FALSE);
-				m_btnUpdateCustomer.EnableWindow(FALSE);
-				m_ctrCustomerCellPhone.EnableWindow(FALSE);
-				m_ctrCustomerComment.EnableWindow(FALSE);
-				m_ctrCustomerLog.EnableWindow(FALSE);
-				m_ctrCustomerName.EnableWindow(FALSE);
-				m_ctrCustomerPhone.EnableWindow(FALSE);
-				m_ctrCustomerSurname.EnableWindow(FALSE);
-				m_ctlExistingCustomersList.EnableWindow(FALSE);
-				m_strSearchCustomerSurname.Empty();
-				m_strCustomerCellPhone.Empty();
-				m_strCustomerComment.Empty();
-				m_strCustomerLog.Empty();
-				m_strCustomerName.Empty();
-				m_strCustomerPhone.Empty();
-				m_strCustomerSurname.Empty();
+				DisableCustomerSearchAndAddButtons();
+
+				EnableCustomerDetailsButtons();
+				
+				UpdateCustomerDetailsControls(FALSE);
+
+				EmptyAndDisableExistingCustomersList();
+
+				EmptyCustomerDetailsControls();
 				UpdateData(FALSE);
 			}
 			break;
@@ -238,18 +244,28 @@ void CCustomerView::OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pR
 	//  pNMItemActivate->iItem = -1 means no existing item is selected.
 	if (pNMItemActivate->iItem != -1)
 	{
-		m_btnAddCustomer.EnableWindow(FALSE);
-		m_btnCustomerSurnameSearch.EnableWindow(FALSE);
+		m_bIsNewCustomer = false;
+		m_bIsDirtyCustomerDetails = false;
+		
+		// Disable the search button and the add new customer button.
+		DisableCustomerSearchAndAddButtons();
+
 		m_strSearchCustomerSurname.Empty();
 		
-		m_ctrCustomerCellPhone.EnableWindow();
-		m_ctrCustomerComment.EnableWindow();
-		m_ctrCustomerLog.EnableWindow();
-		m_ctrCustomerName.EnableWindow();
-		m_ctrCustomerPhone.EnableWindow();
-		m_ctrCustomerSurname.EnableWindow();
+		// Enable the customer details controls.
+		UpdateCustomerDetailsControls();
 
+		// Get the customer details from the selected item.
+		m_strCustomerSurname = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 0);
+		m_strCustomerName = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 1);
+		m_strCustomerCellPhone = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 2);
+		m_strCustomerPhone = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 3);
+		m_strCustomerEmail = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 4);
 		UpdateData(FALSE);
+
+		// Enable the customer Asset button and disable the add and update customer buttons.
+		OnChangeCustViewCustomerDetails();
+
 	}
 	*pResult = 0;
 }
@@ -261,30 +277,89 @@ void CCustomerView::OnChangeCustViewCustomerDetails()
 	if (m_strCustomerName.IsEmpty() || m_strCustomerSurname.IsEmpty() ||
 		(m_strCustomerCellPhone.IsEmpty() && m_strCustomerPhone.IsEmpty()))
 	{
-		m_btnAddCustomer.EnableWindow(FALSE);
-		m_btnCustomAssets.EnableWindow(FALSE);
-		m_btnUpdateCustomer.EnableWindow(FALSE);
+		EnableCustomerDetailsButtons();
 	}
 	else
 	{
-		m_btnAddCustomer.EnableWindow();
-		m_btnCustomAssets.EnableWindow();
-		m_btnUpdateCustomer.EnableWindow();
+		if (m_bIsDirtyCustomerDetails)
+		{
+			m_bIsNewCustomer ? m_btnAddCustomer.EnableWindow() : m_btnUpdateCustomer.EnableWindow();
+			m_btnCustomAssets.EnableWindow(FALSE);
+		}
+		else
+			m_btnCustomAssets.EnableWindow();
 	}
+	m_bIsDirtyCustomerDetails = true;
+	
 }
 
 
 
 void CCustomerView::OnClickedCustViewButtonAddNewCustomer()
 {
-	m_btnAddCustomer.EnableWindow(FALSE);
-	m_btnCustomerSurnameSearch.EnableWindow(FALSE);
-	m_strSearchCustomerSurname.Empty();
+	m_bIsNewCustomer = true;
+	UpdateData(TRUE);
 
-	m_ctrCustomerCellPhone.EnableWindow();
-	m_ctrCustomerComment.EnableWindow();
-	m_ctrCustomerLog.EnableWindow();
-	m_ctrCustomerName.EnableWindow();
-	m_ctrCustomerPhone.EnableWindow();
-	m_ctrCustomerSurname.EnableWindow();
+	DisableCustomerSearchAndAddButtons();
+
+	EmptyAndDisableExistingCustomersList();
+
+	UpdateCustomerDetailsControls();
+
+	m_strCustomerSurname = m_strSearchCustomerSurname;
+	m_strSearchCustomerSurname.Empty();
+	UpdateData(FALSE);
+}
+
+void CCustomerView::OnClickedCustViewButtonCustomerAdd()
+{
+	m_btnAddCustomer.EnableWindow(FALSE);
+	m_btnCustomAssets.EnableWindow();
+}
+
+void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
+{
+	m_btnUpdateCustomer.EnableWindow(FALSE);
+	m_btnCustomAssets.EnableWindow();
+}
+
+void CCustomerView::DisableCustomerSearchAndAddButtons()
+{
+	m_btnAddNewCustomer.EnableWindow(FALSE);
+	m_btnCustomerSurnameSearch.EnableWindow(FALSE);
+}
+
+void CCustomerView::UpdateCustomerDetailsControls(BOOL bShow)
+{
+	m_ctrCustomerCellPhone.EnableWindow(bShow);
+	m_ctrCustomerComment.EnableWindow(bShow);
+	m_ctrCustomerLog.EnableWindow(bShow);
+	m_ctrCustomerName.EnableWindow(bShow);
+	m_ctrCustomerPhone.EnableWindow(bShow);
+	m_ctrCustomerSurname.EnableWindow(bShow);
+	m_ctrlCustomerEmail.EnableWindow(bShow);
+}
+
+void CCustomerView::EnableCustomerDetailsButtons()
+{
+	m_btnAddCustomer.EnableWindow(FALSE);
+	m_btnCustomAssets.EnableWindow(FALSE);
+	m_btnUpdateCustomer.EnableWindow(FALSE);
+}
+
+void CCustomerView::EmptyCustomerDetailsControls()
+{
+	m_strCustomerCellPhone.Empty();
+	m_strCustomerComment.Empty();
+	m_strCustomerLog.Empty();
+	m_strCustomerName.Empty();
+	m_strCustomerPhone.Empty();
+	m_strCustomerSurname.Empty();
+	m_strCustomerEmail.Empty();
+}
+
+void CCustomerView::EmptyAndDisableExistingCustomersList()
+{
+	m_ctlExistingCustomersList.DeleteAllItems();
+	m_ctlExistingCustomersList.EnableWindow(FALSE);
 }
