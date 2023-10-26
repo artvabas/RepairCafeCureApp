@@ -75,7 +75,7 @@ namespace artvabas
 			private:
 				void DisableCustomerSearchAndAddButtons();
 				void UpdateCustomerDetailsControls(BOOL bShow = TRUE);
-				void EnableCustomerDetailsButtons();
+				void DisableCustomerDetailsButtons();
 				void EmptyCustomerDetailsControls();
 				void EmptyAndDisableExistingCustomersList();
 			};

@@ -21,7 +21,6 @@
 #endif
 
 #include "RepairCafeCureAppDoc.h"
-
 #include <propkey.h>
 
 #ifdef _DEBUG

@@ -77,7 +77,7 @@ public:
 	void SaveCustomState() override;
 
 // Merage handlers
-private:
+public:
 	afx_msg void OnAppAbout();
 	afx_msg void OnCustomerView();
 	afx_msg void OnAppView();
