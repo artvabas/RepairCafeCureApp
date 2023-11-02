@@ -38,6 +38,7 @@ namespace artvabas
 				CString m_strCustomerPhone;
 				CString m_strCustomerSurname;
 				CString m_strCustomerEmail;
+				int m_nCustomerID;
 
 				bool m_bIsNewCustomer;
 				bool m_bIsDirtyCustomerDetails;

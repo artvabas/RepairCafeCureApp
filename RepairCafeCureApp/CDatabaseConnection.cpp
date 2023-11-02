@@ -76,6 +76,26 @@ CDatabaseConnection::~CDatabaseConnection()
 
 /* General public methods */
 
+
+/// <summary>
+/// Gets the connection string, for the Native SQL Class (CSqlNativeAVB).
+/// </summary>
+/// <returns>Connection string</returns>
+wchar_t* CDatabaseConnection::ConnectionString()
+{
+	wchar_t* pwszDsn = m_strDsn.GetBuffer();
+	m_strDsn.ReleaseBuffer();
+
+	if (m_strDsn.GetLength() > 0)
+	{
+		auto pos = m_strDsn.Find(_T("DRIVER="));
+		if(pos != 0)
+			pwszDsn += pos;
+		return pwszDsn;
+	}
+	return nullptr;
+}
+
 /// <summary>
 /// Opens the query.
 /// </summary>
@@ -86,11 +106,16 @@ BOOL CDatabaseConnection::OpenQuery(CRecordset* rcsRecords, CString& strQuery)
 {
 	try
 	{
+		BOOL b = FALSE;
 		if (Open(NULL, false, false, m_strDsn))
 		{
-			rcsRecords->m_pDatabase = this;
-			rcsRecords->Open(CRecordset::forwardOnly, strQuery, CRecordset::readOnly);
-			return TRUE;
+			if (rcsRecords->m_pDatabase == NULL)
+			{
+				rcsRecords->m_pDatabase = this;
+				b = rcsRecords->Open(AFX_DB_USE_DEFAULT_TYPE/*CRecordset::snapshot*/, strQuery /*CRecordset::none*/);
+			}
+
+			return b;
 		}
 		else
 		{

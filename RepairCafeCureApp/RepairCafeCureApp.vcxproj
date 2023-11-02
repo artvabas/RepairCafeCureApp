@@ -189,6 +189,7 @@
   <ItemGroup>
     <ClInclude Include="CCustomerView.h" />
     <ClInclude Include="CDatabaseConnection.h" />
+    <ClInclude Include="CSqlNativeAVB.h" />
     <ClInclude Include="CWorkorderView.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
@@ -203,6 +204,7 @@
   <ItemGroup>
     <ClCompile Include="CCustomerView.cpp" />
     <ClCompile Include="CDatabaseConnection.cpp" />
+    <ClCompile Include="CSqlNativeAVB.cpp" />
     <ClCompile Include="CWorkorderView.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="pch.cpp">

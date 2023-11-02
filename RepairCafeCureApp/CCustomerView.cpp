@@ -4,8 +4,11 @@
 #include "pch.h"
 #include "RepairCafeCureApp.h"
 #include "CCustomerView.h"
+#include "CSqlNativeAVB.h"
 
 using namespace artvabas::rcc::ui;
+using namespace artvabas::sql;
+
 // CCustomerView
 
 IMPLEMENT_DYNCREATE(CCustomerView, CFormView)
@@ -22,6 +25,7 @@ CCustomerView::CCustomerView()
 	, m_strCustomerEmail(_T(""))
 	, m_bIsNewCustomer(false)
 	, m_bIsDirtyCustomerDetails(false)
+	, m_nCustomerID(0)
 {
 
 }
@@ -143,6 +147,8 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 		static_cast<LPCTSTR>(m_strSearchCustomerSurname));
 
 	theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery);
+	auto v = rs->GetODBCFieldCount();
+	auto v1 = rs->m_nFields;
 	while (!rs->IsEOF())
 	{
 		CString strValue = _T("");
@@ -302,6 +308,7 @@ void CCustomerView::OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pR
 		UpdateCustomerDetailsControls();
 
 		// Get the customer details from the selected item.
+		m_nCustomerID = _tstoi(m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 0));
 		m_strCustomerSurname = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 1);
 		m_strCustomerName = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 2);
 		m_strCustomerCellPhone = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 3);
@@ -379,8 +386,51 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd()
 /// </summary>
 void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
 {
+	UpdateData(TRUE);
 	m_btnUpdateCustomer.EnableWindow(FALSE);
 	m_btnCustomAssets.EnableWindow();
+	CString strQuery;
+
+	auto testString = [](CString str) -> CString
+	{
+			CString strResult;
+		if (str.IsEmpty())
+			return  _T("NULL");
+		strResult.Format(_T("N\'%s\'"),static_cast<LPCTSTR>(str));
+		return strResult;
+	};
+	
+
+	strQuery.Format(_T("UPDATE [CUSTOMER] SET [CUSTOMER_SURNAME] = %s, [CUSTOMER_NAME] = %s, [CUSTOMER_CELL_PHONE] = %s, [CUSTOMER_PHONE] = %s, [CUSTOMER_EMAIL] = %s, [CUSTOMER_COMMENT] = %s, [CUSTOMER_GENERAL_LOG] = %s WHERE [CUSTOMER_ID] = %d"),
+				static_cast<LPCTSTR>(testString(m_strCustomerSurname)),
+				static_cast<LPCTSTR>(testString(m_strCustomerName)),
+				static_cast<LPCTSTR>(testString(m_strCustomerCellPhone)),
+				static_cast<LPCTSTR>(testString(m_strCustomerPhone)),
+				static_cast<LPCTSTR>(testString(m_strCustomerEmail)),
+				static_cast<LPCTSTR>(testString(m_strCustomerComment)),
+				static_cast<LPCTSTR>(testString(m_strCustomerLog)),
+				m_nCustomerID);
+
+	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+
+	sql.ExecuteQuery(strQuery.GetBuffer());
+
+	strQuery.ReleaseBuffer();;
+
+	/*
+	* UPDATE [CUSTOMER]
+   SET [CUSTOMER_SURNAME] =  N'value',
+       [CUSTOMER_NAME] = N'value',
+       [CUSTOMER_CELL_PHONE] = N'value',
+       [CUSTOMER_PHONE] = N'value',
+       [CUSTOMER_EMAIL] = N'value',
+	   [CUSTOMER_COMMENT] = N'value',
+	   [CUSTOMER_GENERAL_LOG] = N'value'
+ WHERE [CUSTOMER_ID] = N'value'
+GO
+
+	*/
+	
 }
 
 /// <summary>
