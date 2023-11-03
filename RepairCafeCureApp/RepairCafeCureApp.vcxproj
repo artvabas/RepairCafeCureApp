@@ -196,7 +196,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="RepairCafeCureApp.h" />
     <ClInclude Include="RepairCafeCureAppDoc.h" />
-    <ClInclude Include="RepairCafeCureAppView.h" />
+    <ClInclude Include="CAssetView.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="securitydata.h" />
     <ClInclude Include="targetver.h" />
@@ -215,7 +215,7 @@
     </ClCompile>
     <ClCompile Include="RepairCafeCureApp.cpp" />
     <ClCompile Include="RepairCafeCureAppDoc.cpp" />
-    <ClCompile Include="RepairCafeCureAppView.cpp" />
+    <ClCompile Include="CAssetView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

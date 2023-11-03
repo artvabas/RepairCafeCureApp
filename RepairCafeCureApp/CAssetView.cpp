@@ -9,7 +9,7 @@
 // Copyright (C) Microsoft Corporation
 // All rights reserved.
 
-// RepairCafeCureAppView.cpp : implementation of the CRepairCafeCureAppView class
+// CAssetView.cpp : implementation of the CCAssetView class
 //
 
 #include "pch.h"
@@ -21,45 +21,46 @@
 #endif
 
 #include "RepairCafeCureAppDoc.h"
-#include "RepairCafeCureAppView.h"
+#include "CAssetView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+using namespace artvabas::rcc::ui;
 
-// CRepairCafeCureAppView
+// CCAssetView
 
-IMPLEMENT_DYNCREATE(CRepairCafeCureAppView, CFormView)
+IMPLEMENT_DYNCREATE(CAssetView, CFormView)
 
-BEGIN_MESSAGE_MAP(CRepairCafeCureAppView, CFormView)
+BEGIN_MESSAGE_MAP(CAssetView, CFormView)
 	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, &CFormView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CFormView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CRepairCafeCureAppView::OnFilePrintPreview)
+	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CAssetView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 END_MESSAGE_MAP()
 
-// CRepairCafeCureAppView construction/destruction
+// CCAssetView construction/destruction
 
-CRepairCafeCureAppView::CRepairCafeCureAppView() noexcept
-	: CFormView(IDD_REPAIRCAFECUREAPP_FORM)
+CAssetView::CAssetView() noexcept
+	: CFormView(IDD_ASSET_FORM)
 {
 	// TODO: add construction code here
 
 }
 
-CRepairCafeCureAppView::~CRepairCafeCureAppView()
+CAssetView::~CAssetView()
 {
 }
 
-void CRepairCafeCureAppView::DoDataExchange(CDataExchange* pDX)
+void CAssetView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
 }
 
-BOOL CRepairCafeCureAppView::PreCreateWindow(CREATESTRUCT& cs)
+BOOL CAssetView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: Modify the Window class or styles here by modifying
 	//  the CREATESTRUCT cs
@@ -67,7 +68,7 @@ BOOL CRepairCafeCureAppView::PreCreateWindow(CREATESTRUCT& cs)
 	return CFormView::PreCreateWindow(cs);
 }
 
-void CRepairCafeCureAppView::OnInitialUpdate()
+void CAssetView::OnInitialUpdate()
 {
 	CFormView::OnInitialUpdate();
 	GetParentFrame()->RecalcLayout();
@@ -76,44 +77,44 @@ void CRepairCafeCureAppView::OnInitialUpdate()
 }
 
 
-// CRepairCafeCureAppView printing
+// CCAssetView printing
 
 
-void CRepairCafeCureAppView::OnFilePrintPreview()
+void CAssetView::OnFilePrintPreview()
 {
 #ifndef SHARED_HANDLERS
 	AFXPrintPreview(this);
 #endif
 }
 
-BOOL CRepairCafeCureAppView::OnPreparePrinting(CPrintInfo* pInfo)
+BOOL CAssetView::OnPreparePrinting(CPrintInfo* pInfo)
 {
 	// default preparation
 	return DoPreparePrinting(pInfo);
 }
 
-void CRepairCafeCureAppView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
+void CAssetView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add extra initialization before printing
 }
 
-void CRepairCafeCureAppView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
+void CAssetView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add cleanup after printing
 }
 
-void CRepairCafeCureAppView::OnPrint(CDC* pDC, CPrintInfo* /*pInfo*/)
+void CAssetView::OnPrint(CDC* pDC, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add customized printing code here
 }
 
-void CRepairCafeCureAppView::OnRButtonUp(UINT /* nFlags */, CPoint point)
+void CAssetView::OnRButtonUp(UINT /* nFlags */, CPoint point)
 {
 	ClientToScreen(&point);
 	OnContextMenu(this, point);
 }
 
-void CRepairCafeCureAppView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
+void CAssetView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 {
 #ifndef SHARED_HANDLERS
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
@@ -121,20 +122,20 @@ void CRepairCafeCureAppView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 }
 
 
-// CRepairCafeCureAppView diagnostics
+// CCAssetView diagnostics
 
 #ifdef _DEBUG
-void CRepairCafeCureAppView::AssertValid() const
+void CAssetView::AssertValid() const
 {
 	CFormView::AssertValid();
 }
 
-void CRepairCafeCureAppView::Dump(CDumpContext& dc) const
+void CAssetView::Dump(CDumpContext& dc) const
 {
 	CFormView::Dump(dc);
 }
 
-CRepairCafeCureAppDoc* CRepairCafeCureAppView::GetDocument() const // non-debug version is inline
+CRepairCafeCureAppDoc* CAssetView::GetDocument() const // non-debug version is inline
 {
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CRepairCafeCureAppDoc)));
 	return (CRepairCafeCureAppDoc*)m_pDocument;
@@ -142,4 +143,4 @@ CRepairCafeCureAppDoc* CRepairCafeCureAppView::GetDocument() const // non-debug 
 #endif //_DEBUG
 
 
-// CRepairCafeCureAppView message handlers
+// CCAssetView message handlers

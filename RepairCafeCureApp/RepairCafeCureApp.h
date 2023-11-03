@@ -58,11 +58,11 @@ class CRepairCafeCureApp : public CWinAppEx
 // Members 
 private:
 		CDatabaseConnection* m_dbConnection;
-		CView* m_pAppView;
 		CView* m_pCustomerView;
+		CView* m_pAssetView;
 		CView* m_pWorkorderView;
-
-		enum ViewType { VIEW_APP, VIEW_CUSTOMER, VIEW_WORKORDER };
+public:
+		enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER };
 
 public:
 	CRepairCafeCureApp() noexcept;
@@ -80,7 +80,7 @@ public:
 public:
 	afx_msg void OnAppAbout();
 	afx_msg void OnCustomerView();
-	afx_msg void OnAppView();
+	afx_msg void OnAssetView();
 	afx_msg void OnWorkorderView();
 	DECLARE_MESSAGE_MAP()
 
@@ -88,7 +88,6 @@ public:
 public:
 	// inline methods for getting the database connection
 	inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
-private:
 	CView* SwitchView(ViewType vtView);
 };
 

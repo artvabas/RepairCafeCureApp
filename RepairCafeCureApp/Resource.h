@@ -4,8 +4,8 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
-#define IDD_REPAIRCAFECUREAPP_FORM      101
 #define IDS_STATUSBAR_LOADING           101
+#define IDD_ASSET_FORM                  101
 #define IDS_STATUSBAR_IDLE_LOCK         102
 #define IDS_STATUSBAR_IDLE_UNLOCK       103
 #define IDB_WRITESMALL                  110
@@ -52,7 +52,6 @@
 #define IDC_CUSTVIEW_CUSTOMER_ASSETS    1015
 #define IDC_CUSTVIEW_BUTTON_CUSTOMER_ASSETS 1015
 #define IDC_CUSTVIEW_CUSTOMER_LIST      1017
-#define IDC_EDIT1                       1019
 #define IDC_CUSTVIEW_CUSTOMER_EMAIL     1019
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773

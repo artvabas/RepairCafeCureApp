@@ -47,11 +47,11 @@
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include <afxpriv.h>
-#include "RepairCafeCureApp.h"
+#include "RepairCafeCureApp.h"	// is Asset view
 #include "MainFrm.h"
 
 #include "RepairCafeCureAppDoc.h"
-#include "RepairCafeCureAppView.h"
+#include "CAssetView.h"
 
 #include "CCustomerView.h"
 #include "CWorkorderView.h"
@@ -74,12 +74,12 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	// Standard print setup command
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 	ON_COMMAND(ID_CUSTOMER_VIEW, &CRepairCafeCureApp::OnCustomerView)
-	ON_COMMAND(ID_APP_VIEW, &CRepairCafeCureApp::OnAppView)
+	ON_COMMAND(ID_APP_VIEW, &CRepairCafeCureApp::OnAssetView)
 	ON_COMMAND(ID_WORKORDER_VIEW, &CRepairCafeCureApp::OnWorkorderView)
 END_MESSAGE_MAP()
 
 CRepairCafeCureApp::CRepairCafeCureApp() noexcept
-	: m_pAppView(NULL)
+	: m_pAssetView(NULL)
 	, m_pCustomerView(NULL)
 	, m_pWorkorderView(NULL)
 	, m_dbConnection(new CDatabaseConnection())
@@ -132,7 +132,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CRepairCafeCureAppDoc),
 		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
-		RUNTIME_CLASS(CRepairCafeCureAppView));
+		RUNTIME_CLASS(CCustomerView));
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);
@@ -154,11 +154,11 @@ BOOL CRepairCafeCureApp::InitInstance()
 
 	// Get a pointer to the current view
 	CView* pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
-	m_pAppView = pView;
+	m_pCustomerView = pView;
 
 
-	m_pCustomerView = (CView*)new CCustomerView;
-	if (NULL == m_pCustomerView) return FALSE;
+	m_pAssetView = (CView*)new CAssetView;
+	if (NULL == m_pAssetView) return FALSE;
 
 	m_pWorkorderView = (CView*)new CWorkorderView;
 	if (NULL == m_pWorkorderView) return FALSE;
@@ -178,20 +178,20 @@ BOOL CRepairCafeCureApp::InitInstance()
 
 	// The ID of the initial active view is AFX_IDW_PANE_FIRST.
 	// Incrementing this value by one for additional views
-	UINT viewCustomerID = AFX_IDW_PANE_FIRST + 1;
+	UINT viewAssetID = AFX_IDW_PANE_FIRST + 1;
 	UINT viewWorkorderID = AFX_IDW_PANE_FIRST + 2;
 	CRect rect(0, 0, 0, 0); // Gets resized later.
 
 	// Create the new view. The view persists for
 	// the life of the application. The application automatically
 	// deletes the view when the application is closed.
-	m_pCustomerView->Create(NULL, _T("Customer"), WS_CHILD, rect, m_pMainWnd, viewCustomerID, &newContext);
+	m_pAssetView->Create(NULL, _T("Asset"), WS_CHILD, rect, m_pMainWnd, viewAssetID, &newContext);
 	m_pWorkorderView->Create(NULL, _T("Workorder"), WS_CHILD, rect, m_pMainWnd, viewWorkorderID, &newContext);
 
 	// When a document template creates a view, the WM_INITIALUPDATE
 	// message is sent automatically. However, this code must
 	// explicitly send the message, as follows.
-	m_pCustomerView->SendMessage(WM_INITIALUPDATE, 0, 0);
+	m_pAssetView->SendMessage(WM_INITIALUPDATE, 0, 0);
 	m_pWorkorderView->SendMessage(WM_INITIALUPDATE, 0, 0);
 
 	/*************************************************************/
@@ -258,9 +258,9 @@ void CRepairCafeCureApp::OnCustomerView()
 /// This method is called when the user clicks on the App menu item.
 /// It switches the view to the App view.
 /// </summary>
-void CRepairCafeCureApp::OnAppView()
+void CRepairCafeCureApp::OnAssetView()
 {
-	SwitchView(VIEW_APP);
+	SwitchView(VIEW_ASSET);
 }
 
 /// <summary>
@@ -292,9 +292,9 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 		case VIEW_WORKORDER:
 			pNewView = m_pWorkorderView;
 			break;
-		case VIEW_APP:
+		case VIEW_ASSET:
 		default:
-			pNewView = m_pAppView;
+			pNewView = m_pAssetView;
 			break;
 	}
 

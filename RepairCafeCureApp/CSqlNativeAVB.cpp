@@ -5,7 +5,7 @@
 * Somehow a diverted class from the MFC CRecordset class, can't be used for working with SQL data-tables.
 * Form some reason DoFieldExchange() what is used for data exchange from the data-table to the class and visa versa,
 * is not working. So, the MFC CRecordset class can't be used for working with SQL data-tables for writing and
-* can only be used for reading data from the database.
+* can only be used for reading with GetFieldValue() data from the database.
 * 
 * Therefore this native SQL class is created. It uses the ODBC API for connecting to the database and
 * and is able to make changes for writing, like update, insert and delete queries.
@@ -31,6 +31,9 @@ bool CSqlNativeAVB::ExecuteQuery(SQLWCHAR* pszQuery)
     // Allocate an environment
     if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_hEnvironment) == SQL_ERROR)
     {
+        wchar_t buffer[256];
+        swprintf_s(buffer, L"Unable to allocate an environment handle\n");
+        AfxMessageBox(buffer);
         ASSERT(fwprintf(stderr, L"Unable to allocate an environment handle\n"));
         return false;
     }
@@ -59,6 +62,8 @@ bool CSqlNativeAVB::ExecuteQuery(SQLWCHAR* pszQuery)
     }
     case SQL_SUCCESS:
     {
+        TryODBC(m_hStatement, SQL_HANDLE_STMT, SQLFreeStmt(m_hStatement, SQL_CLOSE));
+        return true;
         break;
     }
 
@@ -72,17 +77,13 @@ bool CSqlNativeAVB::ExecuteQuery(SQLWCHAR* pszQuery)
 
     default:
         ASSERT(fwprintf(stderr, L"Unexpected return code %hd!\n", RetCode));
-        TryODBC(m_hStatement, SQL_HANDLE_STMT, SQLFreeStmt(m_hStatement, SQL_CLOSE));
-        return false;
     }
 
     TryODBC(m_hStatement, SQL_HANDLE_STMT, SQLFreeStmt(m_hStatement, SQL_CLOSE));
-
-       
-    return true;
+    return false;
 }
 
-constexpr void CSqlNativeAVB::CloseConnection()
+void CSqlNativeAVB::CloseConnection()
 {
     if (m_hStatement)
     {
@@ -101,7 +102,7 @@ constexpr void CSqlNativeAVB::CloseConnection()
     }
 }
 
-constexpr void CSqlNativeAVB::TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x)
+void CSqlNativeAVB::TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x)
 {
 	RETCODE rc = x;
     if (rc != SQL_SUCCESS)
@@ -110,6 +111,9 @@ constexpr void CSqlNativeAVB::TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x)
 	}
     if (rc == SQL_ERROR)
     {
+        wchar_t buffer[256];
+        swprintf_s(buffer, L"Error in " L"\n");
+        AfxMessageBox(buffer);
         ASSERT(fwprintf(stderr, L"Error in " L"\n"));
 	}
 }
@@ -123,7 +127,9 @@ void CSqlNativeAVB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType,
 
     if (RetCode == SQL_INVALID_HANDLE)
     {
-        
+        wchar_t buffer[256];
+        swprintf_s(buffer, L"Invalid handle!\n");
+        AfxMessageBox(buffer);
         ASSERT(fwprintf(stderr, L"Invalid handle!\n"));
         return;
     }
@@ -131,10 +137,12 @@ void CSqlNativeAVB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType,
     while (SQLGetDiagRecW(hType, hHandle, ++iRec, wszState, &iError, wszMessage, (SQLSMALLINT)(sizeof(wszMessage) / sizeof(wchar_t)), (SQLSMALLINT*)NULL) == SQL_SUCCESS)
     {
         // Hide data truncated..
-        if (wcsncmp(wszState, L"01004", 5))
+        if (wcsncmp(wszState, L"01004", 5) && wcsncmp(wszState, L"01000", 5))
         {
-
-          ASSERT(fwprintf(stderr, L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError));
+            wchar_t buffer[256];
+            swprintf_s(buffer, L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError);
+            AfxMessageBox(buffer);
+            ASSERT(fwprintf(stderr, L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError));
         }
     }
 }

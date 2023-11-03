@@ -1,6 +1,52 @@
+/*
+	Copyright (C) 2023  artvabas
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+	To see the license for this source code, please visit:
+		<https://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit:
+		<https://artvabas.com>
+		<https://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at:
+		<https://artvabas.com/contact>
+
+*/
+
+/*
+* This file is part of RepairCafeCureApp.
+* File: CCustomerView.h, defines class CCustomerView
+* 
+* This class is the view of the customer form.
+* With this form the user can search for existing customers, add new customers, update existing customers.
+* And when all the required fields are filled in, an asset can be added to the customer.
+* 
+* Controls are enabled and disabled depending on the state of the form.
+*
+* Target: Windows 10/11 64bit
+* Version: 1.0.230.0
+* Created: 18-10-2023, (dd-mm-yyyy)
+* Updated: 03-11-2023, (dd-mm-yyyy)
+* Creator: artvabasDev / artvabas
+*
+* Description: Database connection class
+* License: GPLv3
+*/
+
 #pragma once
-
-
 
 // CCustomerView form view
 namespace artvabas
@@ -72,6 +118,7 @@ namespace artvabas
 				afx_msg void OnClickedCustViewButtonAddNewCustomer();
 				afx_msg void OnClickedCustViewButtonCustomerAdd();
 				afx_msg void OnClickedCustViewButtonCustomerUpdate();
+				afx_msg void OnClickedCustViewButtonCustomerAssets();
 
 			private:
 				void DisableCustomerSearchAndAddButtons();

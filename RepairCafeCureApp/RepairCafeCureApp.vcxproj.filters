@@ -45,9 +45,6 @@
     <ClInclude Include="RepairCafeCureAppDoc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RepairCafeCureAppView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -69,6 +66,9 @@
     <ClInclude Include="CSqlNativeAVB.h">
       <Filter>Header Files\artvabas</Filter>
     </ClInclude>
+    <ClInclude Include="CAssetView.h">
+      <Filter>Header Files\artvabas</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -78,9 +78,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RepairCafeCureAppDoc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RepairCafeCureAppView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -96,6 +93,9 @@
       <Filter>Source Files\artvabas</Filter>
     </ClCompile>
     <ClCompile Include="CSqlNativeAVB.cpp">
+      <Filter>Source Files\artvabas</Filter>
+    </ClCompile>
+    <ClCompile Include="CAssetView.cpp">
       <Filter>Source Files\artvabas</Filter>
     </ClCompile>
   </ItemGroup>

@@ -19,10 +19,10 @@ namespace artvabas
 			CSqlNativeAVB(SQLWCHAR* pszSqlConnectionString);
 			virtual ~CSqlNativeAVB();
 			bool ExecuteQuery(SQLWCHAR* pszQuery);
-			constexpr void CloseConnection();
+			void CloseConnection();
 
 		private:
-			constexpr void TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x);
+			void TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x);
 			void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode);
 		};
 	}
