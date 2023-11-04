@@ -51,6 +51,7 @@
 #include "RepairCafeCureApp.h"
 #include "CCustomerView.h"
 #include "CSqlNativeAVB.h"
+#include "CAssetDialog.h"
 
 using namespace artvabas::rcc::ui;
 using namespace artvabas::sql;
@@ -166,6 +167,9 @@ void CCustomerView::OnInitialUpdate()
 	m_ctlExistingCustomersList.InsertColumn(5, _T("EMAIL"), LVCFMT_LEFT, 150);
 	m_ctlExistingCustomersList.InsertColumn(6, _T("COMMENT"), LVCFMT_LEFT, 0);
 	m_ctlExistingCustomersList.InsertColumn(7, _T("LOG"), LVCFMT_LEFT, 0);
+
+	// Disable all child controls of the view.
+	OnUpdateUIState(UIS_INITIALIZE, 0);
 
 }
 
@@ -310,28 +314,29 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 	switch (nAction)
 	{
 		case 1:	// UIS_SET
-			while (pChild)	// Go through all child controls of the view and acitvate all.
-			{
-				pChild->EnableWindow(TRUE);
-				pChild = pChild->GetWindow(GW_HWNDNEXT);
-			}
 			// nUIElement = 0 means this method is called by the framework when the view is activated, controls are accessible.	
-			// Disabele the controls that are not needed at this moment.
 			if( 0 == nUIElement)
 			{
-				DisableCustomerSearchAndAddButtons();
+				while (pChild)	// Go through all child controls of the view and acitvate all.
+				{
+					pChild->EnableWindow(TRUE);
+					pChild = pChild->GetWindow(GW_HWNDNEXT);
+				}
 
+				// Disabele the controls that are not needed at this moment.
+				DisableCustomerSearchAndAddButtons();
 				DisableCustomerDetailsButtons();
 				
 				UpdateCustomerDetailsControls(FALSE);
 
 				EmptyAndDisableExistingCustomersList();
-
 				EmptyCustomerDetailsControls();
+
 				UpdateData(FALSE);
 			}
 			break;
 		case 0:	
+		case 3:	// UIS_INITIALIZE
 			while (pChild)
 			{
 				pChild->EnableWindow(FALSE);
@@ -511,7 +516,9 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
 
 void CCustomerView::OnClickedCustViewButtonCustomerAssets()
 {
-	theApp.SwitchView(CRepairCafeCureApp::VIEW_ASSET);
+	CAssetDialog dlg;
+	dlg.DoModal();
+	//theApp.SwitchView(CRepairCafeCureApp::VIEW_ASSET);
 }
 
 /// <summary>

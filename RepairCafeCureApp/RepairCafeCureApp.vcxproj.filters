@@ -28,6 +28,48 @@
     <Filter Include="libraries\Debug">
       <UniqueIdentifier>{74b6866f-1c8f-4468-b7b8-5716ef00a700}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\artvabas\rcc">
+      <UniqueIdentifier>{ca06afcf-671b-4e51-98ac-673e59641e39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\artvabas\rcc\ui">
+      <UniqueIdentifier>{fcba6918-9a66-44d2-aa04-d05ad33f654e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\artvabas\rcc\database">
+      <UniqueIdentifier>{31fd926a-debe-4e66-9823-7392292ce85f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\artvabas\rcc\database\security">
+      <UniqueIdentifier>{f885d811-c82a-4db4-b2e9-20648cbe2a32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\artvabas\rcc\database\security\data">
+      <UniqueIdentifier>{2223c528-3ccd-4315-8b1b-c869faea2641}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\artvabas\sql">
+      <UniqueIdentifier>{e0e7ef59-d6eb-46c6-8294-5af340e6c1ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\sql">
+      <UniqueIdentifier>{801c2fbb-e857-4356-b3df-843608a501ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\rcc">
+      <UniqueIdentifier>{7228b4cf-2bc2-42cc-9536-2132729a814a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\rcc\database">
+      <UniqueIdentifier>{a5ff2c96-df2a-4a61-9b3d-6916553c4caa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\rcc\ui">
+      <UniqueIdentifier>{40ef4468-4461-47a7-a1de-3c41865c8445}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\rcc\ui\dialog">
+      <UniqueIdentifier>{2cfccef9-19a2-4040-84c9-33ed97adb302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\artvabas\rcc\ui\dialogs">
+      <UniqueIdentifier>{301f011d-faa0-4585-9b8b-71bff13c9eff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\artvabas\rcc\ui\controls">
+      <UniqueIdentifier>{bccdc733-61ad-44aa-8700-ee36e32d6d9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\rcc\ui\controls">
+      <UniqueIdentifier>{22e8d474-8ac5-4691-8c3d-782c32c0c5b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RepairCafeCureApp.h">
@@ -51,23 +93,35 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CDatabaseConnection.h">
-      <Filter>Header Files\artvabas</Filter>
-    </ClInclude>
-    <ClInclude Include="securitydata.h">
-      <Filter>Header Files\artvabas</Filter>
-    </ClInclude>
     <ClInclude Include="CCustomerView.h">
-      <Filter>Header Files\artvabas</Filter>
+      <Filter>Header Files\artvabas\rcc\ui</Filter>
     </ClInclude>
     <ClInclude Include="CWorkorderView.h">
-      <Filter>Header Files\artvabas</Filter>
+      <Filter>Header Files\artvabas\rcc\ui</Filter>
     </ClInclude>
-    <ClInclude Include="CSqlNativeAVB.h">
-      <Filter>Header Files\artvabas</Filter>
+    <ClInclude Include="CAssetDialog.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
     </ClInclude>
     <ClInclude Include="CAssetView.h">
-      <Filter>Header Files\artvabas</Filter>
+      <Filter>Header Files\artvabas\rcc\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="CAssetTab.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CWorkorderTab.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CDatabaseConnection.h">
+      <Filter>Header Files\artvabas\rcc\database</Filter>
+    </ClInclude>
+    <ClInclude Include="securitydata.h">
+      <Filter>Header Files\artvabas\rcc\database\security\data</Filter>
+    </ClInclude>
+    <ClInclude Include="CSqlNativeAVB.h">
+      <Filter>Header Files\artvabas\sql</Filter>
+    </ClInclude>
+    <ClInclude Include="CTabCtrlAssetWorkorder.h">
+      <Filter>Header Files\artvabas\rcc\ui\controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -83,20 +137,32 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CDatabaseConnection.cpp">
-      <Filter>Source Files\artvabas</Filter>
-    </ClCompile>
-    <ClCompile Include="CCustomerView.cpp">
-      <Filter>Source Files\artvabas</Filter>
-    </ClCompile>
-    <ClCompile Include="CWorkorderView.cpp">
-      <Filter>Source Files\artvabas</Filter>
-    </ClCompile>
-    <ClCompile Include="CSqlNativeAVB.cpp">
-      <Filter>Source Files\artvabas</Filter>
+    <ClCompile Include="CAssetDialog.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
     </ClCompile>
     <ClCompile Include="CAssetView.cpp">
-      <Filter>Source Files\artvabas</Filter>
+      <Filter>Source Files\artvabas\rcc\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="CCustomerView.cpp">
+      <Filter>Source Files\artvabas\rcc\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="CDatabaseConnection.cpp">
+      <Filter>Source Files\artvabas\rcc\database</Filter>
+    </ClCompile>
+    <ClCompile Include="CSqlNativeAVB.cpp">
+      <Filter>Source Files\artvabas\sql</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorkorderView.cpp">
+      <Filter>Source Files\artvabas\rcc\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="CAssetTab.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorkorderTab.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CTabCtrlAssetWorkorder.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\controls</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
