@@ -9,7 +9,7 @@ class CAssetDialog : public CDialogEx
 	DECLARE_DYNAMIC(CAssetDialog)
 
 public:
-	CAssetDialog(CWnd* pParent = nullptr);   // standard constructor
+	CAssetDialog(CString strCustomerSurname, CString strCustomerName, unsigned int nCustomerID, CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CAssetDialog();
 
 // Dialog Data
@@ -24,4 +24,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CTabCtrlAssetWorkorder m_ctrTabAssetWorkorder;
+
+
 };

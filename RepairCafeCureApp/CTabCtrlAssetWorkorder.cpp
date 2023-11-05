@@ -12,13 +12,12 @@
 
 IMPLEMENT_DYNAMIC(CTabCtrlAssetWorkorder, CTabCtrl)
 
-CTabCtrlAssetWorkorder::CTabCtrlAssetWorkorder()
+CTabCtrlAssetWorkorder::CTabCtrlAssetWorkorder(CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID)
 	: m_nNumberOfTabs(2)
 	, m_tabCurrent(0)
 {
-	m_tabPages[0] = new CAssetTab((CString)"", (CString)"", 0);
+	m_tabPages[0] = new CAssetTab(strCustomerSurname, strCustomerName, nCustomerID);
 	m_tabPages[1] = new CWorkorderTab;
-	
 }
 
 CTabCtrlAssetWorkorder::~CTabCtrlAssetWorkorder()

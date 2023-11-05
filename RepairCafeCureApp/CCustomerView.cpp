@@ -324,7 +324,7 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 					pChild = pChild->GetWindow(GW_HWNDNEXT);
 				}
 
-				// Disabele the controls that are not needed at this moment.
+				// Disable the controls that are not needed at this moment.
 				DisableCustomerSearchAndAddButtons();
 				DisableCustomerDetailsButtons();
 				
@@ -343,6 +343,9 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 				pChild->EnableWindow(FALSE);
 				pChild = pChild->GetWindow(GW_HWNDNEXT);
 			}
+			EmptyAndDisableExistingCustomersList();
+			EmptyCustomerDetailsControls();
+			UpdateData(FALSE);
 			break;
 		default:
 			pChild->EnableWindow(TRUE);
@@ -472,6 +475,8 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd()
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)));
 
+	int getal = 10;
+
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
 	sql.ExecuteQuery(strQuery.GetBuffer());
 
@@ -517,7 +522,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
 
 void CCustomerView::OnClickedCustViewButtonCustomerAssets()
 {
-	CAssetDialog dlg;
+	CAssetDialog dlg(m_strCustomerSurname, m_strCustomerName, m_nCustomerID);
 	dlg.DoModal();
 	//theApp.SwitchView(CRepairCafeCureApp::VIEW_ASSET);
 }

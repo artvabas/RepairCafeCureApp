@@ -12,8 +12,9 @@
 
 IMPLEMENT_DYNAMIC(CAssetDialog, CDialogEx)
 
-CAssetDialog::CAssetDialog(CWnd* pParent /*=nullptr*/)
+CAssetDialog::CAssetDialog(CString strCustomerSurname, CString strCustomerName, unsigned int nCustomerID, CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_ASSET_DIALOG, pParent)
+	, m_ctrTabAssetWorkorder(strCustomerSurname, strCustomerName, nCustomerID)
 {
 	
 

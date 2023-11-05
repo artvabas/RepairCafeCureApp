@@ -57,8 +57,16 @@
 #define IDC_CUSTVIEW_CUSTOMER_EMAIL     1019
 #define IDC_ASSET_WORKORDER_TAB         1020
 #define IDC_ASSETTAB_CUSTOMER_SURENAME  1021
-#define IDC_EDIT2                       1022
 #define IDC_ASSETTAB_CUSTOMER_NAME      1022
+#define IDC_ASSETTAB_DESCRIPTION        1023
+#define IDC_ASSTETTAB_MODEL_NUMBER      1024
+#define IDC_ASSETTAB_BRAND              1025
+#define IDC_ASSETTAB_HISTORY_LOG        1027
+#define IDC_ASSETTAB_UPDATE             1028
+#define IDC_ASSETTAB_NEW                1029
+#define IDC_ASSETTAB_CREATE_WORKORDER   1030
+#define IDC_LIST2                       1031
+#define IDC_ASSETTAB_ASSET_LIST         1031
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_WORKORDER_VIEW               32774
@@ -70,7 +78,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        320
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1023
+#define _APS_NEXT_CONTROL_VALUE         1032
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

@@ -13,7 +13,7 @@ private:
 	int m_nNumberOfTabs;
 
 public:
-	CTabCtrlAssetWorkorder();
+	CTabCtrlAssetWorkorder(CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID);
 	virtual ~CTabCtrlAssetWorkorder();
 
 protected:
