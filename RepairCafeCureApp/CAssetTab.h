@@ -1,5 +1,5 @@
 #pragma once
-#include "afxdialogex.h"
+//#include "afxdialogex.h"
 
 
 // CAssetTab dialog
@@ -24,20 +24,29 @@ protected:
 private:
 	CString m_strCustomerSurname;
 	CString m_strCustomerName;
-	unsigned int m_nCustomerID;
+
+	unsigned int m_nAssetID;
+	unsigned int m_nAssetCustomerID;
+	unsigned int m_nAssetWorkorderID;
+	unsigned short m_sAssetDisposed;
+
+	CString m_strAssetCreateDate;
+	CString m_strDescription;
+	CString m_strModelNumber;
+	CString m_strBrand;
+	CString m_strHistoryLog;
+
+	CButton m_btnUpdateAsset;
+	CButton m_btnNewAsset;
+	CButton m_btnCreateWorkorder;
+	CListCtrl m_ctrExistingAssetList;
+
 public:
 	virtual BOOL OnInitDialog();
 private:
 	bool m_bIsDirtyAssetDetails;
 	bool m_bIsSelectedFromAssetList;
-	CString m_strDescription;
-	CString m_strModelNumber;
-	CString m_strBrand;
-	CString m_strHistoryLog;
-	CButton m_btnUpdateAsset;
-	CButton m_btnNewAsset;
-	CButton m_btnCreateWorkorder;
-	CListCtrl m_ctrExistingAssetList;
+
 private:
 	afx_msg void OnEnChangeAssetDetails();
 	afx_msg void OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult);

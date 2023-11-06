@@ -50,7 +50,6 @@
 #include "pch.h"
 #include "RepairCafeCureApp.h"
 #include "CCustomerView.h"
-#include "CSqlNativeAVB.h"
 #include "CAssetDialog.h"
 
 using namespace artvabas::rcc::ui;
@@ -218,6 +217,7 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 
 	m_btnAddNewCustomer.EnableWindow();
 	m_ctlExistingCustomersList.EnableWindow();
+	m_ctlExistingCustomersList.DeleteAllItems();
 
 	int nIndex;			// Index of the list control item.
 	int row(0);			// Row of the list control item.
@@ -475,12 +475,10 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd()
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)));
 
-	int getal = 10;
-
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
 	sql.ExecuteQuery(strQuery.GetBuffer());
 
-	strQuery.ReleaseBuffer();;
+	strQuery.ReleaseBuffer();
 }
 
 /// <summary>
@@ -517,7 +515,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
 	sql.ExecuteQuery(strQuery.GetBuffer());
 
-	strQuery.ReleaseBuffer();;
+	strQuery.ReleaseBuffer();
 }
 
 void CCustomerView::OnClickedCustViewButtonCustomerAssets()

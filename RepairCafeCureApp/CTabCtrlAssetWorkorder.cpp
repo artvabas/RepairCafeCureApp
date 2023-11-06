@@ -7,7 +7,6 @@
 #include "CAssetTab.h"
 #include "CWorkorderTab.h"
 
-
 // CTabCtrlAssetWorkorder
 
 IMPLEMENT_DYNAMIC(CTabCtrlAssetWorkorder, CTabCtrl)

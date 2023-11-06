@@ -47,7 +47,7 @@
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include <afxpriv.h>
-#include "RepairCafeCureApp.h"	// is Asset view
+#include "RepairCafeCureApp.h"
 #include "MainFrm.h"
 
 #include "RepairCafeCureAppDoc.h"
