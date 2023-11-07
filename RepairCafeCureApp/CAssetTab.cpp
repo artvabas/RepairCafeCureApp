@@ -12,8 +12,9 @@ using namespace artvabas::sql;
 
 IMPLEMENT_DYNAMIC(CAssetTab, CDialogEx)
 
-CAssetTab::CAssetTab(CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent /*=nullptr*/)
+CAssetTab::CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_ASSET_TAB, pParent)
+	, m_pTabControl(pTabControl)
 	, m_strCustomerSurname(strCustomerSurname)
 	, m_strCustomerName(strCustomerName)
 	, m_nAssetID(0)
@@ -28,7 +29,7 @@ CAssetTab::CAssetTab(CString& strCustomerSurname, CString& strCustomerName, unsi
 	, m_bIsDirtyAssetDetails(false)
 	, m_bIsSelectedFromAssetList(false)
 {
-
+	m_pAssetDetailsRecords = &(m_pTabControl->m_assetDetailsRecords);
 }
 
 CAssetTab::~CAssetTab()
@@ -262,13 +263,13 @@ void CAssetTab::OnBnClickedAssetTabNew()
 
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString
-		{
-			CString strResult;
-			if (str.IsEmpty())
-				return  _T("NULL");
-			strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-			return strResult;
-		};
+	{
+		CString strResult;
+		if (str.IsEmpty())
+			return  _T("NULL");
+		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+		return strResult;
+	};
 
 	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_WORKORDER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], [ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES (%d, NULL, %s, %s, %s, %s, 0, NULL)"),
 		m_nAssetCustomerID,
@@ -285,6 +286,4 @@ void CAssetTab::OnBnClickedAssetTabNew()
 	m_btnNewAsset.EnableWindow(FALSE);
 	m_bIsDirtyAssetDetails = false;
 	m_bIsSelectedFromAssetList = true;
-
-				
 }

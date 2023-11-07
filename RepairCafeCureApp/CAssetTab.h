@@ -1,6 +1,6 @@
 #pragma once
 //#include "afxdialogex.h"
-
+#include "CTabCtrlAssetWorkorder.h"
 
 // CAssetTab dialog
 
@@ -9,7 +9,7 @@ class CAssetTab : public CDialogEx
 	DECLARE_DYNAMIC(CAssetTab)
 
 public:
-	CAssetTab(CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent = nullptr);   // standard constructor
+	CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CAssetTab();
 
 // Dialog Data
@@ -22,6 +22,9 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 private:
+	CTabCtrlAssetWorkorder* m_pTabControl;
+	AssetDetailsRecords* m_pAssetDetailsRecords;
+
 	CString m_strCustomerSurname;
 	CString m_strCustomerName;
 

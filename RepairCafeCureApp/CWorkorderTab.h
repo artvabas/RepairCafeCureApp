@@ -1,6 +1,6 @@
 #pragma once
-#include "afxdialogex.h"
-
+//#include "afxdialogex.h"
+#include "CTabCtrlAssetWorkorder.h"
 
 // CWorkorderTab dialog
 
@@ -8,8 +8,12 @@ class CWorkorderTab : public CDialogEx
 {
 	DECLARE_DYNAMIC(CWorkorderTab)
 
+private:
+	CTabCtrlAssetWorkorder* m_pTabControl;
+	AssetDetailsRecords* m_pAssetDetailsRecords;
+
 public:
-	CWorkorderTab(CWnd* pParent = nullptr);   // standard constructor
+	CWorkorderTab(CTabCtrlAssetWorkorder* pTabControl,CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CWorkorderTab();
 
 // Dialog Data

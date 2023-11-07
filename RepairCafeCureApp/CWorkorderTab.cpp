@@ -6,15 +6,15 @@
 #include "afxdialogex.h"
 #include "CWorkorderTab.h"
 
-
 // CWorkorderTab dialog
 
 IMPLEMENT_DYNAMIC(CWorkorderTab, CDialogEx)
 
-CWorkorderTab::CWorkorderTab(CWnd* pParent /*=nullptr*/)
+CWorkorderTab::CWorkorderTab(CTabCtrlAssetWorkorder* pTabControl, CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_WORKORDER_TAB, pParent)
+	, m_pTabControl(pTabControl)
 {
-
+	m_pAssetDetailsRecords = &(m_pTabControl->m_assetDetailsRecords);
 }
 
 CWorkorderTab::~CWorkorderTab()

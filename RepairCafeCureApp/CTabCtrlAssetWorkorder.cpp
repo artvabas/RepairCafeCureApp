@@ -15,8 +15,8 @@ CTabCtrlAssetWorkorder::CTabCtrlAssetWorkorder(CString& strCustomerSurname, CStr
 	: m_nNumberOfTabs(2)
 	, m_tabCurrent(0)
 {
-	m_tabPages[0] = new CAssetTab(strCustomerSurname, strCustomerName, nCustomerID);
-	m_tabPages[1] = new CWorkorderTab;
+	m_tabPages[0] = new CAssetTab(this, strCustomerSurname, strCustomerName, nCustomerID);
+	m_tabPages[1] = new CWorkorderTab(this);
 }
 
 CTabCtrlAssetWorkorder::~CTabCtrlAssetWorkorder()

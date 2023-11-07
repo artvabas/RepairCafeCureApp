@@ -1,5 +1,14 @@
 #pragma once
-
+struct AssetDetailsRecords
+{
+	CString m_strCustomerSurname;
+	CString m_strCustomerName;
+	unsigned int m_nAssetID;
+	unsigned int m_nAssetCustomerID;
+	CString m_strDescription;
+	CString m_strModelNumber;
+	CString m_strBrand;
+};
 
 // CTabCtrlAssetWorkorder
 
@@ -11,6 +20,8 @@ private:
 	CDialog* m_tabPages[2];
 	int m_tabCurrent;
 	int m_nNumberOfTabs;
+public:
+	AssetDetailsRecords m_assetDetailsRecords;
 
 public:
 	CTabCtrlAssetWorkorder(CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID);
