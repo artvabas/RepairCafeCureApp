@@ -19,11 +19,13 @@ namespace artvabas
 			CSqlNativeAVB(SQLWCHAR* pszSqlConnectionString);
 			virtual ~CSqlNativeAVB();
 			bool ExecuteQuery(SQLWCHAR* pszQuery);
-			void CloseConnection();
-
+			SQLINTEGER GetLastAddedID(SQLWCHAR* pszQuery);
 		private:
-			void TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x);
-			void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode);
+			bool CreateSQLConnection();
+			bool CheckReturnCodeForClosing(SQLRETURN RetCode);
+			void CloseConnection();
+			bool TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x);
+			bool HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode);
 		};
 	}
 }

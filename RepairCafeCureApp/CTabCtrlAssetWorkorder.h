@@ -3,6 +3,7 @@ struct AssetDetailsRecords
 {
 	CString m_strCustomerSurname;
 	CString m_strCustomerName;
+
 	unsigned int m_nAssetID;
 	unsigned int m_nAssetCustomerID;
 	CString m_strDescription;
@@ -31,6 +32,7 @@ protected:
 	
 public:
 	void Init();
+	void ChangeTabView();
 private:
 	void SetRectangle();
 

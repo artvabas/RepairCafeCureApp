@@ -79,7 +79,7 @@ CCustomerView::~CCustomerView()
 	
 }
 
-/* Message maps fro events */
+/* Message maps for events */
 
 /// <summary>
 /// BEGIN_MESSAGE_MAP is used to map messages to functions.
@@ -477,6 +477,9 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd()
 
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
 	sql.ExecuteQuery(strQuery.GetBuffer());
+
+	auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('CUSTOMER')"));
+	if(lastID > 0) m_nCustomerID = lastID;
 
 	strQuery.ReleaseBuffer();
 }

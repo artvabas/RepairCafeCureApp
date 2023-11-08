@@ -1,14 +1,60 @@
-// CAssetTab.cpp : implementation file
-//
+/*
+	Copyright (C) 2023  artvabas
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+	To see the license for this source code, please visit:
+		<https://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit:
+		<https://artvabas.com>
+		<https://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at:
+		<https://artvabas.com/contact>
+
+*/
+
+/*
+* This file is part of RepairCafeCureApp.
+* File: CAssetTab.cpp, defines class CAssetTab
+*
+* This class is the view of the asset-tab in the CTabCtrlAssetWorkorder class, 
+* which is the view of the CListCtrl created on the asset/workorder dialog (CAssetDialog)
+* 
+* With this form the user can search for existing assets, add new assets, update existing assets.
+* After selecting an asset, the user can create a workorder for the selected asset.
+*
+* Controls are enabled and disabled depending on the state of the form.
+*
+* Target: Windows 10/11 64bit
+* Version: 1.0.230.0
+* Created: 04-11-2023, (dd-mm-yyyy)
+* Updated: 08-11-2023, (dd-mm-yyyy)
+* Creator: artvabasDev / artvabas
+*
+* Description: Database connection class
+* License: GPLv3
+*/
 
 #include "pch.h"
 #include "RepairCafeCureApp.h"
-#include "afxdialogex.h"
+#include "MainFrm.h"
 #include "CAssetTab.h"
 
-
 using namespace artvabas::sql;
-// CAssetTab dialog
+using namespace artvabas::rcc::ui::dialogs;
 
 IMPLEMENT_DYNAMIC(CAssetTab, CDialogEx)
 
@@ -26,9 +72,9 @@ CAssetTab::CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSu
 	, m_strBrand(_T(""))
 	, m_sAssetDisposed(0)
 	, m_strHistoryLog(_T(""))
-	, m_bIsDirtyAssetDetails(false)
 	, m_bIsSelectedFromAssetList(false)
 {
+	// Shared data between the asset and workorder tab.
 	m_pAssetDetailsRecords = &(m_pTabControl->m_assetDetailsRecords);
 }
 
@@ -36,22 +82,7 @@ CAssetTab::~CAssetTab()
 {
 }
 
-void CAssetTab::DoDataExchange(CDataExchange* pDX)
-{
-	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_ASSETTAB_CUSTOMER_SURENAME, m_strCustomerSurname);
-	DDX_Text(pDX, IDC_ASSETTAB_CUSTOMER_NAME, m_strCustomerName);
-	DDX_Text(pDX, IDC_ASSETTAB_DESCRIPTION, m_strDescription);
-	DDX_Text(pDX, IDC_ASSTETTAB_MODEL_NUMBER, m_strModelNumber);
-	DDX_Text(pDX, IDC_ASSETTAB_BRAND, m_strBrand);
-	DDX_Text(pDX, IDC_ASSETTAB_HISTORY_LOG, m_strHistoryLog);
-	DDX_Control(pDX, IDC_ASSETTAB_UPDATE, m_btnUpdateAsset);
-	DDX_Control(pDX, IDC_ASSETTAB_NEW, m_btnNewAsset);
-	DDX_Control(pDX, IDC_ASSETTAB_CREATE_WORKORDER, m_btnCreateWorkorder);
-	DDX_Control(pDX, IDC_ASSETTAB_ASSET_LIST, m_ctrExistingAssetList);
-}
-
-
+// CAssetTab message handlers
 BEGIN_MESSAGE_MAP(CAssetTab, CDialogEx)
 	ON_EN_CHANGE(IDC_ASSETTAB_DESCRIPTION, &CAssetTab::OnEnChangeAssetDetails)
 	ON_EN_CHANGE(IDC_ASSTETTAB_MODEL_NUMBER, &CAssetTab::OnEnChangeAssetDetails)
@@ -59,12 +90,17 @@ BEGIN_MESSAGE_MAP(CAssetTab, CDialogEx)
 	ON_NOTIFY(NM_DBLCLK, IDC_ASSETTAB_ASSET_LIST, &CAssetTab::OnDoubleClickAssetTabAssetList)
 	ON_BN_CLICKED(IDC_ASSETTAB_UPDATE, &CAssetTab::OnBnClickedAssetTabUpdate)
 	ON_BN_CLICKED(IDC_ASSETTAB_NEW, &CAssetTab::OnBnClickedAssetTabNew)
+	ON_BN_CLICKED(IDC_ASSETTAB_CREATE_WORKORDER, &CAssetTab::OnBnClickedAssetTabCreateWorkorder)
 END_MESSAGE_MAP()
 
+/* override methods */
 
-// CAssetTab message handlers
-
-
+/// <summary>
+/// Initializes the dialog on creation.
+/// Creates the list control columns.
+/// Fills the list control with the existing assets, if any, from the database.
+/// </summary>
+/// <returns></returns>
 BOOL CAssetTab::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -83,20 +119,26 @@ BOOL CAssetTab::OnInitDialog()
 	int nIndex;			// Index of the list control item.	
 	int row(0);			// Row of the list control item.
 	CString strQuery;
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
 	CRecordset* rs = new CRecordset();
 	strQuery.Format(_T("SELECT ASSET.*, ASSET_CUSTOMER_ID AS Expr1 FROM ASSET WHERE(ASSET_CUSTOMER_ID = %d)"), m_nAssetCustomerID);
-	
-	theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery);
+
+	if (!theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
+	{
+		pMainFrame->m_wndStatusBar.SetInformation(_T("ERROR: Couldn't open the database for customer asset list!"));
+		delete rs;
+		EndDialog(IDCANCEL);
+		return FALSE;
+	}
 
 	while (!rs->IsEOF())
 	{
 		CString strValue = _T("");
 
-		// Get the Asset ID.
 		rs->GetFieldValue(_T("ASSET_ID"), strValue);
 		nIndex = m_ctrExistingAssetList.InsertItem(row, strValue);
-	
+
 		rs->GetFieldValue(_T("ASSET_CUSTOMER_ID"), strValue);
 		m_ctrExistingAssetList.SetItemText(nIndex, 1, strValue);
 
@@ -127,20 +169,35 @@ BOOL CAssetTab::OnInitDialog()
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
 	delete rs;
 
-	return TRUE;  // return TRUE unless you set the focus to a control
-	// EXCEPTION: OCX Property Pages should return FALSE
+	return TRUE;
 }
 
+// Data exchange between the dialog controls and the variables.
+void CAssetTab::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_ASSETTAB_CUSTOMER_SURENAME, m_strCustomerSurname);
+	DDX_Text(pDX, IDC_ASSETTAB_CUSTOMER_NAME, m_strCustomerName);
+	DDX_Text(pDX, IDC_ASSETTAB_DESCRIPTION, m_strDescription);
+	DDX_Text(pDX, IDC_ASSTETTAB_MODEL_NUMBER, m_strModelNumber);
+	DDX_Text(pDX, IDC_ASSETTAB_BRAND, m_strBrand);
+	DDX_Text(pDX, IDC_ASSETTAB_HISTORY_LOG, m_strHistoryLog);
+	DDX_Control(pDX, IDC_ASSETTAB_UPDATE, m_btnUpdateAsset);
+	DDX_Control(pDX, IDC_ASSETTAB_NEW, m_btnNewAsset);
+	DDX_Control(pDX, IDC_ASSETTAB_CREATE_WORKORDER, m_btnCreateWorkorder);
+	DDX_Control(pDX, IDC_ASSETTAB_ASSET_LIST, m_ctrExistingAssetList);
+}
 
+/// <summary>
+/// Method OnEnChangeAssetDetails() is called when the user changes the text in the description, model number or brand edit controls.
+/// When the user changes the text in the description, model number or brand edit controls,
+/// the new asset button is enabled if all the edit controls have text.
+/// If the user selects an existing asset from the list control and changes the text in the description, model number or brand edit controls,
+/// the update asset button is enabled.
+/// If asset details is not dirty, the create workorder button is enabled.
+/// </summary>
 void CAssetTab::OnEnChangeAssetDetails()
 {
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
-
-	// TODO:  Add your control notification handler code here
-
 	UpdateData(TRUE);
 
 	if (!m_bIsSelectedFromAssetList)
@@ -166,15 +223,20 @@ void CAssetTab::OnEnChangeAssetDetails()
 	}
 
 	m_btnCreateWorkorder.EnableWindow(FALSE);
-
-	m_bIsDirtyAssetDetails =true;
 }
 
-
+/// <summary>
+/// Method OnDoubleClickAssetTabAssetList() is called when the user double clicks on an item in the list control.
+/// When the user double clicks on an item in the list control,
+/// the selected asset details are loaded into the edit controls.
+/// The update asset button is enabled.
+/// </summary>
+/// <param name="pNMHDR">A pointer to an NMHDR structure that contains information about a notification message.</param>
+/// <param name="pResult">A pointer to an LRESULT structure that is used to return the result of the message processing.</param>
+/// <returns></returns>
 void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-	// TODO: Add your control notification handler code here
 
 	//  pNMItemActivate->iItem = -1 means no existing item is selected.
 	if (pNMItemActivate->iItem != -1)
@@ -190,7 +252,6 @@ void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult)
 		m_sAssetDisposed = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 7));
 		m_strHistoryLog = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 8);
 
-		//m_btnCreateWorkorder.EnableWindow(TRUE);
 		m_bIsSelectedFromAssetList = true;
 
 		m_btnCreateWorkorder.EnableWindow(TRUE);
@@ -198,11 +259,16 @@ void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult)
 		// Update the data in the dialog.
 		UpdateData(FALSE);
 	}
-
 	*pResult = 0;
 }
 
-
+/// <summary>
+/// Method OnBnClickedAssetTabUpdate() is called when the user clicks on the update asset button.
+/// When the user clicks on the update asset button,
+/// the asset details are updated in the database.
+/// After update the update asset button is disabled and the create workorder button is enabled.
+/// </summary>
+/// <returns></returns>
 void CAssetTab::OnBnClickedAssetTabUpdate()
 {
 	CString strQuery;
@@ -217,6 +283,10 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 			return strResult;
 		};
 
+	// A numeric zero is converted to a string zero or as an empty string, depending on the isNull parameter.
+	// Because when a CString format %d is used, a numeric zero must be converted to an zero string.
+	// otherwise the CString format will see this as a NUL-character, and causes an error on the string length check.
+	// If the isNull parameter is true, the numeric zero is converted to an empty string, so that lambda function buildFieldValue() returns "NULL".
 	auto intToCString = [](unsigned int n, bool isNull = false) -> CString
 		{
 			CString strResult(_T(""));
@@ -242,19 +312,35 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 		static_cast<LPCTSTR>(buildFieldValue(intToCString(m_sAssetDisposed))),
 		static_cast<LPCTSTR>(buildFieldValue(m_strHistoryLog)),
 		m_nAssetID);
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
-	sql.ExecuteQuery(strQuery.GetBuffer());
+
+	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+	{
+		pMainFrame->m_wndStatusBar.SetInformation(_T("ERROR: Asset couldn't be updated!"));
+	}
+	else
+	{
+		pMainFrame->m_wndStatusBar.SetInformation(_T("Ready: Asset has been updated."));
+	}
+	
 	strQuery.ReleaseBuffer();
 
 	m_btnCreateWorkorder.EnableWindow(TRUE);
 	m_btnUpdateAsset.EnableWindow(FALSE);
-	m_bIsDirtyAssetDetails = false;
 }
 
-
+/// <summary>
+/// Method OnBnClickedAssetTabNew() is called when the user clicks on the new asset button.
+/// When the user clicks on the new asset button,
+/// a new asset is created in the database.
+/// After creation the new asset button is disabled and the create workorder button is enabled.
+/// </summary>
+/// <returns></returns>
 void CAssetTab::OnBnClickedAssetTabNew()
 {
+	// Creation date is the current date.
 	CString strDate;
 	CTime time = CTime().GetCurrentTime();
 	strDate = time.Format(_T("%m/%d/%Y"));
@@ -278,12 +364,50 @@ void CAssetTab::OnBnClickedAssetTabNew()
 		static_cast<LPCTSTR>(buildFieldValue(m_strModelNumber)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strBrand)));
 
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
-	sql.ExecuteQuery(strQuery.GetBuffer());
+
+	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+	{
+		pMainFrame->m_wndStatusBar.SetInformation(_T("ERROR: Asset couldn't be created!"));
+	}
+	else
+	{
+		auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('ASSET')"));
+		if (lastID > 0)
+		{
+			m_nAssetID = lastID;
+			pMainFrame->m_wndStatusBar.SetInformation(_T("Ready: New asset has been created."));
+		}
+		else
+			pMainFrame->m_wndStatusBar.SetInformation(_T("ERROR: Asset couldn't be created!"));
+	}
+	
 	strQuery.ReleaseBuffer();
 
 	m_btnCreateWorkorder.EnableWindow(TRUE);
 	m_btnNewAsset.EnableWindow(FALSE);
-	m_bIsDirtyAssetDetails = false;
 	m_bIsSelectedFromAssetList = true;
+}
+
+/// <summary>
+/// Method OnBnClickedAssetTabCreateWorkorder() is called when the user clicks on the create workorder button.
+/// When the user clicks on the create workorder button,
+/// the asset details are loaded into the shared data structure.
+/// The tab control is switched to the workorder tab.
+/// </summary>
+/// <returns></returns>
+void CAssetTab::OnBnClickedAssetTabCreateWorkorder()
+{
+	UpdateData(TRUE);
+
+	m_pAssetDetailsRecords->m_nAssetID = m_nAssetID;
+	m_pAssetDetailsRecords->m_nAssetCustomerID = m_nAssetCustomerID;
+	m_pAssetDetailsRecords->m_strDescription = m_strDescription;
+	m_pAssetDetailsRecords->m_strModelNumber = m_strModelNumber;
+	m_pAssetDetailsRecords->m_strBrand = m_strBrand;
+
+	m_pTabControl->ChangeTabView();
+
 }

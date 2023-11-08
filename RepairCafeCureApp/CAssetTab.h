@@ -1,58 +1,114 @@
+/*
+	Copyright (C) 2023  artvabas
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+	To see the license for this source code, please visit:
+		<https://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit:
+		<https://artvabas.com>
+		<https://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at:
+		<https://artvabas.com/contact>
+
+*/
+
+/*
+* This file is part of RepairCafeCureApp.
+* File: CAssetTab.h, defines class CAssetTab
+*
+* This class is the view of the asset-tab in the CTabCtrlAssetWorkorder class,
+* which is the view of the CListCtrl created on the asset/workorder dialog (CAssetDialog)
+*
+* With this form the user can search for existing assets, add new assets, update existing assets.
+* After selecting an asset, the user can create a workorder for the selected asset.
+*
+* Controls are enabled and disabled depending on the state of the form.
+*
+* Target: Windows 10/11 64bit
+* Version: 1.0.230.0
+* Created: 04-11-2023, (dd-mm-yyyy)
+* Updated: 08-11-2023, (dd-mm-yyyy)
+* Creator: artvabasDev / artvabas
+*
+* Description: Database connection class
+* License: GPLv3
+*/
 #pragma once
-//#include "afxdialogex.h"
+
 #include "CTabCtrlAssetWorkorder.h"
 
-// CAssetTab dialog
+namespace artvabas {
 
-class CAssetTab : public CDialogEx
-{
-	DECLARE_DYNAMIC(CAssetTab)
+	namespace rcc {
 
-public:
-	CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent = nullptr);   // standard constructor
-	virtual ~CAssetTab();
+		namespace ui {
 
-// Dialog Data
+			namespace dialogs {
+
+				class CAssetTab : public CDialogEx
+				{
+					DECLARE_DYNAMIC(CAssetTab)
+
+				private:
+					bool m_bIsSelectedFromAssetList;
+					CTabCtrlAssetWorkorder* m_pTabControl;
+					AssetDetailsRecords* m_pAssetDetailsRecords;
+
+					CString m_strCustomerSurname;
+					CString m_strCustomerName;
+
+					unsigned int m_nAssetID;
+					unsigned int m_nAssetCustomerID;
+					unsigned int m_nAssetWorkorderID;
+					unsigned short m_sAssetDisposed;
+
+					CString m_strAssetCreateDate;
+					CString m_strDescription;
+					CString m_strModelNumber;
+					CString m_strBrand;
+					CString m_strHistoryLog;
+
+					CButton m_btnUpdateAsset;
+					CButton m_btnNewAsset;
+					CButton m_btnCreateWorkorder;
+					CListCtrl m_ctrExistingAssetList;
+
+				public:
+					CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent = nullptr);
+					virtual ~CAssetTab();
+
+				private:
 #ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_ASSET_TAB };
+					enum { IDD = IDD_ASSET_TAB };
 #endif
 
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+				private:
+					BOOL OnInitDialog() override;
+					void DoDataExchange(CDataExchange* pDX) override;
 
-	DECLARE_MESSAGE_MAP()
-private:
-	CTabCtrlAssetWorkorder* m_pTabControl;
-	AssetDetailsRecords* m_pAssetDetailsRecords;
-
-	CString m_strCustomerSurname;
-	CString m_strCustomerName;
-
-	unsigned int m_nAssetID;
-	unsigned int m_nAssetCustomerID;
-	unsigned int m_nAssetWorkorderID;
-	unsigned short m_sAssetDisposed;
-
-	CString m_strAssetCreateDate;
-	CString m_strDescription;
-	CString m_strModelNumber;
-	CString m_strBrand;
-	CString m_strHistoryLog;
-
-	CButton m_btnUpdateAsset;
-	CButton m_btnNewAsset;
-	CButton m_btnCreateWorkorder;
-	CListCtrl m_ctrExistingAssetList;
-
-public:
-	virtual BOOL OnInitDialog();
-private:
-	bool m_bIsDirtyAssetDetails;
-	bool m_bIsSelectedFromAssetList;
-
-private:
-	afx_msg void OnEnChangeAssetDetails();
-	afx_msg void OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnBnClickedAssetTabUpdate();
-	afx_msg void OnBnClickedAssetTabNew();
-};
+					DECLARE_MESSAGE_MAP()
+				private:
+					afx_msg void OnEnChangeAssetDetails();
+					afx_msg void OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult);
+					afx_msg void OnBnClickedAssetTabUpdate();
+					afx_msg void OnBnClickedAssetTabNew();
+					afx_msg void OnBnClickedAssetTabCreateWorkorder();
+				};
+			}
+		}
+	}
+}

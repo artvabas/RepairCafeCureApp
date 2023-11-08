@@ -7,7 +7,7 @@
 #include "CAssetTab.h"
 #include "CWorkorderTab.h"
 
-// CTabCtrlAssetWorkorder
+using namespace artvabas::rcc::ui::dialogs;
 
 IMPLEMENT_DYNAMIC(CTabCtrlAssetWorkorder, CTabCtrl)
 
@@ -17,6 +17,16 @@ CTabCtrlAssetWorkorder::CTabCtrlAssetWorkorder(CString& strCustomerSurname, CStr
 {
 	m_tabPages[0] = new CAssetTab(this, strCustomerSurname, strCustomerName, nCustomerID);
 	m_tabPages[1] = new CWorkorderTab(this);
+
+	m_assetDetailsRecords.m_strCustomerSurname = _T("");
+	m_assetDetailsRecords.m_strCustomerName = _T("");
+
+	m_assetDetailsRecords.m_nAssetID = 0U;
+	m_assetDetailsRecords.m_nAssetCustomerID = 0U;
+	m_assetDetailsRecords.m_strDescription = _T("");
+	m_assetDetailsRecords.m_strModelNumber = _T("");
+	m_assetDetailsRecords.m_strBrand = _T("");
+
 }
 
 CTabCtrlAssetWorkorder::~CTabCtrlAssetWorkorder()
@@ -39,6 +49,25 @@ void CTabCtrlAssetWorkorder::Init()
 
 	SetRectangle();
 	
+}
+
+void CTabCtrlAssetWorkorder::ChangeTabView()
+{
+	m_tabCurrent = GetCurFocus();
+	if(m_tabCurrent == 0)
+	{
+		m_tabPages[m_tabCurrent]->ShowWindow(SW_HIDE);
+		m_tabPages[1]->ShowWindow(SW_SHOW);
+		m_tabCurrent = 1;
+		SetCurFocus(m_tabCurrent);
+	}
+	else
+	{
+		m_tabPages[m_tabCurrent]->ShowWindow(SW_HIDE);
+		m_tabPages[0]->ShowWindow(SW_SHOW);
+		m_tabCurrent = 0;
+		SetCurFocus(m_tabCurrent);
+	}
 }
 
 void CTabCtrlAssetWorkorder::SetRectangle()

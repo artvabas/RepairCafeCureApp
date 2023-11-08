@@ -59,13 +59,14 @@ public:
 	virtual ~CMainFrame();
 
 // Members
+public:
+	CMFCRibbonStatusBar  m_wndStatusBar;
 private:
 	CComboBox* m_pCmbCaptionBarEmployeeName;
 protected:
 	CMFCRibbonBar     m_wndRibbonBar;
 	CMFCRibbonApplicationButton m_MainButton;
 	CMFCToolBarImages m_PanelImages;
-	CMFCRibbonStatusBar  m_wndStatusBar;
 	CMFCCaptionBar    m_wndCaptionBar;
 
 // Overrides

@@ -28,31 +28,83 @@ CSqlNativeAVB::~CSqlNativeAVB()
 
 bool CSqlNativeAVB::ExecuteQuery(SQLWCHAR* pszQuery)
 {
-    // Allocate an environment
-    if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_hEnvironment) == SQL_ERROR)
+    if(!CreateSQLConnection())
+		return false;  
+   
+    auto retCode = SQLExecDirectW(m_hStatement, pszQuery, SQL_NTS);
+
+    return CheckReturnCodeForClosing(retCode);
+}
+
+SQLINTEGER CSqlNativeAVB::GetLastAddedID(SQLWCHAR* pszQuery)
+{
+    SQLINTEGER id = 0L;
+    if (!CreateSQLConnection())
+        return 0L;
+
+    auto checkErrorReturn = [&](SQLRETURN retCode) -> bool
     {
-        wchar_t buffer[256];
-        swprintf_s(buffer, L"Unable to allocate an environment handle\n");
-        AfxMessageBox(buffer);
-        ASSERT(fwprintf(stderr, L"Unable to allocate an environment handle\n"));
-        return false;
+        if (retCode == SQL_ERROR || retCode == SQL_SUCCESS_WITH_INFO)
+        {
+            return HandleDiagnosticRecord(m_hStatement, SQL_HANDLE_STMT, retCode);
+		}
+		return true;
+    };
+    
+    SQLRETURN retCode = 0L;
+    // Execute the SQL query
+    if(!checkErrorReturn(retCode = SQLExecDirectW(m_hStatement, pszQuery, SQL_NTS)))
+		return 0L;
+
+    // Bind the result column to a variable
+    if(!checkErrorReturn(retCode = SQLBindCol(m_hStatement, 1, SQL_C_LONG, &id, sizeof(id), NULL)))
+        return 0L;
+
+    // Fetch the result
+    if(!checkErrorReturn(retCode = SQLFetch(m_hStatement)))
+        return 0L;
+
+    return CheckReturnCodeForClosing(retCode) ? id : 0L;
+}
+
+
+bool CSqlNativeAVB::CreateSQLConnection()
+{
+    if (m_hDatabaseConnection == NULL && m_hEnvironment == NULL && m_hStatement == NULL)
+    {
+        // Allocate an environment
+        if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_hEnvironment) == SQL_ERROR)
+        {
+            wchar_t buffer[256];
+            swprintf_s(buffer, L"Unable to allocate an environment handle\n");
+            AfxMessageBox(buffer);
+            ASSERT(fwprintf(stderr, L"Unable to allocate an environment handle\n"));
+            return false;
+        }
+
+        // Register this as an application that expects 3.x behavior,
+        // you must register something if you use AllocHandle
+        if (!TryODBC(m_hEnvironment, SQL_HANDLE_ENV, SQLSetEnvAttr(m_hEnvironment, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0)))
+            return false;
+
+        // Allocate a connection
+        if (!TryODBC(m_hEnvironment, SQL_HANDLE_ENV, SQLAllocHandle(SQL_HANDLE_DBC, m_hEnvironment, &m_hDatabaseConnection)))
+            return false;
+
+        // Connect to the driver.  Use the connection string if supplied
+        // on the input, otherwise let the driver manager prompt for input.
+        if (!TryODBC(m_hDatabaseConnection, SQL_HANDLE_DBC, SQLDriverConnect(m_hDatabaseConnection, GetDesktopWindow(), m_pszSqlConnectionString, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE)))
+            return false;
+
+        if (!TryODBC(m_hDatabaseConnection, SQL_HANDLE_DBC, SQLAllocHandle(SQL_HANDLE_STMT, m_hDatabaseConnection, &m_hStatement)))
+            return false;
     }
 
-    // Register this as an application that expects 3.x behavior,
-    // you must register something if you use AllocHandle
-    TryODBC(m_hEnvironment, SQL_HANDLE_ENV, SQLSetEnvAttr(m_hEnvironment, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0));
+    return true;
+}
 
-    // Allocate a connection
-    TryODBC(m_hEnvironment, SQL_HANDLE_ENV, SQLAllocHandle(SQL_HANDLE_DBC, m_hEnvironment, &m_hDatabaseConnection));
-	
-    // Connect to the driver.  Use the connection string if supplied
-    // on the input, otherwise let the driver manager prompt for input.
-    TryODBC(m_hDatabaseConnection, SQL_HANDLE_DBC, SQLDriverConnect(m_hDatabaseConnection, GetDesktopWindow(), m_pszSqlConnectionString, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE));
-
-    TryODBC(m_hDatabaseConnection, SQL_HANDLE_DBC, SQLAllocHandle(SQL_HANDLE_STMT, m_hDatabaseConnection, &m_hStatement));
-   
-    auto RetCode = SQLExecDirect(m_hStatement, pszQuery, SQL_NTS);
-
+bool CSqlNativeAVB::CheckReturnCodeForClosing(SQLRETURN RetCode)
+{
     switch (RetCode)
     {
     case SQL_SUCCESS_WITH_INFO:
@@ -102,12 +154,12 @@ void CSqlNativeAVB::CloseConnection()
     }
 }
 
-void CSqlNativeAVB::TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x)
+bool CSqlNativeAVB::TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x)
 {
 	RETCODE rc = x;
     if (rc != SQL_SUCCESS)
     {
-		HandleDiagnosticRecord(h, ht, rc);
+		return HandleDiagnosticRecord(h, ht, rc);
 	}
     if (rc == SQL_ERROR)
     {
@@ -115,10 +167,12 @@ void CSqlNativeAVB::TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x)
         swprintf_s(buffer, L"Error in " L"\n");
         AfxMessageBox(buffer);
         ASSERT(fwprintf(stderr, L"Error in " L"\n"));
+        return false;
 	}
+    return true;
 }
 
-void CSqlNativeAVB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode)
+bool CSqlNativeAVB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode)
 {
     SQLSMALLINT iRec = 0;
 	SQLINTEGER  iError;
@@ -131,7 +185,7 @@ void CSqlNativeAVB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType,
         swprintf_s(buffer, L"Invalid handle!\n");
         AfxMessageBox(buffer);
         ASSERT(fwprintf(stderr, L"Invalid handle!\n"));
-        return;
+        return false;
     }
 
     while (SQLGetDiagRecW(hType, hHandle, ++iRec, wszState, &iError, wszMessage, (SQLSMALLINT)(sizeof(wszMessage) / sizeof(wchar_t)), (SQLSMALLINT*)NULL) == SQL_SUCCESS)
@@ -145,4 +199,5 @@ void CSqlNativeAVB::HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType,
             ASSERT(fwprintf(stderr, L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError));
         }
     }
+    return true;
 }
