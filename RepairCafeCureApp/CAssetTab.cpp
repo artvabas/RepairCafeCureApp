@@ -41,7 +41,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 08-11-2023, (dd-mm-yyyy)
+* Updated: 09-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -50,7 +50,6 @@
 
 #include "pch.h"
 #include "RepairCafeCureApp.h"
-#include "MainFrm.h"
 #include "CAssetTab.h"
 
 using namespace artvabas::sql;
@@ -119,17 +118,22 @@ BOOL CAssetTab::OnInitDialog()
 	int nIndex;			// Index of the list control item.	
 	int row(0);			// Row of the list control item.
 	CString strQuery;
-	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 	CRecordset* rs = new CRecordset();
 	strQuery.Format(_T("SELECT ASSET.*, ASSET_CUSTOMER_ID AS Expr1 FROM ASSET WHERE(ASSET_CUSTOMER_ID = %d)"), m_nAssetCustomerID);
 
 	if (!theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
 	{
-		pMainFrame->m_wndStatusBar.SetInformation(_T("ERROR: Couldn't open the database for customer asset list!"));
+		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 		delete rs;
 		EndDialog(IDCANCEL);
 		return FALSE;
+	}
+	else
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_IDLE_UNLOCK);
 	}
 
 	while (!rs->IsEOF())
@@ -312,17 +316,18 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 		static_cast<LPCTSTR>(buildFieldValue(intToCString(m_sAssetDisposed))),
 		static_cast<LPCTSTR>(buildFieldValue(m_strHistoryLog)),
 		m_nAssetID);
-	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
 
 	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
 	{
-		pMainFrame->m_wndStatusBar.SetInformation(_T("ERROR: Asset couldn't be updated!"));
+		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
 	}
 	else
 	{
-		pMainFrame->m_wndStatusBar.SetInformation(_T("Ready: Asset has been updated."));
+		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
 	}
 	
 	strQuery.ReleaseBuffer();
@@ -364,13 +369,13 @@ void CAssetTab::OnBnClickedAssetTabNew()
 		static_cast<LPCTSTR>(buildFieldValue(m_strModelNumber)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strBrand)));
 
-	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
 
 	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
 	{
-		pMainFrame->m_wndStatusBar.SetInformation(_T("ERROR: Asset couldn't be created!"));
+		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
 	}
 	else
 	{
@@ -378,10 +383,12 @@ void CAssetTab::OnBnClickedAssetTabNew()
 		if (lastID > 0)
 		{
 			m_nAssetID = lastID;
-			pMainFrame->m_wndStatusBar.SetInformation(_T("Ready: New asset has been created."));
+			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
 		}
 		else
-			pMainFrame->m_wndStatusBar.SetInformation(_T("ERROR: Asset couldn't be created!"));
+		{
+			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
+		}
 	}
 	
 	strQuery.ReleaseBuffer();
@@ -401,6 +408,9 @@ void CAssetTab::OnBnClickedAssetTabNew()
 void CAssetTab::OnBnClickedAssetTabCreateWorkorder()
 {
 	UpdateData(TRUE);
+
+	m_pAssetDetailsRecords->m_strCustomerSurname = m_strCustomerSurname;
+	m_pAssetDetailsRecords->m_strCustomerName = m_strCustomerName;
 
 	m_pAssetDetailsRecords->m_nAssetID = m_nAssetID;
 	m_pAssetDetailsRecords->m_nAssetCustomerID = m_nAssetCustomerID;

@@ -39,7 +39,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 03-11-2023, (dd-mm-yyyy)
+* Updated: 09-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -204,7 +204,6 @@ void CCustomerView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_EMAIL, m_ctrlCustomerEmail);
 }
 
-
 /* Event handlers */
 
 /// <summary>
@@ -223,11 +222,20 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 	int row(0);			// Row of the list control item.
 	CString strQuery;
 
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
 	CRecordset* rs = new CRecordset();
 	strQuery.Format(_T("SELECT CUSTOMER.*, CUSTOMER_SURNAME AS Expr1 FROM CUSTOMER WHERE(CUSTOMER_SURNAME = N\'%s\')"),
 		static_cast<LPCTSTR>(m_strSearchCustomerSurname));
 
-	theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery);
+	if (!theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_FAIL);
+	}
+	else
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_OK);
+	}
 	
 	// Fill the existing customers list control with the found customers from the database.
 	while (!rs->IsEOF())
@@ -475,11 +483,27 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd()
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)));
 
-	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
-	sql.ExecuteQuery(strQuery.GetBuffer());
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
-	auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('CUSTOMER')"));
-	if(lastID > 0) m_nCustomerID = lastID;
+	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+
+	if(!sql.ExecuteQuery(strQuery.GetBuffer()))
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+	}
+	else
+	{
+		auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('CUSTOMER')"));
+		if (lastID > 0)
+		{
+			m_nCustomerID = lastID;
+			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+		}
+		else
+		{
+			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
+		}
+	}
 
 	strQuery.ReleaseBuffer();
 }
@@ -515,8 +539,18 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
 				static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)),
 				m_nCustomerID);
 
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
-	sql.ExecuteQuery(strQuery.GetBuffer());
+
+	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
+	}
+	else
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
+	}
 
 	strQuery.ReleaseBuffer();
 }

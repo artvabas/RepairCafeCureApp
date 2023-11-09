@@ -36,7 +36,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 23-10-2023, (dd-mm-yyyy)
+* Updated: 0-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -68,8 +68,14 @@ public:
 	CRepairCafeCureApp() noexcept;
 	virtual ~CRepairCafeCureApp();
 
+	// inline methods for getting the database connection
+	inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
+	CView* SwitchView(ViewType vtView);
+
+	void SetStatusBarText(UINT nStrID);
+
 // Overrides
-public:
+private:
 	BOOL InitInstance() override;
 	int ExitInstance() override;
 	void PreLoadState() override;
@@ -77,18 +83,12 @@ public:
 	void SaveCustomState() override;
 
 // Merage handlers
-public:
+	DECLARE_MESSAGE_MAP()
+private:
 	afx_msg void OnAppAbout();
 	afx_msg void OnCustomerView();
 	afx_msg void OnAssetView();
 	afx_msg void OnWorkorderView();
-	DECLARE_MESSAGE_MAP()
-
-// General methods
-public:
-	// inline methods for getting the database connection
-	inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
-	CView* SwitchView(ViewType vtView);
 };
 
 extern CRepairCafeCureApp theApp;

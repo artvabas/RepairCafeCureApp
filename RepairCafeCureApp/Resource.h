@@ -8,9 +8,19 @@
 #define IDD_ASSET_FORM                  101
 #define IDS_STATUSBAR_IDLE_LOCK         102
 #define IDS_STATUSBAR_IDLE_UNLOCK       103
+#define IDS_STATUSBAR_SEARCH_FAIL       104
+#define IDS_STATUSBAR_SEARCH_OK         105
+#define IDS_STATUSBAR_INSERT_FAIL       106
+#define IDS_STATUSBAR_INSERT_OK         107
+#define IDS_STATUSBAR_LASTID_FAIL       108
+#define IDS_STATUSBAR_UPDATE_FAIL       109
 #define IDB_WRITESMALL                  110
+#define IDS_STATUSBAR_UPDATE_OK         110
 #define IDB_WRITELARGE                  111
+#define IDS_STATUSBAR_SELECT_FAIL       111
 #define IDB_MAIN                        112
+#define IDS_STATUS_SELECT_OK            112
+#define IDS_STATUSBAR_SELECT_OK         112
 #define IDB_BUTTONS                     113
 #define IDB_FILELARGE                   114
 #define IDB_FILESMALL                   115
@@ -67,6 +77,17 @@
 #define IDC_ASSETTAB_CREATE_WORKORDER   1030
 #define IDC_LIST2                       1031
 #define IDC_ASSETTAB_ASSET_LIST         1031
+#define IDC_WOTAB_CUSTOMER_SURNAME      1033
+#define IDC_WOTAB_CUSTOMER_NAME         1034
+#define IDC_WOTAB_ASSET_DESCRIPTION     1035
+#define IDC_WOTAB_ASSET_MODEL_NUMBER    1036
+#define IDC_WOTAB_ASSET_BRAND           1037
+#define IDC_WOTAB_DESCRIPTION           1038
+#define IDC_WOTAB_CREATE                1039
+#define IDC_WOTAB_WORKORDERS_HISTORY_LIST 1040
+#define IDC_WOTAB_WORKORDER_HISTORY_DESCRIPTION 1042
+#define IDC_EDIT8                       1043
+#define IDC_WOTAB_WORKORDER_HISTORY_LOG 1043
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_WORKORDER_VIEW               32774
@@ -78,7 +99,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        320
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1044
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

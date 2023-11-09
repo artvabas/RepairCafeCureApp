@@ -36,7 +36,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 23-10-2023, (dd-mm-yyyy)
+* Updated: 09-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -314,6 +314,16 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 	((CFrameWnd*)m_pMainWnd)->RecalcLayout();
 	pNewView->Invalidate();
 	return pNewView;// pActiveView;
+}
+void CRepairCafeCureApp::SetStatusBarText(UINT nStrID)
+{
+	BOOL bNameValid;
+	CString strName;
+	bNameValid = strName.LoadString(nStrID);
+	ASSERT(bNameValid);
+
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+	pMainFrame->m_wndStatusBar.SetInformation(strName);
 }
 //**************************************************************************************************************
 
