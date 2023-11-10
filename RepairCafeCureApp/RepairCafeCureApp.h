@@ -36,7 +36,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 0-11-2023, (dd-mm-yyyy)
+* Updated: 10-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -73,6 +73,7 @@ public:
 	CView* SwitchView(ViewType vtView);
 
 	void SetStatusBarText(UINT nStrID);
+	CString GetSelectedEmployeeName();
 
 // Overrides
 private:

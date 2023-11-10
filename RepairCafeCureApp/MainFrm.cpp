@@ -40,7 +40,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 23-10-2023, (dd-mm-yyyy)
+* Updated: 10-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -284,6 +284,8 @@ BOOL CMainFrame::CreateCaptionBar()
 	ASSERT(bNameValid);
 	m_wndStatusBar.SetInformation(strTemp);
 
+	//m_pCmbCaptionBarEmployeeName-
+
 	// Add items to comboBox
 	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
 	CRecordset* rs = new CRecordset();
@@ -306,4 +308,26 @@ BOOL CMainFrame::CreateCaptionBar()
 	//*******************************************************************************
 
 	return TRUE;
+}
+
+/// <summary>
+/// This function is called by the App class, for giving back the selected
+/// employee name from the combobox on the caption bar.
+/// </summary>
+/// <returns>CString the selected employee name</returns>
+CString CMainFrame::GetSelectedEmployee()
+{
+	CString strEmployee;
+	int nIndex = m_pCmbCaptionBarEmployeeName->GetCurSel();
+	if (nIndex != CB_ERR && nIndex != 0)
+	{
+		int nLength = m_pCmbCaptionBarEmployeeName->GetLBTextLen(nIndex);
+		if (nLength != CB_ERR)
+		{
+			m_pCmbCaptionBarEmployeeName->GetLBText(nIndex, strEmployee.GetBuffer(nLength));
+			strEmployee.ReleaseBuffer();
+			
+		}
+	}
+	return strEmployee;
 }

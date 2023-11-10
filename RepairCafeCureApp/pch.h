@@ -11,6 +11,6 @@
 #include "framework.h"
 #include <afxdb.h>
 #include <string>
-#include "CSqlNativeAVB.h"
+#include "CSqlNativeAVB.h" 
 
 #endif //PCH_H

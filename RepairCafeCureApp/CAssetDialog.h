@@ -3,6 +3,7 @@
 #include "CTabCtrlAssetWorkorder.h"
 
 // CAssetDialog dialog
+using namespace artvabas::rcc::ui::controls;
 
 class CAssetDialog : public CDialogEx
 {

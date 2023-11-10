@@ -36,7 +36,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 09-11-2023, (dd-mm-yyyy)
+* Updated: 10-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -315,6 +315,13 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 	pNewView->Invalidate();
 	return pNewView;// pActiveView;
 }
+
+/// <summary>
+/// This method is used to set the tatus bar text.
+/// and can be call from throughout the application.
+/// </summary>
+/// <param name="nStrID">The string ID to set, from string table.</param>
+/// <returns>void</returns>
 void CRepairCafeCureApp::SetStatusBarText(UINT nStrID)
 {
 	BOOL bNameValid;
@@ -325,6 +332,19 @@ void CRepairCafeCureApp::SetStatusBarText(UINT nStrID)
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 	pMainFrame->m_wndStatusBar.SetInformation(strName);
 }
+
+/// <summary>
+/// This method is used to get the selected employee name, who is using the application.
+/// </summary>
+/// <returns>CString The selected employee name.</returns>
+CString CRepairCafeCureApp::GetSelectedEmployeeName()
+{
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+	if (pMainFrame != NULL) return pMainFrame->GetSelectedEmployee();
+	else return CString("");
+}
+
 //**************************************************************************************************************
 
 /*

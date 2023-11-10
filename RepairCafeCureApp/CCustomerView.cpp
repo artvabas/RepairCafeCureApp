@@ -228,44 +228,43 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 	strQuery.Format(_T("SELECT CUSTOMER.*, CUSTOMER_SURNAME AS Expr1 FROM CUSTOMER WHERE(CUSTOMER_SURNAME = N\'%s\')"),
 		static_cast<LPCTSTR>(m_strSearchCustomerSurname));
 
-	if (!theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
+	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
 	{
-		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_FAIL);
+		// Fill the existing customers list control with the found customers from the database.
+		while (!rs->IsEOF())
+		{
+			CString strValue = _T("");
+			rs->GetFieldValue(_T("CUSTOMER_ID"), strValue);
+			nIndex = m_ctlExistingCustomersList.InsertItem(row++, strValue);
+
+			rs->GetFieldValue(_T("CUSTOMER_SURNAME"), strValue);
+			m_ctlExistingCustomersList.SetItemText(nIndex, 1, strValue);
+
+			rs->GetFieldValue(_T("CUSTOMER_NAME"), strValue);
+			m_ctlExistingCustomersList.SetItemText(nIndex, 2, strValue);
+
+			rs->GetFieldValue(_T("CUSTOMER_CELL_PHONE"), strValue);
+			m_ctlExistingCustomersList.SetItemText(nIndex, 3, strValue);
+
+			rs->GetFieldValue(_T("CUSTOMER_PHONE"), strValue);
+			m_ctlExistingCustomersList.SetItemText(nIndex, 4, strValue);
+
+			rs->GetFieldValue(_T("CUSTOMER_EMAIL"), strValue);
+			m_ctlExistingCustomersList.SetItemText(nIndex, 5, strValue);
+
+			rs->GetFieldValue(_T("CUSTOMER_COMMENT"), strValue);
+			m_ctlExistingCustomersList.SetItemText(nIndex, 6, strValue);
+
+			rs->GetFieldValue(_T("CUSTOMER_GENERAL_LOG"), strValue);
+			m_ctlExistingCustomersList.SetItemText(nIndex, 7, strValue);
+
+			rs->MoveNext();
+		}
+		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_OK);
 	}
 	else
 	{
-		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_OK);
-	}
-	
-	// Fill the existing customers list control with the found customers from the database.
-	while (!rs->IsEOF())
-	{
-		CString strValue = _T("");
-		rs->GetFieldValue(_T("CUSTOMER_ID"), strValue);
-		nIndex = m_ctlExistingCustomersList.InsertItem(row++, strValue);
-
-		rs->GetFieldValue(_T("CUSTOMER_SURNAME"), strValue);
-		m_ctlExistingCustomersList.SetItemText(nIndex, 1, strValue);
-
-		rs->GetFieldValue(_T("CUSTOMER_NAME"), strValue);
-		m_ctlExistingCustomersList.SetItemText(nIndex, 2, strValue);
-
-		rs->GetFieldValue(_T("CUSTOMER_CELL_PHONE"), strValue);
-		m_ctlExistingCustomersList.SetItemText(nIndex, 3, strValue);
-
-		rs->GetFieldValue(_T("CUSTOMER_PHONE"), strValue);
-		m_ctlExistingCustomersList.SetItemText(nIndex, 4, strValue);
-
-		rs->GetFieldValue(_T("CUSTOMER_EMAIL"), strValue);
-		m_ctlExistingCustomersList.SetItemText(nIndex, 5, strValue);
-
-		rs->GetFieldValue(_T("CUSTOMER_COMMENT"), strValue);
-		m_ctlExistingCustomersList.SetItemText(nIndex, 6, strValue);
-
-		rs->GetFieldValue(_T("CUSTOMER_GENERAL_LOG"), strValue);
-		m_ctlExistingCustomersList.SetItemText(nIndex, 7, strValue);
-
-		rs->MoveNext();
+		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_FAIL);
 	}
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
 	delete rs;
@@ -570,6 +569,8 @@ void CCustomerView::DisableCustomerSearchAndAddButtons()
 	m_btnAddNewCustomer.EnableWindow(FALSE);
 	m_btnCustomerSurnameSearch.EnableWindow(FALSE);
 }
+
+// Custom methods
 
 /// <summary>
 /// UpdateCustomerDetailsControls is used to enable/disable the customer details controls.

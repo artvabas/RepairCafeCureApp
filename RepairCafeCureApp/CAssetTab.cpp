@@ -90,6 +90,7 @@ BEGIN_MESSAGE_MAP(CAssetTab, CDialogEx)
 	ON_BN_CLICKED(IDC_ASSETTAB_UPDATE, &CAssetTab::OnBnClickedAssetTabUpdate)
 	ON_BN_CLICKED(IDC_ASSETTAB_NEW, &CAssetTab::OnBnClickedAssetTabNew)
 	ON_BN_CLICKED(IDC_ASSETTAB_CREATE_WORKORDER, &CAssetTab::OnBnClickedAssetTabCreateWorkorder)
+	ON_BN_CLICKED(IDC_ASSETTAB_CLEAR, &CAssetTab::OnBnClickedAssetTabClear)
 END_MESSAGE_MAP()
 
 /* override methods */
@@ -124,50 +125,49 @@ BOOL CAssetTab::OnInitDialog()
 	CRecordset* rs = new CRecordset();
 	strQuery.Format(_T("SELECT ASSET.*, ASSET_CUSTOMER_ID AS Expr1 FROM ASSET WHERE(ASSET_CUSTOMER_ID = %d)"), m_nAssetCustomerID);
 
-	if (!theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
+	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
+	{
+		while (!rs->IsEOF())
+		{
+			CString strValue = _T("");
+
+			rs->GetFieldValue(_T("ASSET_ID"), strValue);
+			nIndex = m_ctrExistingAssetList.InsertItem(row, strValue);
+
+			rs->GetFieldValue(_T("ASSET_CUSTOMER_ID"), strValue);
+			m_ctrExistingAssetList.SetItemText(nIndex, 1, strValue);
+
+			rs->GetFieldValue(_T("ASSET_WORKORDER_ID"), strValue);
+			m_ctrExistingAssetList.SetItemText(nIndex, 2, strValue);
+
+			rs->GetFieldValue(_T("ASSET_CREATE_DATE"), strValue);
+			m_ctrExistingAssetList.SetItemText(nIndex, 3, strValue);
+
+			rs->GetFieldValue(_T("ASSET_DESCRIPTION"), strValue);
+			m_ctrExistingAssetList.SetItemText(nIndex, 4, strValue);
+
+			rs->GetFieldValue(_T("ASSET_MODEL_NUMBER"), strValue);
+			m_ctrExistingAssetList.SetItemText(nIndex, 5, strValue);
+
+			rs->GetFieldValue(_T("ASSET_BRAND"), strValue);
+			m_ctrExistingAssetList.SetItemText(nIndex, 6, strValue);
+
+			rs->GetFieldValue(_T("ASSET_DISPOSED"), strValue);
+			m_ctrExistingAssetList.SetItemText(nIndex, 7, strValue);
+
+			rs->GetFieldValue(_T("ASSET_HISTORY_LOG"), strValue);
+			m_ctrExistingAssetList.SetItemText(nIndex, 8, strValue);
+
+			rs->MoveNext();
+		}
+		theApp.SetStatusBarText(IDS_STATUSBAR_IDLE_UNLOCK);
+	}
+	else
 	{
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 		delete rs;
 		EndDialog(IDCANCEL);
 		return FALSE;
-	}
-	else
-	{
-		theApp.SetStatusBarText(IDS_STATUSBAR_IDLE_UNLOCK);
-	}
-
-	while (!rs->IsEOF())
-	{
-		CString strValue = _T("");
-
-		rs->GetFieldValue(_T("ASSET_ID"), strValue);
-		nIndex = m_ctrExistingAssetList.InsertItem(row, strValue);
-
-		rs->GetFieldValue(_T("ASSET_CUSTOMER_ID"), strValue);
-		m_ctrExistingAssetList.SetItemText(nIndex, 1, strValue);
-
-		rs->GetFieldValue(_T("ASSET_WORKORDER_ID"), strValue);
-		m_ctrExistingAssetList.SetItemText(nIndex, 2, strValue);
-
-		rs->GetFieldValue(_T("ASSET_CREATE_DATE"), strValue);
-		m_ctrExistingAssetList.SetItemText(nIndex, 3, strValue);
-
-		rs->GetFieldValue(_T("ASSET_DESCRIPTION"), strValue);
-		m_ctrExistingAssetList.SetItemText(nIndex, 4, strValue);
-
-		rs->GetFieldValue(_T("ASSET_MODEL_NUMBER"), strValue);
-		m_ctrExistingAssetList.SetItemText(nIndex, 5, strValue);
-
-		rs->GetFieldValue(_T("ASSET_BRAND"), strValue);
-		m_ctrExistingAssetList.SetItemText(nIndex, 6, strValue);
-
-		rs->GetFieldValue(_T("ASSET_DISPOSED"), strValue);
-		m_ctrExistingAssetList.SetItemText(nIndex, 7, strValue);
-
-		rs->GetFieldValue(_T("ASSET_HISTORY_LOG"), strValue);
-		m_ctrExistingAssetList.SetItemText(nIndex, 8, strValue);
-
-		rs->MoveNext();
 	}
 
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
@@ -190,6 +190,7 @@ void CAssetTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ASSETTAB_NEW, m_btnNewAsset);
 	DDX_Control(pDX, IDC_ASSETTAB_CREATE_WORKORDER, m_btnCreateWorkorder);
 	DDX_Control(pDX, IDC_ASSETTAB_ASSET_LIST, m_ctrExistingAssetList);
+	DDX_Control(pDX, IDC_ASSETTAB_CLEAR, m_btnClear);
 }
 
 /// <summary>
@@ -209,20 +210,24 @@ void CAssetTab::OnEnChangeAssetDetails()
 		if (!m_strDescription.IsEmpty() && !m_strModelNumber.IsEmpty() && !m_strBrand.IsEmpty())
 		{
 			m_btnNewAsset.EnableWindow(TRUE);
+			m_btnClear.EnableWindow(TRUE);
 		}
 		else
 		{
 			m_btnNewAsset.EnableWindow(FALSE);
+			m_btnClear.EnableWindow(FALSE);
 		}
 	}
 	else if(!m_strDescription.IsEmpty() && !m_strModelNumber.IsEmpty() && !m_strBrand.IsEmpty())
 	{
 		m_btnUpdateAsset.EnableWindow(TRUE);
+		m_btnClear.EnableWindow(TRUE);
 		m_btnCreateWorkorder.EnableWindow(FALSE);
 	}
 	else
 	{
 		m_btnUpdateAsset.EnableWindow(FALSE);
+		m_btnClear.EnableWindow(FALSE);
 		m_btnCreateWorkorder.EnableWindow(FALSE);
 	}
 
@@ -259,6 +264,7 @@ void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult)
 		m_bIsSelectedFromAssetList = true;
 
 		m_btnCreateWorkorder.EnableWindow(TRUE);
+		m_btnClear.EnableWindow(TRUE);
 
 		// Update the data in the dialog.
 		UpdateData(FALSE);
@@ -421,3 +427,35 @@ void CAssetTab::OnBnClickedAssetTabCreateWorkorder()
 	m_pTabControl->ChangeTabView();
 
 }
+
+/// <summary>
+/// Method OnBnClickedAssetTabClear() is called when the user clicks on the clear button.
+/// When the user clicks on the clear button,
+/// the edit controls are cleared for new input.
+/// </summary>
+/// <returns></returns>
+void CAssetTab::OnBnClickedAssetTabClear()
+{
+	ClearForNewInput();
+}
+
+/// <summary>
+/// Method ClearForNewInput() clears the edit controls for new input.
+/// </summary>
+/// <returns></returns>
+void CAssetTab::ClearForNewInput()
+{
+	m_nAssetID = 0;
+	m_nAssetWorkorderID = 0;
+	m_strDescription = _T("");
+	m_strModelNumber = _T("");
+	m_strBrand = _T("");
+	m_strHistoryLog = _T("");
+	m_bIsSelectedFromAssetList = false;
+	m_btnClear.EnableWindow(FALSE);
+	UpdateData(FALSE);
+
+}
+
+
+

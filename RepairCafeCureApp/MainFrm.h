@@ -40,7 +40,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 23-10-2023, (dd-mm-yyyy)
+* Updated: 10-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -70,7 +70,7 @@ protected:
 	CMFCCaptionBar    m_wndCaptionBar;
 
 // Overrides
-public:
+private:
 	BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 #ifdef _DEBUG
 	void AssertValid() const override;
@@ -78,7 +78,7 @@ public:
 #endif
 
 // Message Handlers
-protected:
+private:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCaptionBar();
 	afx_msg void OnUpdateViewCaptionBar(CCmdUI* pCmdUI);
@@ -91,8 +91,10 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 // General methods
-public:
+private:
 	BOOL CreateCaptionBar();
+public:
+	CString GetSelectedEmployee();
 };
 
 

@@ -88,6 +88,8 @@
 #define IDC_WOTAB_WORKORDER_HISTORY_DESCRIPTION 1042
 #define IDC_EDIT8                       1043
 #define IDC_WOTAB_WORKORDER_HISTORY_LOG 1043
+#define IDC_BUTTON1                     1044
+#define IDC_ASSETTAB_CLEAR              1044
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_WORKORDER_VIEW               32774
@@ -99,7 +101,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        320
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1044
+#define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

@@ -51,6 +51,8 @@
 
 #include "CTabCtrlAssetWorkorder.h"
 
+using namespace artvabas::rcc::ui::controls;
+
 namespace artvabas {
 
 	namespace rcc {
@@ -58,6 +60,8 @@ namespace artvabas {
 		namespace ui {
 
 			namespace dialogs {
+
+				using namespace artvabas::rcc::ui::controls;
 
 				class CAssetTab : public CDialogEx
 				{
@@ -85,11 +89,14 @@ namespace artvabas {
 					CButton m_btnUpdateAsset;
 					CButton m_btnNewAsset;
 					CButton m_btnCreateWorkorder;
+					CButton m_btnClear;
 					CListCtrl m_ctrExistingAssetList;
 
 				public:
 					CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent = nullptr);
 					virtual ~CAssetTab();
+
+					void ClearForNewInput();
 
 				private:
 #ifdef AFX_DESIGN_TIME
@@ -106,6 +113,8 @@ namespace artvabas {
 					afx_msg void OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult);
 					afx_msg void OnBnClickedAssetTabUpdate();
 					afx_msg void OnBnClickedAssetTabNew();
+					afx_msg void OnBnClickedAssetTabClear();
+				public:
 					afx_msg void OnBnClickedAssetTabCreateWorkorder();
 				};
 			}
