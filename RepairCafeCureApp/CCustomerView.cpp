@@ -53,6 +53,7 @@
 #include "CAssetDialog.h"
 
 using namespace artvabas::rcc::ui;
+using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::sql;
 
 IMPLEMENT_DYNCREATE(CCustomerView, CFormView)

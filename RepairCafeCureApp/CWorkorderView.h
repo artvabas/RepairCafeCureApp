@@ -4,15 +4,43 @@
 
 // CWorkorderView form view
 
-namespace artvabas
-{
-	namespace rcc
-	{
-		namespace ui
-		{
+//namespace artvabas
+//{
+	//namespace rcc
+	//{
+		//namespace ui
+		//{
 			class CWorkorderView : public CFormView
 			{
 				DECLARE_DYNCREATE(CWorkorderView)
+
+			private:
+				CString m_strCustomerSurname;
+				CString m_strCustomerName;
+				CString m_strCustomerCellPhone;
+				CString m_strCustomerPhone;
+				CString m_strCustomerEmail;
+				CString m_strCustomerComments;
+				CString m_strAssetDescription;
+				CString m_strAssetModelNumber;
+				CString m_strAssetBrand;
+				CString m_strAssetHistoryLog;
+				CString m_strWorkorderCreatedDate;
+				CString m_strWorkorderCreatedBy;
+				CString m_strWorkorderStatus;
+				CString m_strWorkorderNewLog;
+				CString m_strWorkorderHistoryLog;
+
+				CButton m_chbWorkorderAssetDisposed;
+				CButton m_chbWorkorderContactedCustomer;
+
+				CButton m_btnWorkorderUpdate;
+				CButton m_btnWorkorderFinished;
+
+				CComboBox m_cbxWorkorderEmployeeResponsible;
+
+				CListCtrl m_lscWorkorderExisting;
+				CListCtrl m_lscWorkorderSpareParts;
 
 			public:
 				CWorkorderView();           // protected constructor used by dynamic creation
@@ -34,9 +62,9 @@ namespace artvabas
 
 				DECLARE_MESSAGE_MAP()
 			};
-		}
-	}
-}
+		//}
+	//}
+//}
 
 
 
