@@ -53,6 +53,9 @@
 
 using namespace artvabas::rcc::database;
 
+enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER };
+enum WorkorderViewType { VIEW_WORKORDER_OPEN, VIEW_WORKORDER_PROGRESS };
+
 class CRepairCafeCureApp : public CWinAppEx
 {
 // Members 
@@ -61,8 +64,8 @@ private:
 		CView* m_pCustomerView;
 		CView* m_pAssetView;
 		CView* m_pWorkorderView;
-public:
-		enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER };
+
+		WorkorderViewType m_enuWorkorderViewType;
 
 public:
 	CRepairCafeCureApp() noexcept;
@@ -74,6 +77,9 @@ public:
 
 	void SetStatusBarText(UINT nStrID);
 	CString GetSelectedEmployeeName();
+
+	inline WorkorderViewType GetWorkorderViewType() { return m_enuWorkorderViewType; }
+
 
 // Overrides
 private:
@@ -89,7 +95,9 @@ private:
 	afx_msg void OnAppAbout();
 	afx_msg void OnCustomerView();
 	afx_msg void OnAssetView();
-	afx_msg void OnWorkorderView();
+	afx_msg void OnWorkorderViewOpen();
+public:
+	afx_msg void OnWorkorderViewProgress();
 };
 
 extern CRepairCafeCureApp theApp;

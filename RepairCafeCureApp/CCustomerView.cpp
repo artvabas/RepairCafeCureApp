@@ -322,7 +322,7 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 	
 	switch (nAction)
 	{
-		case 1:	// UIS_SET
+		case 1:	// UIS_SET. Employee name is selected in the caption bar.
 			// nUIElement = 0 means this method is called by the framework when the view is activated, controls are accessible.	
 			if( 0 == nUIElement)
 			{

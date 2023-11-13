@@ -126,7 +126,7 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 			return strResult;
 		};
 
-	strQuery.Format(_T("INSERT INTO [WORKORDER] ([WORKORDER_ASSET_ID], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID], [WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_STATUS], [WORKORDER_LOG]) VALUES (%d, %d, NULL, %s, %s, %s, NULL, %s, NULL)"),
+	strQuery.Format(_T("INSERT INTO [WORKORDER] ([WORKORDER_ASSET_ID], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID], [WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_STATUS], [WORKORDER_LOG], [WORKORDER_HISTORY]) VALUES (%d, %d, NULL, %s, %s, %s, NULL, %s, NULL, NULL)"),
 		m_uiAssetID, m_uiCustomerID,
 		static_cast<LPCTSTR>(buildFieldValue(COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")))),
 		static_cast<LPCTSTR>(buildFieldValue(theApp.GetSelectedEmployeeName())),
@@ -164,7 +164,7 @@ void CWorkorderTab::OnNMClickWoTabWorkordersHistoryList(NMHDR* pNMHDR, LRESULT* 
 	if (pNMItemActivate->iItem != -1)
 	{
 		m_strHistoryWorkorderDescription = m_ctrWorkordersHistoryList.GetItemText(pNMItemActivate->iItem, 6);
-		m_strHistoryWorkorderLog = m_ctrWorkordersHistoryList.GetItemText(pNMItemActivate->iItem, 9);
+		m_strHistoryWorkorderLog = m_ctrWorkordersHistoryList.GetItemText(pNMItemActivate->iItem, 10);
 		UpdateData(FALSE);
 	}
 	*pResult = 0;
@@ -192,6 +192,7 @@ BOOL CWorkorderTab::OnInitDialog()
 	m_ctrWorkordersHistoryList.InsertColumn(7, _T("RESPOSIBLE"), LVCFMT_LEFT, 200);
 	m_ctrWorkordersHistoryList.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
 	m_ctrWorkordersHistoryList.InsertColumn(9, _T("LOG"), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
 
 	return TRUE;  
 }
@@ -280,6 +281,9 @@ void CWorkorderTab::InitWithAssetDetailsRecords()
 
 			rs->GetFieldValue(_T("WORKORDER_LOG"), strValue);
 			m_ctrWorkordersHistoryList.SetItemText(nIndex, 9, strValue);
+
+			rs->GetFieldValue(_T("WORKORDER_HISTORY"), strValue);
+			m_ctrWorkordersHistoryList.SetItemText(nIndex, 10, strValue);
 
 			rs->MoveNext();
 		}

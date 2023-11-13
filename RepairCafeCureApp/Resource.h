@@ -115,15 +115,17 @@
 #define IDC_WORKORDERVIEW_PARTS         1066
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
-#define ID_WORKORDER_VIEW               32774
 #define ID_APP_VIEW                     32775
+#define ID_WORKORDER_VIEW_OPEN          32776
+#define ID_WORKORDERVIEW_PROGRESS       32777
+#define ID_WORKORDER_VIEW_PROGRESS      32777
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        320
-#define _APS_NEXT_COMMAND_VALUE         32776
+#define _APS_NEXT_COMMAND_VALUE         32778
 #define _APS_NEXT_CONTROL_VALUE         1067
 #define _APS_NEXT_SYMED_VALUE           318
 #endif

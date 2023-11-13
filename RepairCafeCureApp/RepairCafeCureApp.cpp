@@ -75,7 +75,8 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 	ON_COMMAND(ID_CUSTOMER_VIEW, &CRepairCafeCureApp::OnCustomerView)
 	ON_COMMAND(ID_APP_VIEW, &CRepairCafeCureApp::OnAssetView)
-	ON_COMMAND(ID_WORKORDER_VIEW, &CRepairCafeCureApp::OnWorkorderView)
+	ON_COMMAND(ID_WORKORDER_VIEW_OPEN, &CRepairCafeCureApp::OnWorkorderViewOpen)
+	ON_COMMAND(ID_WORKORDER_VIEW_PROGRESS, &CRepairCafeCureApp::OnWorkorderViewProgress)
 END_MESSAGE_MAP()
 
 CRepairCafeCureApp::CRepairCafeCureApp() noexcept
@@ -83,6 +84,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_pCustomerView(NULL)
 	, m_pWorkorderView(NULL)
 	, m_dbConnection(new CDatabaseConnection())
+	, m_enuWorkorderViewType(VIEW_WORKORDER_OPEN)
 {
 	SetAppID(_T("RepairCafeCureApp.AppID.0.0.1.0"));
 }
@@ -267,10 +269,35 @@ void CRepairCafeCureApp::OnAssetView()
 /// This method is called when the user clicks on the Workorder menu item.
 /// It switches the view to the Workorder view.
 /// </summary>
-void CRepairCafeCureApp::OnWorkorderView()
+void CRepairCafeCureApp::OnWorkorderViewOpen()
 {
+	m_enuWorkorderViewType = VIEW_WORKORDER_OPEN;
 	SwitchView(VIEW_WORKORDER);
+
+	// Get a pointer to the main frame window.
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	if (pMainFrm != NULL)
+	{
+		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
+	}
 }
+
+void CRepairCafeCureApp::OnWorkorderViewProgress()
+{
+	m_enuWorkorderViewType = VIEW_WORKORDER_PROGRESS;
+
+	SwitchView(VIEW_WORKORDER);
+
+	// Get a pointer to the main frame window.
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	if (pMainFrm != NULL)
+	{
+		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
+	}
+}
+
 
 /*Custom methods*/
 

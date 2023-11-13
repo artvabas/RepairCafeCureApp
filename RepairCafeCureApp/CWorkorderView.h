@@ -42,25 +42,40 @@
 				CListCtrl m_lscWorkorderExisting;
 				CListCtrl m_lscWorkorderSpareParts;
 
+				bool m_bWorkorderSelected;
+
 			public:
 				CWorkorderView();           // protected constructor used by dynamic creation
 				virtual ~CWorkorderView();
 
-			public:
+			/* Custom */
+			private:
+				void InitWorkorderExistingList();
+				void InitWorkorderEmployeeResponsibleComboBox();
+				bool GetAssetInfo(const unsigned int& nAssetId);
+				bool GetCustomerInfo(const unsigned int& nCustomerId);
+
+			/* Overrides */
+			private:
 #ifdef AFX_DESIGN_TIME
 				enum { IDD = IDD_WORKORDER_FORM };
 #endif
 #ifdef _DEBUG
-				virtual void AssertValid() const;
+				void AssertValid() const override;
 #ifndef _WIN32_WCE
-				virtual void Dump(CDumpContext& dc) const;
+				void Dump(CDumpContext& dc) const override;
 #endif
 #endif
+				void DoDataExchange(CDataExchange* pDX) override;
+				void OnInitialUpdate() override;
 
-			protected:
-				virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
+			/* Messagess */
+			private:
 				DECLARE_MESSAGE_MAP()
+				afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
+				afx_msg void OnNMDoublelClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult);
+			public:
+				afx_msg void OnCbnSelchangeWorkorderviewResponsible();
 			};
 		//}
 	//}
