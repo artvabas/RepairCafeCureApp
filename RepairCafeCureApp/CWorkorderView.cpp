@@ -6,12 +6,13 @@
 #include "CWorkorderView.h"
 
 //using namespace artvabas::rcc::ui;
-
+using namespace artvabas::sql;
 // CWorkorderView
 
 IMPLEMENT_DYNCREATE(CWorkorderView, CFormView)
 
 CWorkorderView::CWorkorderView() : CFormView(IDD_WORKORDER_FORM)
+	, m_nWorkorderId(0)
 	, m_strCustomerSurname(_T(""))
 	, m_strCustomerName(_T(""))
 	, m_strCustomerCellPhone(_T(""))
@@ -28,6 +29,7 @@ CWorkorderView::CWorkorderView() : CFormView(IDD_WORKORDER_FORM)
 	, m_strWorkorderNewLog(_T(""))
 	, m_strWorkorderHistoryLog(_T(""))
 	, m_bWorkorderSelected(false)
+	, m_bResponsibleChanged(false)
 {
 
 }
@@ -53,6 +55,9 @@ void CWorkorderView::InitWorkorderExistingList()
 			break;
 		case VIEW_WORKORDER_PROGRESS:
 			strWorkorderStatus = _T("Progress");
+			break;
+		case VIEW_WORKORDER_REPAIRED:
+			strWorkorderStatus = _T("Repaired");
 			break;
 		default:
 			strWorkorderStatus = _T("Open");
@@ -264,6 +269,8 @@ void CWorkorderView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_WORKORDERVIEW_FINISHED, m_btnWorkorderFinished);
 	DDX_Control(pDX, IDC_WORKORDERVIEW_EXISTING, m_lscWorkorderExisting);
 	DDX_Control(pDX, IDC_WORKORDERVIEW_USED_PARTS, m_lscWorkorderSpareParts);
+	DDX_Control(pDX, IDC_WORKORDERVIEW_PARTS, m_btnWorkorderParts);
+	DDX_Control(pDX, IDC_WORKORDERVIEW_LOG, m_edtWorkorderNewLog);
 }
 
 void CWorkorderView::OnInitialUpdate()
@@ -295,8 +302,10 @@ void CWorkorderView::OnInitialUpdate()
 
 BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
 	ON_WM_UPDATEUISTATE()
-	ON_NOTIFY(NM_DBLCLK, IDC_WORKORDERVIEW_EXISTING, &CWorkorderView::OnNMDoublelClickWorkorderViewExisting)
-	ON_CBN_SELCHANGE(IDC_WORKORDERVIEW_RESPONSIBLE, &CWorkorderView::OnCbnSelchangeWorkorderviewResponsible)
+	ON_NOTIFY(NM_DBLCLK, IDC_WORKORDERVIEW_EXISTING, &CWorkorderView::OnNMDoubleClickWorkorderViewExisting)
+	ON_CBN_SELCHANGE(IDC_WORKORDERVIEW_RESPONSIBLE, &CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible)
+	ON_BN_CLICKED(IDC_WORKORDERVIEW_UPDATE, &CWorkorderView::OnBnClickedWorkorderViewUpdate)
+	ON_EN_CHANGE(IDC_WORKORDERVIEW_LOG, &CWorkorderView::OnEnChangeWorkorderViewLog)
 END_MESSAGE_MAP()
 
 void CWorkorderView::OnUpdateUIState(UINT nAction, UINT nUIElement)
@@ -316,12 +325,15 @@ void CWorkorderView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 			}
 
 			m_btnWorkorderUpdate.EnableWindow(FALSE);
-			m_btnWorkorderFinished.EnableWindow(FALSE);	
+			m_btnWorkorderFinished.EnableWindow(FALSE);
+			m_btnWorkorderParts.EnableWindow(FALSE);
+			m_cbxWorkorderEmployeeResponsible.EnableWindow(FALSE);
 			m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
 			m_chbWorkorderContactedCustomer.EnableWindow(FALSE);
+			m_edtWorkorderNewLog.EnableWindow(FALSE);
 
 			InitWorkorderExistingList();
-			m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
+			//m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
 			m_bWorkorderSelected = false;
 		}
 		break;
@@ -337,13 +349,15 @@ void CWorkorderView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 
 // CWorkorderView message handlers
 
-void CWorkorderView::OnNMDoublelClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult)
+void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	if (pNMItemActivate->iItem != -1)
 	{
 		// Get the selected item's text.
-		const unsigned int unAssetID = _ttoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 0));
+		m_nWorkorderId = _ttoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 0));
+
+		const unsigned int unAssetID = _ttoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 1));
 		const unsigned int unCustomerID = _ttoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 2));
 	
 		m_strWorkorderCreatedDate = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 4);
@@ -361,13 +375,211 @@ void CWorkorderView::OnNMDoublelClickWorkorderViewExisting(NMHDR* pNMHDR, LRESUL
 
 		m_bWorkorderSelected = true;
 
-		OnCbnSelchangeWorkorderviewResponsible();
+		CString strValue = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 7);
+
+		if(!strValue.IsEmpty())
+			m_cbxWorkorderEmployeeResponsible.SelectString(0, strValue.Trim());
+		else
+			m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
+
+		m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
+
+		if (theApp.GetWorkorderViewType() != VIEW_WORKORDER_OPEN)
+		{
+			m_edtWorkorderNewLog.EnableWindow(TRUE);
+			m_btnWorkorderParts.EnableWindow(TRUE);
+			m_btnWorkorderFinished.EnableWindow(TRUE);
+			m_chbWorkorderAssetDisposed.EnableWindow(TRUE);
+			m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
+			m_btnWorkorderUpdate.EnableWindow(FALSE);
+			m_bResponsibleChanged = false;
+		}
+		else
+			m_edtWorkorderNewLog.EnableWindow(FALSE);
+		
+
+		//UpdateData(FALSE);
 	}
 	*pResult = 0;
 }
 
-void CWorkorderView::OnCbnSelchangeWorkorderviewResponsible()
+void CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible()
 {
-	m_cbxWorkorderEmployeeResponsible.GetCurSel() && m_bWorkorderSelected
-		? m_btnWorkorderUpdate.EnableWindow(TRUE) : m_btnWorkorderUpdate.EnableWindow(FALSE);
+	switch (theApp.GetWorkorderViewType())
+	{
+		case VIEW_WORKORDER_OPEN:
+			if (m_cbxWorkorderEmployeeResponsible.GetCurSel() && m_bWorkorderSelected)
+			{
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				m_edtWorkorderNewLog.EnableWindow(TRUE);
+			}
+			else
+			{
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				m_edtWorkorderNewLog.EnableWindow(FALSE);
+			}
+		break;
+		case VIEW_WORKORDER_PROGRESS:
+			if (m_cbxWorkorderEmployeeResponsible.GetCurSel() && m_bWorkorderSelected)
+			{
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				m_btnWorkorderFinished.EnableWindow(TRUE);
+				m_edtWorkorderNewLog.EnableWindow(TRUE);
+			}
+			else
+			{
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				m_btnWorkorderFinished.EnableWindow(FALSE);
+				m_edtWorkorderNewLog.EnableWindow(FALSE);
+			}
+	default:
+		break;
+	}
+	m_bResponsibleChanged = true;
+}
+
+void CWorkorderView::OnEnChangeWorkorderViewLog()
+{
+	UpdateData(TRUE);
+	switch (theApp.GetWorkorderViewType())
+	{
+		case VIEW_WORKORDER_OPEN:
+			if (!m_strWorkorderNewLog.IsEmpty() && m_bWorkorderSelected)
+			{
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+			}
+			else if(!m_bResponsibleChanged)
+			{
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+			}
+			break;
+		case VIEW_WORKORDER_PROGRESS:
+			if (!m_strWorkorderNewLog.IsEmpty() && m_bWorkorderSelected)
+			{
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+			}
+			else if (!m_bResponsibleChanged)
+			{
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+			}
+			break;
+		default:
+			break;
+	}
+}
+
+
+void CWorkorderView::OnBnClickedWorkorderViewUpdate()
+{
+	UpdateData(TRUE);
+	
+	CTime time = CTime::GetCurrentTime();
+
+	CString strCurDate = time.Format(_T("%d-%m-%y"));
+	CString strEmployee;
+
+	int nIndex = m_cbxWorkorderEmployeeResponsible.GetCurSel();
+	if (nIndex != CB_ERR && nIndex != 0)
+	{
+		int nLength = m_cbxWorkorderEmployeeResponsible.GetLBTextLen(nIndex);
+		if (nLength != CB_ERR)
+		{
+			m_cbxWorkorderEmployeeResponsible.GetLBText(nIndex, strEmployee.GetBuffer(nLength));
+			strEmployee.ReleaseBuffer();
+
+		}
+	}
+
+	switch (theApp.GetWorkorderViewType())
+	{
+		case VIEW_WORKORDER_OPEN:
+		case VIEW_WORKORDER_PROGRESS:
+			m_strWorkorderStatus = _T("Progress");
+			break;
+		default:
+			m_strWorkorderStatus = _T("Open");
+			break;
+	}
+
+	if (m_bResponsibleChanged)
+	{
+		m_strWorkorderHistoryLog += _T("\r\n[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Assigned to ") + strEmployee;
+		m_bResponsibleChanged = false;
+	}
+
+	if (!m_strWorkorderNewLog.IsEmpty())
+	{
+		m_strWorkorderHistoryLog += _T("\r\n[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Comment: ") + m_strWorkorderNewLog;
+		m_strWorkorderNewLog.Empty();
+	}
+
+	CString strQuery;
+
+	auto buildFieldValue = [](CString str) -> CString
+		{
+			CString strResult;
+			if (str.IsEmpty())
+				return  _T("NULL");
+			strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+			return strResult;
+		};
+
+	strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_RESPONSIBLE = %s, WORKORDER_STATUS = %s, WORKORDER_LOG = %s, WORKORDER_HISTORY = %s WHERE WORKORDER_ID = %d"),
+		static_cast<LPCTSTR>(buildFieldValue(strEmployee)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderStatus)), 
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderNewLog)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderHistoryLog)),
+		m_nWorkorderId);
+
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
+	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+
+	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+	}
+	else
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+	}
+
+	strQuery.ReleaseBuffer();
+
+	m_nWorkorderId = 0;
+	m_strWorkorderCreatedDate.Empty();
+	m_strWorkorderCreatedBy.Empty();
+	m_strWorkorderStatus.Empty();
+	m_strWorkorderNewLog.Empty();
+	m_strWorkorderHistoryLog.Empty();
+	m_strCustomerSurname.Empty();
+	m_strCustomerName.Empty();
+	m_strCustomerCellPhone.Empty();
+	m_strCustomerPhone.Empty();
+	m_strCustomerEmail.Empty();
+	m_strCustomerComments.Empty();
+	m_strAssetDescription.Empty();
+	m_strAssetModelNumber.Empty();
+	m_strAssetBrand.Empty();
+	m_strAssetHistoryLog.Empty();
+
+	m_chbWorkorderAssetDisposed.SetCheck(BST_UNCHECKED);
+	m_chbWorkorderContactedCustomer.SetCheck(BST_UNCHECKED);
+
+	m_lscWorkorderSpareParts.DeleteAllItems();
+
+	m_bWorkorderSelected = false;
+	m_bResponsibleChanged = false;
+
+	m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
+	m_cbxWorkorderEmployeeResponsible.EnableWindow(FALSE);
+	m_edtWorkorderNewLog.EnableWindow(FALSE);
+	m_btnWorkorderUpdate.EnableWindow(FALSE);
+	m_btnWorkorderFinished.EnableWindow(FALSE);
+	m_btnWorkorderParts.EnableWindow(FALSE);
+	m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
+	m_chbWorkorderContactedCustomer.EnableWindow(FALSE);
+
+	InitWorkorderExistingList();
+	UpdateData(FALSE);
 }

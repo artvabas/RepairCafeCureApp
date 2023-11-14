@@ -15,6 +15,7 @@
 				DECLARE_DYNCREATE(CWorkorderView)
 
 			private:
+				unsigned int m_nWorkorderId;
 				CString m_strCustomerSurname;
 				CString m_strCustomerName;
 				CString m_strCustomerCellPhone;
@@ -31,11 +32,14 @@
 				CString m_strWorkorderNewLog;
 				CString m_strWorkorderHistoryLog;
 
+				CEdit m_edtWorkorderNewLog;
+
 				CButton m_chbWorkorderAssetDisposed;
 				CButton m_chbWorkorderContactedCustomer;
 
 				CButton m_btnWorkorderUpdate;
 				CButton m_btnWorkorderFinished;
+				CButton m_btnWorkorderParts;
 
 				CComboBox m_cbxWorkorderEmployeeResponsible;
 
@@ -43,6 +47,7 @@
 				CListCtrl m_lscWorkorderSpareParts;
 
 				bool m_bWorkorderSelected;
+				bool m_bResponsibleChanged;
 
 			public:
 				CWorkorderView();           // protected constructor used by dynamic creation
@@ -69,13 +74,14 @@
 				void DoDataExchange(CDataExchange* pDX) override;
 				void OnInitialUpdate() override;
 
-			/* Messagess */
+			/* Massagers */
 			private:
 				DECLARE_MESSAGE_MAP()
 				afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
-				afx_msg void OnNMDoublelClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult);
-			public:
-				afx_msg void OnCbnSelchangeWorkorderviewResponsible();
+				afx_msg void OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult);
+				afx_msg void OnCbnSelectChangeWorkorderViewResponsible();
+				afx_msg void OnEnChangeWorkorderViewLog();
+				afx_msg void OnBnClickedWorkorderViewUpdate();
 			};
 		//}
 	//}

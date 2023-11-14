@@ -267,7 +267,7 @@ void CRepairCafeCureApp::OnAssetView()
 
 /// <summary>
 /// This method is called when the user clicks on the Workorder menu item.
-/// It switches the view to the Workorder view.
+/// It switches the view to the Workorder view, with the ability to open a new workorder.
 /// </summary>
 void CRepairCafeCureApp::OnWorkorderViewOpen()
 {
@@ -283,6 +283,11 @@ void CRepairCafeCureApp::OnWorkorderViewOpen()
 	}
 }
 
+/// <summary>
+/// This method is called when the user clicks on the Workorder menu item.
+/// It switches the view to the Workorder view, with the ability to show the progress of the workorder.
+/// </summary>
+/// <returns>void</returns>
 void CRepairCafeCureApp::OnWorkorderViewProgress()
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_PROGRESS;
