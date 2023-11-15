@@ -193,6 +193,7 @@
     <ClInclude Include="CDatabaseConnection.h" />
     <ClInclude Include="CSqlNativeAVB.h" />
     <ClInclude Include="CTabCtrlAssetWorkorder.h" />
+    <ClInclude Include="CWorkorderPartsDialog.h" />
     <ClInclude Include="CWorkorderTab.h" />
     <ClInclude Include="CWorkorderView.h" />
     <ClInclude Include="framework.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="CDatabaseConnection.cpp" />
     <ClCompile Include="CSqlNativeAVB.cpp" />
     <ClCompile Include="CTabCtrlAssetWorkorder.cpp" />
+    <ClCompile Include="CWorkorderPartsDialog.cpp" />
     <ClCompile Include="CWorkorderTab.cpp" />
     <ClCompile Include="CWorkorderView.cpp" />
     <ClCompile Include="MainFrm.cpp" />

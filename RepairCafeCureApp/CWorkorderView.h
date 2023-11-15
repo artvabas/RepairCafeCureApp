@@ -1,8 +1,50 @@
+/*
+	Copyright (C) 2023  artvabas
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+	To see the license for this source code, please visit:
+		<https://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit:
+		<https://artvabas.com>
+		<https://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at:
+		<https://artvabas.com/contact>
+
+*/
+
+/*
+* This file is part of RepairCafeCureApp.
+* File: CWorkorderView.h, defines class CWorkorderView
+*
+* This class is the view of the workorder form.
+* With this form the user can search for existing workorders and update existing workorders.
+* 
+* Controls are enabled and disabled depending on the state of the form.
+*
+* Target: Windows 10/11 64bit
+* Version: 1.0.230.0
+* Created: 18-10-2023, (dd-mm-yyyy)
+* Updated: 15-11-2023, (dd-mm-yyyy)
+* Creator: artvabasDev / artvabas
+*
+* License: GPLv3
+*/
+
 #pragma once
-
-
-
-// CWorkorderView form view
 
 //namespace artvabas
 //{
@@ -15,7 +57,7 @@
 				DECLARE_DYNCREATE(CWorkorderView)
 
 			private:
-				unsigned int m_nWorkorderId;
+				unsigned int m_unWorkorderId;
 				CString m_strCustomerSurname;
 				CString m_strCustomerName;
 				CString m_strCustomerCellPhone;
@@ -50,15 +92,8 @@
 				bool m_bResponsibleChanged;
 
 			public:
-				CWorkorderView();           // protected constructor used by dynamic creation
+				CWorkorderView(); 
 				virtual ~CWorkorderView();
-
-			/* Custom */
-			private:
-				void InitWorkorderExistingList();
-				void InitWorkorderEmployeeResponsibleComboBox();
-				bool GetAssetInfo(const unsigned int& nAssetId);
-				bool GetCustomerInfo(const unsigned int& nCustomerId);
 
 			/* Overrides */
 			private:
@@ -82,6 +117,19 @@
 				afx_msg void OnCbnSelectChangeWorkorderViewResponsible();
 				afx_msg void OnEnChangeWorkorderViewLog();
 				afx_msg void OnBnClickedWorkorderViewUpdate();
+				afx_msg void OnBnClickedWorkorderVewCustomerContactedCustomer();
+				afx_msg void OnBnClickedWorkorderViewFinished();
+				afx_msg void OnBnClickedWorkorderViewAssetDisposed();
+				afx_msg void OnBnClickedWorkorderViewParts();
+
+				/* Custom */
+			private:
+				void InitWorkorderExistingList();
+				void InitWorkorderEmployeeResponsibleComboBox();
+				bool GetAssetInfo(const unsigned int& nAssetId);
+				bool GetCustomerInfo(const unsigned int& nCustomerId);
+				void PerformWorkorderUpdate();
+				void ResetAllControls();
 			};
 		//}
 	//}

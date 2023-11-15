@@ -123,6 +123,9 @@
     <ClInclude Include="CTabCtrlAssetWorkorder.h">
       <Filter>Header Files\artvabas\rcc\ui\controls</Filter>
     </ClInclude>
+    <ClInclude Include="CWorkorderPartsDialog.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -163,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="CTabCtrlAssetWorkorder.cpp">
       <Filter>Source Files\artvabas\rcc\ui\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorkorderPartsDialog.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
