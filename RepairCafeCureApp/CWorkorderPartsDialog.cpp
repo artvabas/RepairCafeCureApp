@@ -107,7 +107,17 @@ void CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR
 void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-	// TODO: Add your control notification handler code here
+
+	auto nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
+
+	if (nIndex != -1)
+	{
+		m_strWorkorderPartDescription = m_lscWorkorderAddedPartList.GetItemText(nIndex, 1);
+		m_strWorkorderPartAmount = m_lscWorkorderAddedPartList.GetItemText(nIndex, 2);
+		m_strWorkorderPartUnitPrice = m_lscWorkorderAddedPartList.GetItemText(nIndex, 3);
+		UpdateData(FALSE);
+	}
+
 	*pResult = 0;
 }
 
@@ -118,23 +128,34 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart()
 	CString strWorkorderID;
 	strWorkorderID.Format(_T("%d"), m_unWorkorderID);
 
+	auto nAmount = _ttoi(m_strWorkorderPartAmount);
+	auto dUnitPrice = _ttof(m_strWorkorderPartUnitPrice);
+	auto nTotalPrice = nAmount * dUnitPrice;
+
+	CString strUnitPrice;
+	strUnitPrice.Format(_T("%.2f"), dUnitPrice);
+
 	auto row = m_lscWorkorderAddedPartList.GetItemCount();
 
 	auto nIndex = m_lscWorkorderAddedPartList.InsertItem(row, strWorkorderID);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 1, m_strWorkorderPartDescription);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 2, m_strWorkorderPartAmount);
-	m_lscWorkorderAddedPartList.SetItemText(nIndex, 3, m_strWorkorderPartUnitPrice);
+	m_lscWorkorderAddedPartList.SetItemText(nIndex, 3, strUnitPrice);
 
-	auto nAmount = _ttoi(m_strWorkorderPartAmount);
-	auto dUnitPrice = _ttof(m_strWorkorderPartUnitPrice);
-	//dUnitPrice = floor(dUnitPrice * 100 + 0.5) / 100; 
-	auto nTotalPrice = nAmount * dUnitPrice;
 
 	m_strWorkorderPartTotalPrice.Format(_T("%.2f"), nTotalPrice);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, m_strWorkorderPartTotalPrice);
 
+	m_strWorkorderPartAmount = _T("");
+	m_strWorkorderPartDescription = _T("");
+	m_strWorkorderPartUnitPrice = _T("");
+	UpdateData(FALSE);
+
+	OnEnChangeWorkorderAddParts();
+
 	CalculateTotalPrice();
 }
+
 
 void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -152,9 +173,13 @@ void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, L
 	*pResult = 0;
 }
 
+
 void CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
 {	
-	m_btnWorkorderPartDelete.EnableWindow(FALSE);
+	//m_btnWorkorderPartDelete.EnableWindow(FALSE);
+	if(m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED) == -1)
+		m_btnWorkorderPartDelete.EnableWindow(FALSE);
+
 	*pResult = 0;
 }
 
@@ -162,7 +187,7 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart()
 {
 	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
 	m_lscWorkorderAddedPartList.DeleteItem(nIndex);
-	//CalculateTotalPrice();
+	CalculateTotalPrice();
 }
 
 bool CWorkorderPartsDialog::InitStockPartList()
