@@ -34,14 +34,17 @@ private:
 	BOOL OnInitDialog() override;
 	void OnOK() override;
 
-public:
+private:
 	afx_msg void OnEnChangeWorkorderAddParts();
 	afx_msg void OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnBnClickedWorkorderAddPart();
 	afx_msg void OnBnClickedWorkorderDeleteAddedPart();
+	afx_msg void OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult);
 
 private:
 	bool InitStockPartList();
 	bool InitAddedPartList();
+	void CalculateTotalPrice();
 };

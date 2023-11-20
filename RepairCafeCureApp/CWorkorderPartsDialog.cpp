@@ -48,6 +48,8 @@ BEGIN_MESSAGE_MAP(CWorkorderPartsDialog, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList)
 	ON_BN_CLICKED(IDC_WORKORDER_ADD_PART, &CWorkorderPartsDialog::OnBnClickedWorkorderAddPart)
 	ON_BN_CLICKED(IDC_WORKORDER_DELETE_ADDED_PART, &CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts)
+	ON_NOTIFY(NM_KILLFOCUS, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts)
 END_MESSAGE_MAP()
 
 
@@ -112,24 +114,55 @@ void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRES
 
 void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart()
 {
-	/*
+	
 	CString strWorkorderID;
 	strWorkorderID.Format(_T("%d"), m_unWorkorderID);
 
 	auto row = m_lscWorkorderAddedPartList.GetItemCount();
 
-	auto nIndex = m_lscWorkorderAddedPartList.InsertItem(--row, strWorkorderID);
+	auto nIndex = m_lscWorkorderAddedPartList.InsertItem(row, strWorkorderID);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 1, m_strWorkorderPartDescription);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 2, m_strWorkorderPartAmount);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 3, m_strWorkorderPartUnitPrice);
+
+	auto nAmount = _ttoi(m_strWorkorderPartAmount);
+	auto dUnitPrice = _ttof(m_strWorkorderPartUnitPrice);
+	//dUnitPrice = floor(dUnitPrice * 100 + 0.5) / 100; 
+	auto nTotalPrice = nAmount * dUnitPrice;
+
+	m_strWorkorderPartTotalPrice.Format(_T("%.2f"), nTotalPrice);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, m_strWorkorderPartTotalPrice);
-	*/
+
+	CalculateTotalPrice();
 }
 
+void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	
+	if ((pNMLV->uChanged & LVIF_STATE) && (pNMLV->uNewState & LVIS_SELECTED))
+	{
+		m_btnWorkorderPartDelete.EnableWindow(TRUE);
+	}
+	else
+	{
+		m_btnWorkorderPartDelete.EnableWindow(FALSE);
+	}
+	*pResult = 0;
+}
+
+void CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
+{	
+	m_btnWorkorderPartDelete.EnableWindow(FALSE);
+	*pResult = 0;
+}
 
 void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart()
 {
-	// TODO: Add your control notification handler code here
+	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
+	m_lscWorkorderAddedPartList.DeleteItem(nIndex);
+	//CalculateTotalPrice();
 }
 
 bool CWorkorderPartsDialog::InitStockPartList()
@@ -199,7 +232,6 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 
 	if (bResult = theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
 	{
-		// Fill the existing customers list control with the found customers from the database.
 		while (!rs->IsEOF())
 		{
 			CString strValue = _T("");
@@ -226,4 +258,21 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 	UpdateData(FALSE);
 
 	return bResult;
+}
+
+void CWorkorderPartsDialog::CalculateTotalPrice()
+{
+	double dTotalPrice(0.0);
+	CString strValue = _T("");
+
+	for (int i = 0; i < m_lscWorkorderAddedPartList.GetItemCount(); i++)
+	{
+	
+		strValue = m_lscWorkorderAddedPartList.GetItemText(i, 4);
+		dTotalPrice += _ttof(strValue);
+	}
+
+	m_strWorkorderPartTotalPrice.Format(_T("%.2f"), dTotalPrice);
+	UpdateData(FALSE);
+
 }
