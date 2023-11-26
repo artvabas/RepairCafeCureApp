@@ -6,6 +6,7 @@
 #define IDP_OLE_INIT_FAILED             101
 #define IDS_STATUSBAR_LOADING           102
 #define IDD_ASSET_FORM                  103
+#define IDS_STATUSBAR_DELETE_FAIL       103
 #define IDS_STATUSBAR_IDLE_LOCK         104
 #define IDS_STATUSBAR_IDLE_UNLOCK       105
 #define IDS_STATUSBAR_SEARCH_FAIL       106
@@ -15,6 +16,7 @@
 #define IDS_STATUSBAR_LASTID_FAIL       110
 #define IDS_STATUSBAR_UPDATE_FAIL       111
 #define IDB_WRITESMALL                  112
+#define IDS_STATUSBAR_DELETE_OK         112
 #define IDS_STATUSBAR_UPDATE_OK         113
 #define IDB_WRITELARGE                  114
 #define IDS_STATUSBAR_SELECT_FAIL       115
@@ -122,6 +124,8 @@
 #define IDC_WORKORDER_ADD_PART          1071
 #define IDC_WORKORDER_TOTAL_PRICE_PARTS 1072
 #define IDC_WORKORDER_DELETE_ADDED_PART 1073
+#define IDC_WORKORDER_PART_CHANGE       1074
+#define IDC_WORKORDER_CHANGE            1074
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_APP_VIEW                     32775
@@ -134,7 +138,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        322
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1074
+#define _APS_NEXT_CONTROL_VALUE         1075
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

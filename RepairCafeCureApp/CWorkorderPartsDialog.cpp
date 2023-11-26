@@ -6,6 +6,8 @@
 #include "afxdialogex.h"
 #include "CWorkorderPartsDialog.h"
 
+using namespace artvabas::sql;
+
 
 // CWorkorderPartsDialog dialog
 
@@ -18,6 +20,7 @@ CWorkorderPartsDialog::CWorkorderPartsDialog(const unsigned int& unWorkorderID, 
 	, m_strWorkorderPartAmount(_T(""))
 	, m_strWorkorderPartUnitPrice(_T(""))
 	, m_strWorkorderPartTotalPrice(_T(""))
+	, m_bIsAddedPartListSelected(false)
 {
 
 }
@@ -37,6 +40,7 @@ void CWorkorderPartsDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_WORKORDER_TOTAL_PRICE_PARTS, m_strWorkorderPartTotalPrice);
 	DDX_Control(pDX, IDC_WORKORDER_ADD_PART, m_btnWorkorderPartAdd);
 	DDX_Control(pDX, IDC_WORKORDER_DELETE_ADDED_PART, m_btnWorkorderPartDelete);
+	DDX_Control(pDX, IDC_WORKORDER_CHANGE, m_btnWorkorderPartChange);
 }
 
 
@@ -50,6 +54,7 @@ BEGIN_MESSAGE_MAP(CWorkorderPartsDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_WORKORDER_DELETE_ADDED_PART, &CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts)
 	ON_NOTIFY(NM_KILLFOCUS, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts)
+	ON_BN_CLICKED(IDC_WORKORDER_CHANGE, &CWorkorderPartsDialog::OnBnClickedWorkorderChange)
 END_MESSAGE_MAP()
 
 
@@ -61,22 +66,63 @@ BOOL CWorkorderPartsDialog::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
-	
+
 	if (InitStockPartList() && InitAddedPartList())
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	else
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 
 
-	return TRUE;  // return TRUE unless you set the focus to a control
-	// EXCEPTION: OCX Property Pages should return FALSE
+	return TRUE;
 }
 
 
 void CWorkorderPartsDialog::OnOK()
 {
-	// TODO: Add your specialized code here and/or call the base class
+	CString strQuery;
+	strQuery.Format(_T("DELETE FROM [WORKORDER_PARTS] WHERE ([WORKORDER_PARTS_WORKORDER_ID] = %d)"), m_unWorkorderID);
 
+	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+
+	sql.ExecuteQuery(strQuery.GetBuffer());
+
+	if (m_lscWorkorderAddedPartList.GetItemCount() > 0)
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+		
+		strQuery.ReleaseBuffer();
+
+		for (int i = 0; i < m_lscWorkorderAddedPartList.GetItemCount(); i++)
+		{
+			CString strDescription = m_lscWorkorderAddedPartList.GetItemText(i, 1);
+			unsigned int uiAmount = _ttoi(m_lscWorkorderAddedPartList.GetItemText(i, 2));
+			double dUnitPrice = _ttof(m_lscWorkorderAddedPartList.GetItemText(i, 3));
+			double dTotalPrice = _ttof(m_lscWorkorderAddedPartList.GetItemText(i, 4));
+
+			// Build the fields value for the query.
+			auto buildFieldValue = [](CString str) -> CString
+				{
+					CString strResult;
+					if (str.IsEmpty())
+						return  _T("NULL");
+					strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+					return strResult;
+				};
+
+			strQuery.Format(_T("INSERT INTO [WORKORDER_PARTS] ([WORKORDER_PARTS_WORKORDER_ID], [WORKORDER_PARTS_DESCRIPTION], [WORKORDER_PARTS_AMOUNT], [WORKORDER_PARTS_UNIT_PRICE], [WORKORDER_PARTS_TOTAL_PRICE]) VALUES (%d, %s, %d, %f, %f)"),
+				m_unWorkorderID, static_cast<LPCTSTR>(buildFieldValue(strDescription)), uiAmount, dUnitPrice, dTotalPrice);
+				
+			if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+			{
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+			}
+			else
+			{
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+			}
+			strQuery.ReleaseBuffer();
+		}
+	}
 	CDialogEx::OnOK();
 }
 
@@ -88,26 +134,35 @@ void CWorkorderPartsDialog::OnEnChangeWorkorderAddParts()
 	if (m_strWorkorderPartDescription.IsEmpty() || m_strWorkorderPartAmount.IsEmpty() || m_strWorkorderPartUnitPrice.IsEmpty())
 	{
 		m_btnWorkorderPartAdd.EnableWindow(FALSE);
+		m_btnWorkorderPartChange.EnableWindow(FALSE);
 	}
 	else
 	{
-		m_btnWorkorderPartAdd.EnableWindow(TRUE);
+		if(!m_bIsAddedPartListSelected) m_btnWorkorderPartAdd.EnableWindow(TRUE);
+		if(m_bIsAddedPartListSelected) m_btnWorkorderPartChange.EnableWindow(TRUE);
 	}
 }
 
 
 void CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-	// TODO: Add your control notification handler code here
+	auto nIndex = m_lscWorkorderStockPartList.GetNextItem(-1, LVNI_SELECTED);
+
+	if (nIndex != -1)
+	{
+		m_strWorkorderPartDescription = m_lscWorkorderStockPartList.GetItemText(nIndex, 1);
+		m_strWorkorderPartUnitPrice = m_lscWorkorderStockPartList.GetItemText(nIndex, 3);
+		m_strWorkorderPartAmount = _T("1");
+		UpdateData(FALSE);
+		OnEnChangeWorkorderAddParts();
+	}
+
 	*pResult = 0;
 }
 
 
 void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-
 	auto nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
 
 	if (nIndex != -1)
@@ -116,6 +171,8 @@ void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRES
 		m_strWorkorderPartAmount = m_lscWorkorderAddedPartList.GetItemText(nIndex, 2);
 		m_strWorkorderPartUnitPrice = m_lscWorkorderAddedPartList.GetItemText(nIndex, 3);
 		UpdateData(FALSE);
+
+		m_bIsAddedPartListSelected = true;
 	}
 
 	*pResult = 0;
@@ -146,10 +203,9 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart()
 	m_strWorkorderPartTotalPrice.Format(_T("%.2f"), nTotalPrice);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, m_strWorkorderPartTotalPrice);
 
-	m_strWorkorderPartAmount = _T("");
-	m_strWorkorderPartDescription = _T("");
-	m_strWorkorderPartUnitPrice = _T("");
-	UpdateData(FALSE);
+	ClearPartInputFields();
+
+	m_bIsAddedPartListSelected = false;
 
 	OnEnChangeWorkorderAddParts();
 
@@ -160,15 +216,14 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart()
 void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
-	// TODO: Add your control notification handler code here
 	
 	if ((pNMLV->uChanged & LVIF_STATE) && (pNMLV->uNewState & LVIS_SELECTED))
 	{
-		m_btnWorkorderPartDelete.EnableWindow(TRUE);
+		SetChangeDeleteButtonState();
 	}
 	else
 	{
-		m_btnWorkorderPartDelete.EnableWindow(FALSE);
+		SetChangeDeleteButtonState(FALSE);
 	}
 	*pResult = 0;
 }
@@ -176,17 +231,47 @@ void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, L
 
 void CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
 {	
-	//m_btnWorkorderPartDelete.EnableWindow(FALSE);
-	if(m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED) == -1)
-		m_btnWorkorderPartDelete.EnableWindow(FALSE);
+	if (m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED) == -1)
+	{
+		SetChangeDeleteButtonState(FALSE);
+	}
 
 	*pResult = 0;
+}
+
+void CWorkorderPartsDialog::OnBnClickedWorkorderChange()
+{
+	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
+	m_lscWorkorderAddedPartList.SetItemText(nIndex, 1, m_strWorkorderPartDescription);
+	m_lscWorkorderAddedPartList.SetItemText(nIndex, 2, m_strWorkorderPartAmount);
+
+	auto nAmount = _ttoi(m_strWorkorderPartAmount);
+	auto dUnitPrice = _ttof(m_strWorkorderPartUnitPrice);
+	auto nTotalPrice = nAmount * dUnitPrice;
+
+	CString strUnitPrice;
+	strUnitPrice.Format(_T("%.2f"), dUnitPrice);
+	m_lscWorkorderAddedPartList.SetItemText(nIndex, 3, strUnitPrice);
+
+	m_strWorkorderPartTotalPrice.Format(_T("%.2f"), nTotalPrice);
+	m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, m_strWorkorderPartTotalPrice);
+
+	ClearPartInputFields();
+
+	m_bIsAddedPartListSelected = false;
+
+	OnEnChangeWorkorderAddParts();
+
+	CalculateTotalPrice();
 }
 
 void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart()
 {
 	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
 	m_lscWorkorderAddedPartList.DeleteItem(nIndex);
+
+	ClearPartInputFields();
+
 	CalculateTotalPrice();
 }
 
@@ -224,6 +309,8 @@ bool CWorkorderPartsDialog::InitStockPartList()
 			m_lscWorkorderStockPartList.SetItemText(nIndex, 2, strValue);
 
 			rs->GetFieldValue(_T("SPAREPARTSTOCK_PRICE"), strValue);
+			auto dPrice = _ttof(strValue);
+			strValue.Format(_T("%.2f"), dPrice);
 			m_lscWorkorderStockPartList.SetItemText(nIndex, 3, strValue);
 
 			rs->MoveNext();
@@ -299,5 +386,18 @@ void CWorkorderPartsDialog::CalculateTotalPrice()
 
 	m_strWorkorderPartTotalPrice.Format(_T("%.2f"), dTotalPrice);
 	UpdateData(FALSE);
+}
 
+void CWorkorderPartsDialog::SetChangeDeleteButtonState(BOOL bFlag)
+{
+	m_btnWorkorderPartChange.EnableWindow(bFlag);
+	m_btnWorkorderPartDelete.EnableWindow(bFlag);
+}
+
+void CWorkorderPartsDialog::ClearPartInputFields()
+{
+	m_strWorkorderPartAmount = _T("");
+	m_strWorkorderPartDescription = _T("");
+	m_strWorkorderPartUnitPrice = _T("");
+	UpdateData(FALSE);
 }

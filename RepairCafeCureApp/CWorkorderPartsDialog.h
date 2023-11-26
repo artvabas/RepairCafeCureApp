@@ -8,6 +8,7 @@ class CWorkorderPartsDialog : public CDialogEx
 {
 	DECLARE_DYNAMIC(CWorkorderPartsDialog)
 private:
+	bool m_bIsAddedPartListSelected;
 	unsigned int m_unWorkorderID;
 	CListCtrl m_lscWorkorderStockPartList;
 	CListCtrl m_lscWorkorderAddedPartList;
@@ -17,6 +18,7 @@ private:
 	CString m_strWorkorderPartTotalPrice;
 	CButton m_btnWorkorderPartAdd;
 	CButton m_btnWorkorderPartDelete;
+	CButton m_btnWorkorderPartChange;
 
 public:
 	CWorkorderPartsDialog(const unsigned int& nWorkorderID, CWnd* pParent = nullptr);
@@ -42,9 +44,12 @@ private:
 	afx_msg void OnBnClickedWorkorderDeleteAddedPart();
 	afx_msg void OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedWorkorderChange();
 
 private:
 	bool InitStockPartList();
 	bool InitAddedPartList();
 	void CalculateTotalPrice();
+	void SetChangeDeleteButtonState(BOOL bFlag = TRUE);
+	void ClearPartInputFields();
 };
