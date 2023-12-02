@@ -38,7 +38,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 15-11-2023, (dd-mm-yyyy)
+* Updated: 02-12-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -70,6 +70,7 @@
 #include "CWorkorderPartsDialog.h"
 
 //using namespace artvabas::rcc::ui;
+using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::sql;
 
 IMPLEMENT_DYNCREATE(CWorkorderView, CFormView)
@@ -93,6 +94,7 @@ CWorkorderView::CWorkorderView() : CFormView(IDD_WORKORDER_FORM)
 	, m_strWorkorderHistoryLog(_T(""))
 	, m_bWorkorderSelected(false)
 	, m_bResponsibleChanged(false)
+	, m_strWorkorderTotalPartsPrice(_T(""))
 {
 }
 
@@ -148,6 +150,7 @@ void CWorkorderView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_WORKORDERVIEW_USED_PARTS, m_lscWorkorderSpareParts);
 	DDX_Control(pDX, IDC_WORKORDERVIEW_PARTS, m_btnWorkorderParts);
 	DDX_Control(pDX, IDC_WORKORDERVIEW_LOG, m_edtWorkorderNewLog);
+	DDX_Text(pDX, IDC_WORKORDERVIEW_TOTAL_PRICE, m_strWorkorderTotalPartsPrice);
 }
 
 /// <summary>
@@ -267,6 +270,8 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 		else
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+
+		InitWorkorderSparePartsList();
 
 		// Set the employee responsible combo box on this form.
 		CString strValue = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 7);
@@ -493,7 +498,10 @@ void CWorkorderView::OnBnClickedWorkorderViewFinished()
 void CWorkorderView::OnBnClickedWorkorderViewParts()
 {
 	CWorkorderPartsDialog dlg(m_unWorkorderId);
-	dlg.DoModal();
+	if (dlg.DoModal() == IDOK)
+	{
+		InitWorkorderSparePartsList();
+	}
 }
 
 /* Custom methods */
@@ -617,6 +625,64 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox()
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
 	delete rs;
 	m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
+}
+
+void CWorkorderView::InitWorkorderSparePartsList()
+{
+	m_lscWorkorderSpareParts.DeleteAllItems();
+
+	int nIndex;			// Index of the list control item.
+	int row(0);			// Row of the list control item.
+
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
+	CRecordset* rs = new CRecordset();
+	CString strQuery;
+	strQuery.Format(_T("SELECT * FROM WORKORDER_PARTS WHERE WORKORDER_PARTS_WORKORDER_ID = %d"), m_unWorkorderId);
+
+	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
+	{
+		double dTotalPrice = 0.0;
+		// Fill the existing customers list control with the found customers from the database.
+		while (!rs->IsEOF())
+		{
+			CString strValue = _T("");
+			CString strConvert = _T("");
+			double dConvertToMoney = 0.0;
+			rs->GetFieldValue(_T("WORKORDER_PARTS_WORKORDER_ID"), strValue);
+			nIndex = m_lscWorkorderSpareParts.InsertItem(row++, strValue);
+
+			rs->GetFieldValue(_T("WORKORDER_PARTS_DESCRIPTION"), strValue);
+			m_lscWorkorderSpareParts.SetItemText(nIndex, 1, strValue);
+
+			rs->GetFieldValue(_T("WORKORDER_PARTS_AMOUNT"), strValue);
+			m_lscWorkorderSpareParts.SetItemText(nIndex, 2, strValue);
+
+			rs->GetFieldValue(_T("WORKORDER_PARTS_UNIT_PRICE"), strValue);
+			dConvertToMoney = _ttof(strValue);
+			strConvert.Format(_T("% .2f"), dConvertToMoney);
+			m_lscWorkorderSpareParts.SetItemText(nIndex, 3, strConvert);
+
+			rs->GetFieldValue(_T("WORKORDER_PARTS_TOTAL_PRICE"), strValue);
+			dTotalPrice += (dConvertToMoney = _ttof(strValue));
+			
+			strConvert.Format(_T("% .2f"), dConvertToMoney);
+			m_lscWorkorderSpareParts.SetItemText(nIndex, 4, strConvert);
+
+			rs->MoveNext();
+		}
+		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
+
+		m_strWorkorderTotalPartsPrice.Format(_T("% .2f"), dTotalPrice);
+	}
+	else
+	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+	}
+	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	delete rs;
+
+	UpdateData(FALSE);
 }
 
 /// <summary>
@@ -804,6 +870,7 @@ void CWorkorderView::ResetAllControls()
 	m_strAssetModelNumber.Empty();
 	m_strAssetBrand.Empty();
 	m_strAssetHistoryLog.Empty();
+	m_strWorkorderTotalPartsPrice.Empty();
 
 	m_chbWorkorderAssetDisposed.SetCheck(BST_UNCHECKED);
 	m_chbWorkorderContactedCustomer.SetCheck(BST_UNCHECKED);

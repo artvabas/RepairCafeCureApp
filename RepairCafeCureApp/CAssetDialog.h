@@ -40,7 +40,6 @@
 * Updated: 11-11-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
-* Description: Database connection class
 * License: GPLv3
 */
 #pragma once

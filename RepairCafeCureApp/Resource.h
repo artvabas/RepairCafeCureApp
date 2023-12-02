@@ -126,6 +126,8 @@
 #define IDC_WORKORDER_DELETE_ADDED_PART 1073
 #define IDC_WORKORDER_PART_CHANGE       1074
 #define IDC_WORKORDER_CHANGE            1074
+#define IDC_EDIT1                       1075
+#define IDC_WORKORDERVIEW_TOTAL_PRICE   1075
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_APP_VIEW                     32775
@@ -138,7 +140,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        322
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1075
+#define _APS_NEXT_CONTROL_VALUE         1076
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

@@ -1,5 +1,45 @@
-// CWorkorderPartsDialog.cpp : implementation file
-//
+/*
+	Copyright (C) 2023  artvabas
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+	To see the license for this source code, please visit:
+		<https://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit:
+		<https://artvabas.com>
+		<https://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at:
+		<https://artvabas.com/contact>
+
+*/
+
+/*
+* This file is part of RepairCafeCureApp.
+* File: CWorkorderPartsDialog.cpp, implements class CWorkorderPartsDialog
+*
+* This class is the dialog of the adding parts to workorder dialog (CWorkorderPartsDialog)
+*
+* Target: Windows 10/11 64bit
+* Version: 1.0.230.0
+* Created: 15-11-2023, (dd-mm-yyyy)
+* Updated: 02-12-2023, (dd-mm-yyyy)
+* Creator: artvabasDev / artvabas
+*
+* License: GPLv3
+*/
 
 #include "pch.h"
 #include "RepairCafeCureApp.h"
@@ -7,9 +47,7 @@
 #include "CWorkorderPartsDialog.h"
 
 using namespace artvabas::sql;
-
-
-// CWorkorderPartsDialog dialog
+using namespace artvabas::rcc::ui::dialogs;
 
 IMPLEMENT_DYNAMIC(CWorkorderPartsDialog, CDialogEx)
 
@@ -29,6 +67,10 @@ CWorkorderPartsDialog::~CWorkorderPartsDialog()
 {
 }
 
+/// <summary>
+/// Data exchange for the controls of this dialog.
+/// </summary>
+/// <param name="pDX"></param>
 void CWorkorderPartsDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -43,7 +85,10 @@ void CWorkorderPartsDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_WORKORDER_CHANGE, m_btnWorkorderPartChange);
 }
 
-
+/// <summary>
+/// Windows/framework message map for the controls of this dialog.
+/// </summary>
+/// <returns></returns>
 BEGIN_MESSAGE_MAP(CWorkorderPartsDialog, CDialogEx)
 	ON_EN_CHANGE(IDC_WORKORDER_DESCRIPTION_PART, &CWorkorderPartsDialog::OnEnChangeWorkorderAddParts)
 	ON_EN_CHANGE(IDC_WORKORDER_AMOUNT_PART, &CWorkorderPartsDialog::OnEnChangeWorkorderAddParts)
@@ -57,10 +102,11 @@ BEGIN_MESSAGE_MAP(CWorkorderPartsDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_WORKORDER_CHANGE, &CWorkorderPartsDialog::OnBnClickedWorkorderChange)
 END_MESSAGE_MAP()
 
-
-// CWorkorderPartsDialog message handlers
-
-
+/// <summary>
+/// Initialization of the dialog.
+/// In this function the list controls are initialized at the beginning of the dialog.
+/// </summary>
+/// <returns></returns>
 BOOL CWorkorderPartsDialog::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -76,7 +122,11 @@ BOOL CWorkorderPartsDialog::OnInitDialog()
 	return TRUE;
 }
 
-
+/// <summary>
+/// This function is called when the user clicks on the OK button.
+/// It deletes the old workorder parts in database and inserts the new parts.
+/// </summary>
+/// <returns></returns>
 void CWorkorderPartsDialog::OnOK()
 {
 	CString strQuery;
@@ -126,7 +176,11 @@ void CWorkorderPartsDialog::OnOK()
 	CDialogEx::OnOK();
 }
 
-
+/// <summary>
+/// This function is called when the user changes the input of the part description, amount or unit price.
+/// It checks if the input is valid and enables the add and Change button.
+/// </summary>
+/// <returns></returns>
 void CWorkorderPartsDialog::OnEnChangeWorkorderAddParts()
 {
 	UpdateData(TRUE);
@@ -143,7 +197,10 @@ void CWorkorderPartsDialog::OnEnChangeWorkorderAddParts()
 	}
 }
 
-
+/// <summary>
+/// This function is called when the user double clicks on the stock part list.
+/// It fills the input fields with the selected part.
+/// </summary>
 void CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	auto nIndex = m_lscWorkorderStockPartList.GetNextItem(-1, LVNI_SELECTED);
@@ -156,11 +213,15 @@ void CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR
 		UpdateData(FALSE);
 		OnEnChangeWorkorderAddParts();
 	}
-
 	*pResult = 0;
 }
 
-
+/// <summary>
+/// This function is called when the user clicks on the added part list.
+/// It fills the input fields with the selected part.
+/// </summary>
+/// <param name="pNMHDR"></param>
+/// <param name="pResult"></param>
 void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	auto nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
@@ -174,11 +235,14 @@ void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRES
 
 		m_bIsAddedPartListSelected = true;
 	}
-
 	*pResult = 0;
 }
 
-
+/// <summary>
+/// This function is called when the user clicks on the add button.
+/// It adds the part to the added part list.
+/// And call the method to calculate the total price.
+/// </summary>
 void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart()
 {
 	
@@ -212,7 +276,12 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart()
 	CalculateTotalPrice();
 }
 
-
+/// <summary>
+/// Thuis method is called when user changes the selection of the added part list.
+/// It enables the change and delete button.
+/// </summary>
+/// <param name="pNMHDR"></param>
+/// <param name="pResult"></param>
 void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
@@ -228,17 +297,28 @@ void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, L
 	*pResult = 0;
 }
 
-
+/// <summary>
+/// This method is called whe the added part list loses the focus.
+/// It disables the change and delete button.
+/// </summary>
+/// <param name="pNMHDR"></param>
+/// <param name="pResult"></param>
+/// <returns></returns>
 void CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
 {	
 	if (m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED) == -1)
 	{
 		SetChangeDeleteButtonState(FALSE);
 	}
-
 	*pResult = 0;
 }
 
+/// <summary>
+/// This method is called when the user clicks on the change button.
+/// It changes the selected part in the added part list.
+/// and calculates the subtotal price of the part.
+/// And call the method to calculate the total price.
+/// </summary>
 void CWorkorderPartsDialog::OnBnClickedWorkorderChange()
 {
 	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
@@ -265,6 +345,11 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderChange()
 	CalculateTotalPrice();
 }
 
+/// <summary>
+/// This method is called when the user clicks on the delete button.
+/// It deletes the selected part from the added part list.
+/// And call the method to calculate the total price.
+/// </summary>
 void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart()
 {
 	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
@@ -275,6 +360,11 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart()
 	CalculateTotalPrice();
 }
 
+/// <summary>
+/// This method initializes the stock part list.
+/// It queries all parts from the database and fills the list control with the found parts.
+/// </summary>
+/// <returns>Boolean true if successful otherwise false</returns>
 bool CWorkorderPartsDialog::InitStockPartList()
 {
 	bool bResult = false;
@@ -323,6 +413,11 @@ bool CWorkorderPartsDialog::InitStockPartList()
 	return bResult;
 }
 
+/// <summary>
+/// This method initializes the added part list.
+/// It queries all parts from the database and fills the list control with the found parts.
+/// </summary>
+/// <returns>Boolean true if successful otherwise false</returns>
 bool CWorkorderPartsDialog::InitAddedPartList()
 {
 	bool bResult = false;
@@ -347,6 +442,7 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 		while (!rs->IsEOF())
 		{
 			CString strValue = _T("");
+			double dConvertToMoney = 0.0;
 			rs->GetFieldValue(_T("WORKORDER_PARTS_WORKORDER_ID"), strValue);
 			nIndex = m_lscWorkorderAddedPartList.InsertItem(row++, strValue);
 
@@ -357,9 +453,13 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 			m_lscWorkorderAddedPartList.SetItemText(nIndex, 2, strValue);
 
 			rs->GetFieldValue(_T("WORKORDER_PARTS_UNIT_PRICE"), strValue);
+			dConvertToMoney = _ttof(strValue);
+			strValue.Format(_T("%.2f"), dConvertToMoney);
 			m_lscWorkorderAddedPartList.SetItemText(nIndex, 3, strValue);
 
 			rs->GetFieldValue(_T("WORKORDER_PARTS_TOTAL_PRICE"), strValue);
+			dConvertToMoney = _ttof(strValue);
+			strValue.Format(_T("%.2f"), dConvertToMoney);
 			m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, strValue);
 
 			rs->MoveNext();
@@ -369,9 +469,14 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 	delete rs;
 	UpdateData(FALSE);
 
+	CalculateTotalPrice();
+
 	return bResult;
 }
 
+/// <summary>
+/// This method calculates the total price of the added parts.
+/// </summary>
 void CWorkorderPartsDialog::CalculateTotalPrice()
 {
 	double dTotalPrice(0.0);
@@ -388,12 +493,18 @@ void CWorkorderPartsDialog::CalculateTotalPrice()
 	UpdateData(FALSE);
 }
 
+/// <summary>
+/// This method sets the state of the change and delete button.
+/// </summary>
 void CWorkorderPartsDialog::SetChangeDeleteButtonState(BOOL bFlag)
 {
 	m_btnWorkorderPartChange.EnableWindow(bFlag);
 	m_btnWorkorderPartDelete.EnableWindow(bFlag);
 }
 
+/// <summary>
+/// This method clears the input fields of the part.
+/// </summary>
 void CWorkorderPartsDialog::ClearPartInputFields()
 {
 	m_strWorkorderPartAmount = _T("");

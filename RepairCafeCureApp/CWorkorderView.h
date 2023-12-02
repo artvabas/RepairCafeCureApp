@@ -73,6 +73,7 @@
 				CString m_strWorkorderStatus;
 				CString m_strWorkorderNewLog;
 				CString m_strWorkorderHistoryLog;
+				CString m_strWorkorderTotalPartsPrice;
 
 				CEdit m_edtWorkorderNewLog;
 
@@ -126,6 +127,7 @@
 			private:
 				void InitWorkorderExistingList();
 				void InitWorkorderEmployeeResponsibleComboBox();
+				void InitWorkorderSparePartsList();
 				bool GetAssetInfo(const unsigned int& nAssetId);
 				bool GetCustomerInfo(const unsigned int& nCustomerId);
 				void PerformWorkorderUpdate();
