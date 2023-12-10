@@ -248,6 +248,7 @@
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="res\writelarge.bmp" />
     <Image Include="res\writesmall.bmp" />
+    <Image Include="Screenshot.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\Cryptopp890\x64\Output\Release\cryptlib.lib" />

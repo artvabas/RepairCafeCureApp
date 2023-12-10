@@ -70,6 +70,9 @@
     <Filter Include="Source Files\artvabas\rcc\ui\controls">
       <UniqueIdentifier>{22e8d474-8ac5-4691-8c3d-782c32c0c5b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Custom Resources">
+      <UniqueIdentifier>{03da0651-de16-4e41-b2a2-d14c7bcf41fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RepairCafeCureApp.h">
@@ -219,6 +222,9 @@
     </Image>
     <Image Include="res\Toolbar256.bmp">
       <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Screenshot.bmp">
+      <Filter>Custom Resources</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

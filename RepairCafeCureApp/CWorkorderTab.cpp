@@ -113,7 +113,7 @@ void CWorkorderTab::OnEnChangeWoTabDescription()
 void CWorkorderTab::OnBnClickedWoTabCreate()
 {
 	UpdateData(TRUE);
-
+	/*
 	CString strQuery;
 
 	// Build the fields value for the query.
@@ -148,7 +148,107 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 	}
 	strQuery.ReleaseBuffer();
 
-	// Change the tab view to receive another new workorder.
+	*/
+	CPrintDialog dlg(FALSE);
+	if (dlg.DoModal() == IDOK)
+	{
+
+		DEVMODEW dm;
+		ZeroMemory(&dm, sizeof(dm));
+		dm.dmSize = sizeof(dm);
+		dm.dmFields = DM_ORIENTATION | DM_PAPERSIZE;
+		dm.dmOrientation = DMORIENT_LANDSCAPE;
+		dm.dmPaperSize = DMPAPER_A4;
+
+		HDC hDC = CreateDC(dlg.GetDriverName(), dlg.GetDeviceName(), NULL, &dm);
+		CDC dc;
+		BOOL c = dc.Attach(hDC);
+		dc.m_bPrinting = TRUE;
+
+		CString strTitle;
+		strTitle.LoadString(AFX_IDS_APP_TITLE);
+
+		DOCINFO di;
+		::ZeroMemory(&di, sizeof(DOCINFO));
+		di.cbSize = sizeof(DOCINFO);
+		di.lpszDocName = strTitle;
+		dc.m_hDC = dlg.GetPrinterDC();
+		BOOL bPrintingOK = dc.StartDoc(&di);
+
+
+		auto h = dc.GetDeviceCaps(HORZRES);
+		auto v = dc.GetDeviceCaps(VERTRES);	
+
+		CRect rctBorder(0,0,h,v);
+
+		auto sx = dc.GetDeviceCaps(LOGPIXELSX);
+		auto sy = dc.GetDeviceCaps(LOGPIXELSY);
+		rctBorder.DeflateRect(sx / 2, sy / 2);
+		dc.Draw3dRect(rctBorder, RGB(0, 0, 0), RGB(0, 0, 0));
+
+		CImage image1;
+		image1.Load(_T("Screenshot.bmp"));
+		int nX1 = rctBorder.TopLeft().x + 10;
+		int nY1 = rctBorder.TopLeft().y + 10;
+
+		image1.StretchBlt(dc.m_hDC, nX1, nY1, image1.GetWidth() * 4 , image1.GetHeight() * 4, 0, 0, image1.GetWidth(), image1.GetHeight(), SRCCOPY);
+
+		nY1 += image1.GetHeight() * 4 + 10;
+
+		CFont font;
+		font.CreatePointFont(380, _T("Aptos"));
+		dc.SelectObject(&font);
+
+		CRect rctHeader(nX1 + 60, nY1, nX1 + (image1.GetWidth() * 4) - 60, nY1 + 140);
+		dc.FillRect(rctHeader, &CBrush(RGB(0, 102, 255)));
+		dc.Draw3dRect(rctHeader, RGB(0, 102, 255), RGB(0, 102, 255));
+
+		//dc.SetBkColor(RGB(0, 102, 255));
+		dc.SetTextColor(RGB(255, 255, 255));
+	
+		dc.DrawText(_T(" ") + m_strAssetDescription + _T("     ") + m_strWorkorderDescription + _T("     Workorder: 12345\n") + 
+			_T(" Model: ") + m_strAssetModelNumber + _T("     Brand : ") + m_strAssetBrand
+			,rctHeader, DT_LEFT | DT_TABSTOP);
+
+		nY1 += 140 + 20;
+		dc.SetBkColor(RGB(255, 255, 255));
+		dc.SetTextColor(RGB(0, 0, 0));
+		CString strText1 = _T("Date: ") + COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) + _T("\t\t\Customer: ") + m_strCustomerSurname + _T(" ") + m_strCustomerName;	
+		CString strText2 = _T("Employee: ") + theApp.GetSelectedEmployeeName() + _T("\t\tMobile: ") + _T("06-3456789");
+		CString strText3 = _T("\t\t\t\tPhone: 070-5647864");
+		CString strText4 = _T("\t\t\t\tEmail: zuurtje@zuiker.com");
+		
+		dc.TextOut(nX1, nY1, strText1);
+		dc.TextOut(nX1, nY1 + 70, strText2);
+		dc.TextOut(nX1, nY1 + 140, strText3);
+		dc.TextOut(nX1, nY1 + 210, strText4);
+
+		/*
+		CImage image2;
+		image2.Load(_T("Screenshot.bmp"));
+		int nWidth2 = image2.GetWidth();
+		int nImageHeight2 = image2.GetHeight();
+		int nX2 = rect.Width() * 3 / 4 - nWidth2 / 2;
+		int nY2 = rect.Height() / 2 + nHeight / 2;
+
+		hdc = image2.GetDC();
+		dc1.Attach(hdc);
+		dc.StretchBlt(nX2, nY2, nWidth2, nHeight, &dc1, 0, 0, image2.GetWidth(), image2.GetHeight(), SRCCOPY);
+		dc1.Detach();
+		image2.ReleaseDC();
+
+		CString strText4 = _T("Regel 4");
+		CString strText5 = _T("Regel 5");
+		CString strText6 = _T("Regel 6");
+		dc.TextOut(nX2, nY2 - 50, strText4);
+		dc.TextOut(nX2, nY2 - 30, strText5);
+		dc.TextOut(nX2, nY2 - 10, strText6);
+		*/
+
+		dc.EndDoc();
+		dc.Detach();
+	}
+
 	m_pTabControl->ChangeTabView(true);
 }
 
