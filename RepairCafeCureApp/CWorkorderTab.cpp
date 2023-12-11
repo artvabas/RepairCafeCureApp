@@ -195,9 +195,59 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 
 		nY1 += image1.GetHeight() * 4 + 10;
 
-		CFont font;
-		font.CreatePointFont(380, _T("Aptos"));
-		dc.SelectObject(&font);
+		CFont fontPlain;
+		VERIFY(fontPlain.CreateFont(
+			70,                       // nHeight
+			0,                        // nWidth
+			0,                        // nEscapement
+			0,                        // nOrientation
+			FW_NORMAL,                // nWeight
+			FALSE,                    // bItalic
+			FALSE,                    // bUnderline
+			0,                        // cStrikeOut
+			ANSI_CHARSET,             // nCharSet
+			OUT_DEFAULT_PRECIS,       // nOutPrecision
+			CLIP_DEFAULT_PRECIS,      // nClipPrecision
+			DEFAULT_QUALITY,          // nQuality
+			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+			_T("Cascadia Mono")));            // lpszFacename
+
+		CFont fontBold;
+		VERIFY(fontBold.CreateFont(
+			70,                       // nHeight
+			0,                        // nWidth
+			0,                        // nEscapement
+			0,                        // nOrientation
+			FW_BOLD,                // nWeight
+			FALSE,                    // bItalic
+			FALSE,                    // bUnderline
+			0,                        // cStrikeOut
+			ANSI_CHARSET,             // nCharSet
+			OUT_DEFAULT_PRECIS,       // nOutPrecision
+			CLIP_DEFAULT_PRECIS,      // nClipPrecision
+			DEFAULT_QUALITY,          // nQuality
+			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+			_T("Cascadia Mono")));            // lpszFacename
+
+		CFont fontItalic;
+		VERIFY(fontItalic.CreateFont(
+			70,                       // nHeight
+			0,                        // nWidth
+			0,                        // nEscapement
+			0,                        // nOrientation
+			FW_NORMAL,                // nWeight
+			TRUE,                    // bItalic
+			FALSE,                    // bUnderline
+			0,                        // cStrikeOut
+			ANSI_CHARSET,             // nCharSet
+			OUT_DEFAULT_PRECIS,       // nOutPrecision
+			CLIP_DEFAULT_PRECIS,      // nClipPrecision
+			DEFAULT_QUALITY,          // nQuality
+			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+			_T("Cascadia Mono")));            // lpszFacename
+
+		CFont* pFont = &fontBold;
+		dc.SelectObject(pFont);
 
 		CRect rctHeader(nX1 + 60, nY1, nX1 + (image1.GetWidth() * 4) - 60, nY1 + 140);
 		dc.FillRect(rctHeader, &CBrush(RGB(0, 102, 255)));
@@ -206,22 +256,42 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 		//dc.SetBkColor(RGB(0, 102, 255));
 		dc.SetTextColor(RGB(255, 255, 255));
 	
-		dc.DrawText(_T(" ") + m_strAssetDescription + _T("     ") + m_strWorkorderDescription + _T("     Workorder: 12345\n") + 
-			_T(" Model: ") + m_strAssetModelNumber + _T("     Brand : ") + m_strAssetBrand
-			,rctHeader, DT_LEFT | DT_TABSTOP);
+		dc.DrawText(_T(" ") + m_strAssetDescription + _T(": ") + m_strWorkorderDescription + _T("     Workorder: 12345\n") + 
+			_T(" Model: ") + m_strAssetModelNumber + _T("     Brand: ") + m_strAssetBrand
+			,rctHeader, DT_CENTER | DT_TABSTOP);
 
 		nY1 += 140 + 20;
 		dc.SetBkColor(RGB(255, 255, 255));
 		dc.SetTextColor(RGB(0, 0, 0));
-		CString strText1 = _T("Date: ") + COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) + _T("\t\t\Customer: ") + m_strCustomerSurname + _T(" ") + m_strCustomerName;	
-		CString strText2 = _T("Employee: ") + theApp.GetSelectedEmployeeName() + _T("\t\tMobile: ") + _T("06-3456789");
-		CString strText3 = _T("\t\t\t\tPhone: 070-5647864");
-		CString strText4 = _T("\t\t\t\tEmail: zuurtje@zuiker.com");
+		CString strTextLine1a = _T("Date: ");// +COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"));
+		CString strTextLine1b = _T("Customer: ");// +m_strCustomerSurname + _T(" ") + m_strCustomerName;
+		CString strTextLine2a = _T("Employee: ");// +theApp.GetSelectedEmployeeName();
+		CString strTextLine2b = _T("Mobile: ");// 06 - 3456789");
+		CString strTextLine3 = _T("Phone: ");// 070 - 5647864");
+		CString strTextLine4 = _T("Email: ");// zuurtje@zuiker.com");
 		
-		dc.TextOut(nX1, nY1, strText1);
-		dc.TextOut(nX1, nY1 + 70, strText2);
-		dc.TextOut(nX1, nY1 + 140, strText3);
-		dc.TextOut(nX1, nY1 + 210, strText4);
+
+		dc.TextOut(nX1 + 100, nY1, strTextLine1a);
+		dc.TextOut(nX1 + 1200, nY1, strTextLine1b);
+		dc.TextOut(nX1 + 100, nY1 + 70, strTextLine2a);
+		dc.TextOut(nX1 + 1200, nY1 + 70, strTextLine2b);
+		dc.TextOut(nX1 + 1200, nY1 + 140, strTextLine3);
+		dc.TextOut(nX1 + 1200, nY1 + 210, strTextLine4);
+
+		pFont = &fontPlain;
+		dc.SelectObject(pFont);
+
+		dc.TextOut(nX1 + 400, nY1, COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")));
+		dc.TextOut(nX1 + 1500, nY1, m_strCustomerSurname + _T(" ") + m_strCustomerName);
+		dc.TextOut(nX1 + 400, nY1 + 70, theApp.GetSelectedEmployeeName());
+		dc.TextOut(nX1 + 1500, nY1 + 70, _T("06 - 3456789"));
+		dc.TextOut(nX1 + 1500, nY1 + 140, _T("070 - 5647864"));
+		dc.TextOut(nX1 + 1500, nY1 + 210, _T("zuurtje@zuiker.com"));
+		
+
+		fontPlain.DeleteObject();
+		fontBold.DeleteObject();
+		fontItalic.DeleteObject();
 
 		/*
 		CImage image2;
