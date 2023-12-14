@@ -152,171 +152,237 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 	CPrintDialog dlg(FALSE);
 	if (dlg.DoModal() == IDOK)
 	{
+		// Local variables
+		typedef unsigned int pixel;
+		const pixel pixMargin = 100; // 1 inch margin
+		const pixel pixFontHeightHeader = 70;
+		const pixel pixFontHeightBody = 50;
 
+		// Lambda functions
+		auto TotalTabInPixels = [pixMargin](unsigned int nTotalTabs) -> pixel
+			{
+				return pixMargin * nTotalTabs;
+			};
+
+		auto HeaderTextLineDown = [pixFontHeightHeader](unsigned int nTotalLines) -> pixel
+			{
+				return pixFontHeightHeader * nTotalLines;
+			};
+
+		auto BodyTextLineDown = [pixFontHeightBody](unsigned int nTotalLines) -> pixel
+			{
+				return pixFontHeightBody * nTotalLines;
+			};
+
+		// Set printer settings
 		DEVMODEW dm;
 		ZeroMemory(&dm, sizeof(dm));
 		dm.dmSize = sizeof(dm);
 		dm.dmFields = DM_ORIENTATION | DM_PAPERSIZE;
 		dm.dmOrientation = DMORIENT_LANDSCAPE;
 		dm.dmPaperSize = DMPAPER_A4;
-
+		CDC* pDC = new CDC;
 		HDC hDC = CreateDC(dlg.GetDriverName(), dlg.GetDeviceName(), NULL, &dm);
-		CDC dc;
-		BOOL c = dc.Attach(hDC);
-		dc.m_bPrinting = TRUE;
+		BOOL c = pDC->Attach(hDC);
+		const int nHorRes = pDC->GetDeviceCaps(HORZRES);	// get printable width
+		const int nVerRes = pDC->GetDeviceCaps(VERTRES);	// get printable height
+		const int nLogPixelsX = pDC->GetDeviceCaps(LOGPIXELSX);	// get device resolution along X
+		const int nLogPixelsY = pDC->GetDeviceCaps(LOGPIXELSY);	// get device resolution along Y
+
+		// Create printer DC
+		//HDC hDC = CreateDC(dlg.GetDriverName(), dlg.GetDeviceName(), NULL, &dm);
+		//BOOL c = pDC->Attach(hDC);
+		pDC->m_bPrinting = TRUE;
+
+		// Create fonts
+		CFont fontPlain;
+		VERIFY(fontPlain.CreateFont(
+			pixFontHeightHeader, 	  // nHeight
+			0,                        // nWidth
+			0,                        // nEscapement
+			0,                        // nOrientation
+			FW_NORMAL,                // nWeight
+			FALSE,                    // bItalic
+			FALSE,                    // bUnderline
+			0,                        // cStrikeOut
+			ANSI_CHARSET,             // nCharSet
+			OUT_DEFAULT_PRECIS,       // nOutPrecision
+			CLIP_DEFAULT_PRECIS,      // nClipPrecision
+			DEFAULT_QUALITY,          // nQuality
+			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+			_T("Cascadia Mono")));    // lpszFacename
+
+		CFont fontBold;
+		VERIFY(fontBold.CreateFont(
+			pixFontHeightHeader,      // nHeight
+			0,                        // nWidth
+			0,                        // nEscapement
+			0,                        // nOrientation
+			FW_BOLD,				  // nWeight
+			FALSE,                    // bItalic
+			FALSE,                    // bUnderline
+			0,                        // cStrikeOut
+			ANSI_CHARSET,             // nCharSet
+			OUT_DEFAULT_PRECIS,       // nOutPrecision
+			CLIP_DEFAULT_PRECIS,      // nClipPrecision
+			DEFAULT_QUALITY,          // nQuality
+			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+			_T("Cascadia Mono")));    // lpszFacename
+
+		CFont fontItalic;
+		VERIFY(fontItalic.CreateFont(
+			pixFontHeightBody,        // nHeight
+			0,                        // nWidth
+			0,                        // nEscapement
+			0,                        // nOrientation
+			FW_NORMAL,                // nWeight
+			TRUE,                     // bItalic
+			FALSE,                    // bUnderline
+			0,                        // cStrikeOut
+			ANSI_CHARSET,             // nCharSet
+			OUT_DEFAULT_PRECIS,       // nOutPrecision
+			CLIP_DEFAULT_PRECIS,      // nClipPrecision
+			DEFAULT_QUALITY,          // nQuality
+			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+			_T("Cascadia Mono")));    // lpszFacename
 
 		CString strTitle;
-		strTitle.LoadString(AFX_IDS_APP_TITLE);
+		BOOL isValid = strTitle.LoadStringW(AFX_IDS_APP_TITLE);
+		ASSERT(isValid);
 
+		// Start printing
 		DOCINFO di;
 		::ZeroMemory(&di, sizeof(DOCINFO));
 		di.cbSize = sizeof(DOCINFO);
 		di.lpszDocName = strTitle;
-		dc.m_hDC = dlg.GetPrinterDC();
-		BOOL bPrintingOK = dc.StartDoc(&di);
+		pDC->m_hDC = dlg.GetPrinterDC();
 
 
-		auto h = dc.GetDeviceCaps(HORZRES);
-		auto v = dc.GetDeviceCaps(VERTRES);	
+		if (pDC->StartDoc(&di))
+		{
+			pDC->StartPage();
 
-		CRect rctBorder(0,0,h,v);
+			// Print border
+			CRect rctBorder(0, 0, nHorRes, nVerRes);
+			rctBorder.DeflateRect(nLogPixelsX / 2, nLogPixelsY / 2);
+			pDC->Draw3dRect(rctBorder, RGB(0, 0, 0), RGB(0, 0, 0));
 
-		auto sx = dc.GetDeviceCaps(LOGPIXELSX);
-		auto sy = dc.GetDeviceCaps(LOGPIXELSY);
-		rctBorder.DeflateRect(sx / 2, sy / 2);
-		dc.Draw3dRect(rctBorder, RGB(0, 0, 0), RGB(0, 0, 0));
+			// Set print start position
+			int nPosX1 = rctBorder.TopLeft().x + 10;
+			int nPosY1 = rctBorder.TopLeft().y + 10;
 
-		CImage image1;
-		image1.Load(_T("Screenshot.bmp"));
-		int nX1 = rctBorder.TopLeft().x + 10;
-		int nY1 = rctBorder.TopLeft().y + 10;
+			// Print logo
+			CImage imgLogo;
+			imgLogo.Load(_T("Screenshot.bmp"));
+			imgLogo.StretchBlt(pDC->m_hDC, nPosX1, nPosY1, imgLogo.GetWidth() * 4, imgLogo.GetHeight() * 4, 0, 0, imgLogo.GetWidth(), imgLogo.GetHeight(), SRCCOPY);
 
-		image1.StretchBlt(dc.m_hDC, nX1, nY1, image1.GetWidth() * 4 , image1.GetHeight() * 4, 0, 0, image1.GetWidth(), image1.GetHeight(), SRCCOPY);
+			// Calculate new start print position
+			nPosY1 += imgLogo.GetHeight() * 4 + 10;
 
-		nY1 += image1.GetHeight() * 4 + 10;
+			// Print Header rectangle
+			CRect rctHeader(nPosX1 + 60, nPosY1, nPosX1 + (imgLogo.GetWidth() * 4) - 60, nPosY1 + HeaderTextLineDown(2));
+			pDC->FillRect(rctHeader, &CBrush(RGB(0, 102, 255)));
+			pDC->Draw3dRect(rctHeader, RGB(0, 102, 255), RGB(0, 102, 255));
 
-		CFont fontPlain;
-		VERIFY(fontPlain.CreateFont(
-			70,                       // nHeight
-			0,                        // nWidth
-			0,                        // nEscapement
-			0,                        // nOrientation
-			FW_NORMAL,                // nWeight
-			FALSE,                    // bItalic
-			FALSE,                    // bUnderline
-			0,                        // cStrikeOut
-			ANSI_CHARSET,             // nCharSet
-			OUT_DEFAULT_PRECIS,       // nOutPrecision
-			CLIP_DEFAULT_PRECIS,      // nClipPrecision
-			DEFAULT_QUALITY,          // nQuality
-			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-			_T("Cascadia Mono")));            // lpszFacename
+			// Set font
+			CFont* pFont = &fontBold;
+			pDC->SelectObject(pFont);
 
-		CFont fontBold;
-		VERIFY(fontBold.CreateFont(
-			70,                       // nHeight
-			0,                        // nWidth
-			0,                        // nEscapement
-			0,                        // nOrientation
-			FW_BOLD,                // nWeight
-			FALSE,                    // bItalic
-			FALSE,                    // bUnderline
-			0,                        // cStrikeOut
-			ANSI_CHARSET,             // nCharSet
-			OUT_DEFAULT_PRECIS,       // nOutPrecision
-			CLIP_DEFAULT_PRECIS,      // nClipPrecision
-			DEFAULT_QUALITY,          // nQuality
-			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-			_T("Cascadia Mono")));            // lpszFacename
+			// Print header text
+			pDC->SetTextColor(RGB(255, 255, 255));
+			pDC->DrawText(_T(" ") + m_strAssetDescription + _T(": ") + m_strWorkorderDescription + _T("     Workorder: 12345\n") +
+				_T(" Model: ") + m_strAssetModelNumber + _T("     Brand: ") + m_strAssetBrand
+				, rctHeader, DT_CENTER | DT_TABSTOP);
 
-		CFont fontItalic;
-		VERIFY(fontItalic.CreateFont(
-			70,                       // nHeight
-			0,                        // nWidth
-			0,                        // nEscapement
-			0,                        // nOrientation
-			FW_NORMAL,                // nWeight
-			TRUE,                    // bItalic
-			FALSE,                    // bUnderline
-			0,                        // cStrikeOut
-			ANSI_CHARSET,             // nCharSet
-			OUT_DEFAULT_PRECIS,       // nOutPrecision
-			CLIP_DEFAULT_PRECIS,      // nClipPrecision
-			DEFAULT_QUALITY,          // nQuality
-			DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-			_T("Cascadia Mono")));            // lpszFacename
+			auto middleDocBody = (((rctHeader.BottomRight().x - rctHeader.TopLeft().x) + (nPosX1 + 60)) / 2) - TotalTabInPixels(2);
 
-		CFont* pFont = &fontBold;
-		dc.SelectObject(pFont);
+			// Calculate new start print position
+			nPosX1 += TotalTabInPixels(1);
+			nPosY1 = rctHeader.BottomRight().y + HeaderTextLineDown(1);
 
-		CRect rctHeader(nX1 + 60, nY1, nX1 + (image1.GetWidth() * 4) - 60, nY1 + 140);
-		dc.FillRect(rctHeader, &CBrush(RGB(0, 102, 255)));
-		dc.Draw3dRect(rctHeader, RGB(0, 102, 255), RGB(0, 102, 255));
+			// Set body values
+			CString strTextLine1a = _T("Date: ");// +COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"));
+			CString strTextLine1b = _T("Customer: ");// +m_strCustomerSurname + _T(" ") + m_strCustomerName;
+			CString strTextLine2a = _T("Employee: ");// +theApp.GetSelectedEmployeeName();
+			CString strTextLine2b = _T("Mobile: ");// 06 - 3456789");
+			CString strTextLine3 = _T("Phone: ");// 070 - 5647864");
+			CString strTextLine4 = _T("Email: ");// zuurtje@zuiker.com");
 
-		//dc.SetBkColor(RGB(0, 102, 255));
-		dc.SetTextColor(RGB(255, 255, 255));
-	
-		dc.DrawText(_T(" ") + m_strAssetDescription + _T(": ") + m_strWorkorderDescription + _T("     Workorder: 12345\n") + 
-			_T(" Model: ") + m_strAssetModelNumber + _T("     Brand: ") + m_strAssetBrand
-			,rctHeader, DT_CENTER | DT_TABSTOP);
+			// Set font color
+			pDC->SetBkColor(RGB(255, 255, 255));
+			pDC->SetTextColor(RGB(0, 0, 0));
 
-		nY1 += 140 + 20;
-		dc.SetBkColor(RGB(255, 255, 255));
-		dc.SetTextColor(RGB(0, 0, 0));
-		CString strTextLine1a = _T("Date: ");// +COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"));
-		CString strTextLine1b = _T("Customer: ");// +m_strCustomerSurname + _T(" ") + m_strCustomerName;
-		CString strTextLine2a = _T("Employee: ");// +theApp.GetSelectedEmployeeName();
-		CString strTextLine2b = _T("Mobile: ");// 06 - 3456789");
-		CString strTextLine3 = _T("Phone: ");// 070 - 5647864");
-		CString strTextLine4 = _T("Email: ");// zuurtje@zuiker.com");
-		
+			// Print body text, SubHeaders
+			// Line 1 Date and Custemer
+			pDC->TextOut(nPosX1, nPosY1, strTextLine1a);
+			pDC->TextOut(nPosX1 + middleDocBody, nPosY1, strTextLine1b);
+			//Line 2 Employee and mobile
+			pDC->TextOut(nPosX1, nPosY1 + HeaderTextLineDown(1), strTextLine2a);
+			pDC->TextOut(nPosX1 + middleDocBody, nPosY1 + HeaderTextLineDown(1), strTextLine2b);
+			//Line 3 Phone
+			pDC->TextOut(nPosX1 + middleDocBody, nPosY1 + HeaderTextLineDown(2), strTextLine3);
+			//Line 4 Email
+			pDC->TextOut(nPosX1 + middleDocBody, nPosY1 + HeaderTextLineDown(3), strTextLine4);
 
-		dc.TextOut(nX1 + 100, nY1, strTextLine1a);
-		dc.TextOut(nX1 + 1200, nY1, strTextLine1b);
-		dc.TextOut(nX1 + 100, nY1 + 70, strTextLine2a);
-		dc.TextOut(nX1 + 1200, nY1 + 70, strTextLine2b);
-		dc.TextOut(nX1 + 1200, nY1 + 140, strTextLine3);
-		dc.TextOut(nX1 + 1200, nY1 + 210, strTextLine4);
+			pFont = &fontPlain;
+			pDC->SelectObject(pFont);
 
-		pFont = &fontPlain;
-		dc.SelectObject(pFont);
+			CSize textSizeCustomer = pDC->GetTextExtent(strTextLine1b);
+			CSize TextSizeEmployee = pDC->GetTextExtent(strTextLine2a);
 
-		dc.TextOut(nX1 + 400, nY1, COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")));
-		dc.TextOut(nX1 + 1500, nY1, m_strCustomerSurname + _T(" ") + m_strCustomerName);
-		dc.TextOut(nX1 + 400, nY1 + 70, theApp.GetSelectedEmployeeName());
-		dc.TextOut(nX1 + 1500, nY1 + 70, _T("06 - 3456789"));
-		dc.TextOut(nX1 + 1500, nY1 + 140, _T("070 - 5647864"));
-		dc.TextOut(nX1 + 1500, nY1 + 210, _T("zuurtje@zuiker.com"));
-		
+			// Print body text, Content
+			pDC->TextOut(nPosX1 + TextSizeEmployee.cx, nPosY1, COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")));
+			pDC->TextOut(nPosX1 + middleDocBody + textSizeCustomer.cx, nPosY1, m_strCustomerSurname + _T(" ") + m_strCustomerName);
+			pDC->TextOut(nPosX1 + TextSizeEmployee.cx, nPosY1 + HeaderTextLineDown(1), theApp.GetSelectedEmployeeName());
+			pDC->TextOut(nPosX1 + middleDocBody + textSizeCustomer.cx, nPosY1 + HeaderTextLineDown(1), _T("06 - 3456789"));
+			pDC->TextOut(nPosX1 + middleDocBody + textSizeCustomer.cx, nPosY1 + HeaderTextLineDown(2), _T("070 - 5647864"));
+			pDC->TextOut(nPosX1 + middleDocBody + textSizeCustomer.cx, nPosY1 + HeaderTextLineDown(3), _T("zuurtje@zuiker.com"));
+
+			nPosY1 += HeaderTextLineDown(5);
+
+			pFont = &fontItalic;
+			pDC->SelectObject(pFont);
+
+			// Print body text, SubHeaders
+			pDC->TextOutW(nPosX1, nPosY1, _T("HUISREGELS"));
+			pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De activiteiten van NME Repair worden gratis en op vrijwillige basis uitgevoerd door de"));
+			pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("aanwezige reparatiedeskundigen."));
+			pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Noch de organisatie van het NME Repair, noch de reparateurs zijn aansprakelijk voor schade"));
+			pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("als gevolg van verstrekte reparatieadviezen of instructies, voor schade aan de ter reparatie"));
+			pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("aangeboden voorwerpen, voor gevolgdchade of voor andere schade die het gevolg is van"));
+			pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("activiteiten van het NME Repair."));
+
+			/*
+			CImage image2;
+			image2.Load(_T("Screenshot.bmp"));
+			int nWidth2 = image2.GetWidth();
+			int nImageHeight2 = image2.GetHeight();
+			int nX2 = rect.Width() * 3 / 4 - nWidth2 / 2;
+			int nY2 = rect.Height() / 2 + nHeight / 2;
+
+			hdc = image2.GetDC();
+			dc1.Attach(hdc);
+			dc.StretchBlt(nX2, nY2, nWidth2, nHeight, &dc1, 0, 0, image2.GetWidth(), image2.GetHeight(), SRCCOPY);
+			dc1.Detach();
+			image2.ReleaseDC();
+
+			CString strText4 = _T("Regel 4");
+			CString strText5 = _T("Regel 5");
+			CString strText6 = _T("Regel 6");
+			dc.TextOut(nX2, nY2 - 50, strText4);
+			dc.TextOut(nX2, nY2 - 30, strText5);
+			dc.TextOut(nX2, nY2 - 10, strText6);
+			*/
+		}
 
 		fontPlain.DeleteObject();
 		fontBold.DeleteObject();
 		fontItalic.DeleteObject();
-
-		/*
-		CImage image2;
-		image2.Load(_T("Screenshot.bmp"));
-		int nWidth2 = image2.GetWidth();
-		int nImageHeight2 = image2.GetHeight();
-		int nX2 = rect.Width() * 3 / 4 - nWidth2 / 2;
-		int nY2 = rect.Height() / 2 + nHeight / 2;
-
-		hdc = image2.GetDC();
-		dc1.Attach(hdc);
-		dc.StretchBlt(nX2, nY2, nWidth2, nHeight, &dc1, 0, 0, image2.GetWidth(), image2.GetHeight(), SRCCOPY);
-		dc1.Detach();
-		image2.ReleaseDC();
-
-		CString strText4 = _T("Regel 4");
-		CString strText5 = _T("Regel 5");
-		CString strText6 = _T("Regel 6");
-		dc.TextOut(nX2, nY2 - 50, strText4);
-		dc.TextOut(nX2, nY2 - 30, strText5);
-		dc.TextOut(nX2, nY2 - 10, strText6);
-		*/
-
-		dc.EndDoc();
-		dc.Detach();
+		pDC->EndPage();
+		pDC->EndDoc();
+		pDC->Detach();
+		ReleaseDC(pDC);
+		delete pDC;
 	}
 
 	m_pTabControl->ChangeTabView(true);
