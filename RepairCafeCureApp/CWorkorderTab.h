@@ -89,6 +89,9 @@ namespace artvabas {
 
 					void InitWithAssetDetailsRecords();
 
+				private:
+					void PrintReceiptAndWorkorder();
+
 					// Dialog Data
 #ifdef AFX_DESIGN_TIME
 					enum { IDD = IDD_WORKORDER_TAB };
