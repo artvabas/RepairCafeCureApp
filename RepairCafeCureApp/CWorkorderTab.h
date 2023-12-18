@@ -41,7 +41,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 10-11-2023, (dd-mm-yyyy)
+* Updated: 18-12-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class

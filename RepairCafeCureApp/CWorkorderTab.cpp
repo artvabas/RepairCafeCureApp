@@ -41,7 +41,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.230.0
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 10-11-2023, (dd-mm-yyyy)
+* Updated: 18-12-2023, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -298,21 +298,28 @@ void CWorkorderTab::InitWithAssetDetailsRecords()
 	UpdateData(FALSE);
 }
 
+/// <summary>
+/// Prints the receipt and workorder.
+/// </summary>
+/// <returns></returns>
 void CWorkorderTab::PrintReceiptAndWorkorder()
 {
 	// Set printer settings
 	CPrintDialog dlg(false);
-	dlg.m_pd.hDevMode = ::GlobalAlloc(GHND, sizeof(DEVMODE));
+	dlg.m_pd.hDevMode = GlobalAlloc(GHND, sizeof(DEVMODE));
 
 	ASSERT(dlg.m_pd.hDevMode != NULL);
 
 	if (dlg.m_pd.hDevMode != NULL)
 	{
 		DEVMODE* devMode = (DEVMODE*)GlobalLock(dlg.m_pd.hDevMode);
-		devMode->dmSize = sizeof(DEVMODE);
-		devMode->dmOrientation = DMORIENT_LANDSCAPE;
-		devMode->dmFields = DM_ORIENTATION;
-		GlobalUnlock(devMode);
+		if (devMode != NULL)
+		{
+			devMode->dmSize = sizeof(DEVMODE);
+			devMode->dmOrientation = DMORIENT_LANDSCAPE;
+			devMode->dmFields = DM_ORIENTATION;
+			GlobalUnlock(devMode);
+		}
 	}
 
 	if (dlg.DoModal() == IDOK)
@@ -322,6 +329,48 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 		const pixel pixMargin = 100; // 1 inch margin
 		const pixel pixFontHeightHeader = 110;
 		const pixel pixFontHeightBody = 70;
+		CString strLastWOID = _T("");
+		CString strCustomerCellPhone = _T("");
+		CString strCustomerPhone = _T("");
+		CString strCustomerEmail = _T("");
+
+		// Get last added workorder ID
+		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+		CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+
+		auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('WORKORDER')"));
+		if (lastID > 0)
+		{
+			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_OK);
+			strLastWOID.Format(_T("%d"), lastID);
+		}
+		else
+		{
+			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
+		}
+
+		// Get customer cell phone, phone and email
+		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
+		CRecordset* rs = new CRecordset();
+		CString strQuery;
+		strQuery.Format(_T("SELECT CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL FROM CUSTOMER WHERE (CUSTOMER_ID = %d)"), m_uiCustomerID);
+
+		if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
+		{
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
+			rs->GetFieldValue(_T("CUSTOMER_CELL_PHONE"), strCustomerCellPhone);
+			rs->GetFieldValue(_T("CUSTOMER_PHONE"), strCustomerPhone);
+			rs->GetFieldValue(_T("CUSTOMER_EMAIL"), strCustomerEmail);
+		}
+		else
+		{
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		}
+
+		theApp.GetDatabaseConnection()->CloseQuery(rs);
+		delete rs;
+
 
 		// Create fonts
 		CFont fontPlain;
@@ -422,6 +471,8 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 				CFont* pFont = nullptr;
 				unsigned long middleDocBody = 0UL;
 
+				theApp.SetStatusBarText(IDS_STATUSBAR_PRINTING);
+
 				pDC->m_bPrinting = TRUE;
 				pDC->StartPage();
 
@@ -437,8 +488,7 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 					};
 
 				auto PrintHeader = [pDC, HeaderTextLineDown, TotalTabInPixels, imgLogo](CFont* font, CString& strAssetDescription, CString& strWorkorderDescription,
-					CString& strAssetModelNumber, CString& strAssetBrand, CString& strCustomerSurname, CString& strCustomerName,
-					int nPosX, int nPosY) -> CRect
+					CString& strAssetModelNumber, CString& strAssetBrand, CString& strLastWOID,	int nPosX, int nPosY) -> CRect
 					{
 						// Print Header rectangle
 						CRect rctHeader(nPosX + 60, nPosY, nPosX + (imgLogo.GetWidth() * 5) - 60, nPosY + HeaderTextLineDown(2));
@@ -449,14 +499,15 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 						pDC->SelectObject(font);
 						pDC->SetTextColor(RGB(255, 255, 255));
 						pDC->DrawText(_T(" ") + strAssetDescription + _T(": ") + strWorkorderDescription + _T("\n") +
-							_T("Workorder: 12345") + _T(" | Model: ") + strAssetModelNumber + _T(" | Brand: ") + strAssetBrand
+							_T("Workorder: ") + strLastWOID + _T(" | Model: ") + strAssetModelNumber + _T(" | Brand: ") + strAssetBrand
 							, rctHeader, DT_CENTER | DT_TABSTOP);
 
 						return rctHeader;
 					};
 
 				auto PrintDetails = [pDC, HeaderTextLineDown, &fontPlain](CFont* font, CString& strCustomerSurname, CString& strCustomerName,
-					unsigned long ulMiddle, int nPosX, int nPosY) -> int
+					CString& strCustomerCellPhone, CString& strCustomerPhone, CString& strCustomerEmail, unsigned long ulMiddle, 
+					int nPosX, int nPosY) -> int
 					{
 						int nLineDown = 0;
 						// Set details values
@@ -493,9 +544,9 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 						pDC->TextOut(nPosX + TextSizeEmployee.cx, nPosY, COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")));
 						pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY, strCustomerSurname + _T(" ") + strCustomerName);
 						pDC->TextOut(nPosX + TextSizeEmployee.cx, nPosY + HeaderTextLineDown(++nLineDown), theApp.GetSelectedEmployeeName());
-						pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(nLineDown), _T("06 - 3456789"));
-						pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(++nLineDown), _T("070 - 5647864"));
-						pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(++nLineDown), _T("zuurtje@zuiker.com"));
+						pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(nLineDown), strCustomerCellPhone);
+						pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(++nLineDown), strCustomerPhone);
+						pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(++nLineDown), strCustomerEmail);
 						
 						return nLineDown;
 					};
@@ -515,7 +566,7 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 				// Print header
 				pFont = &fontBold;
 				auto rctHeaderLeft = PrintHeader(pFont, m_strAssetDescription, m_strWorkorderDescription, m_strAssetModelNumber, 
-					m_strAssetBrand, m_strCustomerSurname, m_strCustomerName, nPosX1, nPosY1);
+					m_strAssetBrand, strLastWOID, nPosX1, nPosY1);
 
 				middleDocBody = (((rctHeaderLeft.BottomRight().x - rctHeaderLeft.TopLeft().x) + (nPosX1 + 60)) / 2) - TotalTabInPixels(2);
 
@@ -524,7 +575,8 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 				nPosY1 = rctHeaderLeft.BottomRight().y + HeaderTextLineDown(1);
 
 				// Print customer workorder details
-				auto nLinesDown = PrintDetails(pFont, m_strCustomerSurname, m_strCustomerName, middleDocBody, nPosX1, nPosY1);
+				auto nLinesDown = PrintDetails(pFont, m_strCustomerSurname, m_strCustomerName, strCustomerCellPhone, strCustomerPhone,
+					strCustomerEmail, middleDocBody, nPosX1, nPosY1);
 
 				nPosY1 += HeaderTextLineDown(nLinesDown + 2);
 
@@ -570,14 +622,16 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 
 				// Print header
 				pFont = &fontBold;
-				auto rctHeaderRight = PrintHeader(pFont, m_strAssetDescription, m_strWorkorderDescription, m_strAssetModelNumber, m_strAssetBrand, m_strCustomerSurname, m_strCustomerName, nPosX1, nPosY1);
+				auto rctHeaderRight = PrintHeader(pFont, m_strAssetDescription, m_strWorkorderDescription, m_strAssetModelNumber, m_strAssetBrand, 
+					strLastWOID, nPosX1, nPosY1);
 				
 				// Calculate new start print position
 				nPosX1 += TotalTabInPixels(1);
 				nPosY1 = rctHeaderRight.BottomRight().y + HeaderTextLineDown(1);
 
 				// Print customer workorder details
-				nLinesDown = PrintDetails(pFont, m_strCustomerSurname, m_strCustomerName, middleDocBody, nPosX1, nPosY1);
+				nLinesDown = PrintDetails(pFont, m_strCustomerSurname, m_strCustomerName, strCustomerCellPhone, strCustomerPhone,
+					strCustomerEmail, middleDocBody, nPosX1, nPosY1);
 				
 				// Calculate new start print position
 				nPosY1 += HeaderTextLineDown(nLinesDown +2);
@@ -609,6 +663,8 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 
 				// Destroy image
 				imgLogo.Destroy();
+
+				theApp.SetStatusBarText(IDS_STATUSBAR_PRINTING_OK);
 			}
 		}
 

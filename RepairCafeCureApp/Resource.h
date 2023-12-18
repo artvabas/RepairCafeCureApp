@@ -19,11 +19,15 @@
 #define IDS_STATUSBAR_DELETE_OK         112
 #define IDS_STATUSBAR_UPDATE_OK         113
 #define IDB_WRITELARGE                  114
+#define IDS_STATUSBAR_LASTID_OK         114
 #define IDS_STATUSBAR_SELECT_FAIL       115
 #define IDB_MAIN                        116
+#define IDS_STATUSBAR_PRINTING          116
 #define IDS_STATUS_SELECT_OK            117
+#define IDS_STATUSBAR_PRINTING_OK       117
 #define IDS_STATUSBAR_SELECT_OK         118
 #define IDB_BUTTONS                     119
+#define IDS_STATUSBAR_PRINTING_FAIL     119
 #define IDB_FILELARGE                   120
 #define IDB_FILESMALL                   121
 #define IDR_POPUP_EDIT                  122
