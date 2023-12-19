@@ -57,6 +57,9 @@
 #define IDD_ASSET_TAB                   316
 #define IDD_WORKORDER_TAB               317
 #define IDD_WORKORDER_PARTS             320
+#define IDB_ADDCUSTOMER                 322
+#define IDB_BITMAP1                     323
+#define IDB_CHANGEWORKORDERS            323
 #define IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH 1001
 #define IDC_CUSTVIEW_BUTTON_SEARCH      1002
 #define IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER 1003
@@ -142,9 +145,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        322
+#define _APS_NEXT_RESOURCE_VALUE        324
 #define _APS_NEXT_COMMAND_VALUE         32778
-#define _APS_NEXT_CONTROL_VALUE         1076
+#define _APS_NEXT_CONTROL_VALUE         1077
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

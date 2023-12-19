@@ -223,8 +223,14 @@
     <Image Include="res\Toolbar256.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Screenshot.bmp">
+    <Image Include="logo.bmp">
       <Filter>Custom Resources</Filter>
+    </Image>
+    <Image Include="res\Customers.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\Workorders.bmp">
+      <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

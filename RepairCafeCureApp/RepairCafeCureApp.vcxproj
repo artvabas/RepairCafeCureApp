@@ -238,6 +238,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\buttons.bmp" />
+    <Image Include="res\Customers.bmp" />
     <Image Include="res\filelarge.bmp" />
     <Image Include="res\filesmall.bmp" />
     <Image Include="res\info.bmp" />
@@ -246,9 +247,10 @@
     <Image Include="res\RepairCafeCureAppDoc.ico" />
     <Image Include="res\Toolbar.bmp" />
     <Image Include="res\Toolbar256.bmp" />
+    <Image Include="res\Workorders.bmp" />
     <Image Include="res\writelarge.bmp" />
     <Image Include="res\writesmall.bmp" />
-    <Image Include="Screenshot.bmp" />
+    <Image Include="logo.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\Cryptopp890\x64\Output\Release\cryptlib.lib" />
