@@ -32,7 +32,6 @@ using namespace artvabas::rcc::ui;
 // CCAssetView
 
 IMPLEMENT_DYNCREATE(CAssetView, CFormView)
-
 BEGIN_MESSAGE_MAP(CAssetView, CFormView)
 	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, &CFormView::OnFilePrint)
@@ -47,8 +46,6 @@ END_MESSAGE_MAP()
 CAssetView::CAssetView() noexcept
 	: CFormView(IDD_ASSET_FORM)
 {
-	// TODO: add construction code here
-
 }
 
 CAssetView::~CAssetView()
@@ -73,7 +70,7 @@ void CAssetView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 	GetParentFrame()->RecalcLayout();
 	ResizeParentToFit();
-
+	
 }
 
 

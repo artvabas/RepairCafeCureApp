@@ -66,8 +66,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_PRINT, &CMainFrame::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CMainFrame::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnFilePrintPreview)
-	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateFilePrintPreview)
+	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateIsPrintable)
 	ON_CBN_SELCHANGE(IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME, &CMainFrame::OnCaptionBarComboBoxEmployeeNameChange)
+	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT, &CMainFrame::OnUpdateIsPrintable)
+	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_DIRECT, &CMainFrame::OnUpdateIsPrintable)
 END_MESSAGE_MAP()
 
 CMainFrame::CMainFrame() noexcept
@@ -203,14 +205,10 @@ void CMainFrame::OnFilePrintPreview()
 	}
 }
 
-/// <summary>
-/// This function is called when the user clicks on the print preview button in the ribbon bar.
-/// It shows the print preview dialog.
-/// </summary>
-void CMainFrame::OnUpdateFilePrintPreview(CCmdUI* pCmdUI)
-{
-	pCmdUI->SetCheck(IsPrintPreview());
-}
+//void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI)
+//{
+//	pCmdUI->SetCheck(IsPrintPreview());
+//}
 
 /// <summary>
 /// This function is called when the user changes the selected item in the combobox on the caption bar
@@ -284,8 +282,6 @@ BOOL CMainFrame::CreateCaptionBar()
 	ASSERT(bNameValid);
 	m_wndStatusBar.SetInformation(strTemp);
 
-	//m_pCmbCaptionBarEmployeeName-
-
 	// Add items to comboBox
 	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
 	CRecordset* rs = new CRecordset();
@@ -330,4 +326,20 @@ CString CMainFrame::GetSelectedEmployee()
 		}
 	}
 	return strEmployee;
+}
+
+void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI)
+{
+	switch (theApp.GetActiveViewType())
+	{
+		case VIEW_ASSET:
+			pCmdUI->Enable(TRUE);
+			break;
+		case VIEW_CUSTOMER:
+			pCmdUI->Enable(FALSE);
+			break;
+		case VIEW_WORKORDER:
+			pCmdUI->Enable(TRUE);
+			break;
+	}
 }

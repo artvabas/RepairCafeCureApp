@@ -240,6 +240,7 @@ void CWorkorderTab::InitWithAssetDetailsRecords()
 	int row(0);			// Row of the list control item.
 	CString strQuery;
 
+
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	
 	CRecordset* rs = new CRecordset();
@@ -393,7 +394,6 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 
 			theApp.GetDatabaseConnection()->CloseQuery(rs);
 			delete rs;
-
 
 			// Create fonts
 			CFont fontPlain;

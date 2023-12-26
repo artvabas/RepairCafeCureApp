@@ -68,6 +68,7 @@
 #include "RepairCafeCureApp.h"
 #include "CWorkorderView.h"
 #include "CWorkorderPartsDialog.h"
+#include "MainFrm.h"
 
 //using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::ui::dialogs;
@@ -95,11 +96,19 @@ CWorkorderView::CWorkorderView() : CFormView(IDD_WORKORDER_FORM)
 	, m_bWorkorderSelected(false)
 	, m_bResponsibleChanged(false)
 	, m_strWorkorderTotalPartsPrice(_T(""))
+	, m_pDC(NULL)
 {
 }
 
 CWorkorderView::~CWorkorderView()
 {
+	//delete lpDevMode;
+	if (m_pDC)
+	{
+		m_pDC->Detach();
+		m_pDC->DeleteDC();
+		delete m_pDC;
+	}
 }
 
 /* Overrides methods */
@@ -185,6 +194,61 @@ void CWorkorderView::OnInitialUpdate()
 		InitWorkorderEmployeeResponsibleComboBox();
 }
 
+BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
+{
+	// Standaard voorbereiding
+	BOOL bRet = DoPreparePrinting(pInfo);
+
+	// Controleer of de voorbereiding succesvol was
+	if (bRet)
+	{
+		
+		if (m_pDC == NULL)
+		{
+			// Verkrijg de huidige printerinstellingen
+			HDC hDC = pInfo->m_pPD->GetPrinterDC();
+			m_pDC = new CDC;
+			m_pDC->Attach(hDC);
+		}
+
+		// Verkrijg de DEVMODE structuur via de CPrintInfo structuur
+		DEVMODE* pDevMode = pInfo->m_pPD->GetDevMode();
+
+		// Controleer of de DEVMODE pointer geldig is
+		if (pDevMode != NULL)
+		{
+			// Zet de printer in landscape-modus
+			pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
+
+			// Pas de instellingen toe
+			::ResetDC(m_pDC->GetSafeHdc(), pDevMode);
+		}
+	}
+
+	return bRet;
+}
+
+void CWorkorderView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
+{
+	//HDC hDC = pDC->GetSafeHdc();
+	// Get the default DevMode for the current default printer
+}
+
+void CWorkorderView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
+{
+	// Free the memory allocated for the DEVMODE structure
+	//delete lpDevMode;
+	//GlobalUnlock(lpDevMode);
+	//GlobalFree(pInfo->m_pPD->m_pd.hDevMode);
+	//lpDevMode = NULL
+	
+}
+
+void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
+{
+	pDC->TextOut(100, 100, _T("Hello World!"));
+}
+
 /* Message handles */
 
 BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
@@ -197,6 +261,9 @@ BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
 	ON_BN_CLICKED(IDC_WORKORDERVIEW_FINISHED, &CWorkorderView::OnBnClickedWorkorderViewFinished)
 	ON_BN_CLICKED(IDC_WORKORDERVIEW_ASSET_DISPOSED, &CWorkorderView::OnBnClickedWorkorderViewAssetDisposed)
 	ON_BN_CLICKED(IDC_WORKORDERVIEW_PARTS, &CWorkorderView::OnBnClickedWorkorderViewParts)
+	ON_COMMAND(ID_FILE_PRINT, &CFormView::OnFilePrint)
+	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CFormView::OnFilePrint)
+	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CWorkorderView::OnFilePrintPreview)
 END_MESSAGE_MAP()
 
 /* Message methods */
@@ -283,6 +350,9 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 
 		m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
 
+		CMainFrame* pMainFrame = (CMainFrame*)GetParentFrame();
+		CMFCRibbonBar* ribbonBar = pMainFrame->GetRibbonBar();
+
 		// Set the controls depending on the status of the workorder.
 		if (theApp.GetWorkorderViewType() != VIEW_WORKORDER_OPEN)
 		{
@@ -292,9 +362,14 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 			m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
 			m_btnWorkorderUpdate.EnableWindow(FALSE);
 			m_bResponsibleChanged = false;
+			ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
+			ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
 		}
 		else
+		{
+			ribbonBar->HideAllContextCategories();
 			m_edtWorkorderNewLog.EnableWindow(FALSE);
+		}
 
 		m_bWorkorderSelected = true;
 	}
@@ -502,6 +577,13 @@ void CWorkorderView::OnBnClickedWorkorderViewParts()
 	{
 		InitWorkorderSparePartsList();
 	}
+}
+
+void CWorkorderView::OnFilePrintPreview()
+{
+#ifndef SHARED_HANDLERS
+	AFXPrintPreview(this);
+#endif
 }
 
 /* Custom methods */

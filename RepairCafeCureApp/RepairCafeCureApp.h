@@ -80,6 +80,7 @@ public:
 
 	inline WorkorderViewType GetWorkorderViewType() { return m_enuWorkorderViewType; }
 
+	ViewType GetActiveViewType();
 
 // Overrides
 private:
@@ -98,6 +99,7 @@ private:
 	afx_msg void OnWorkorderViewOpen();
 public:
 	afx_msg void OnWorkorderViewProgress();
+	afx_msg void OnWorkorderViewRepaired();
 };
 
 extern CRepairCafeCureApp theApp;

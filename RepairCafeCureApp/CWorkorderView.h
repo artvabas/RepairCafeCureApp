@@ -92,6 +92,8 @@
 				bool m_bWorkorderSelected;
 				bool m_bResponsibleChanged;
 
+				CDC* m_pDC;
+
 			public:
 				CWorkorderView(); 
 				virtual ~CWorkorderView();
@@ -109,6 +111,10 @@
 #endif
 				void DoDataExchange(CDataExchange* pDX) override;
 				void OnInitialUpdate() override;
+				BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
+				void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
+				void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
+				void OnPrint(CDC* pDC, CPrintInfo* pInfo) override;
 
 			/* Massagers */
 			private:
@@ -122,6 +128,7 @@
 				afx_msg void OnBnClickedWorkorderViewFinished();
 				afx_msg void OnBnClickedWorkorderViewAssetDisposed();
 				afx_msg void OnBnClickedWorkorderViewParts();
+				afx_msg void OnFilePrintPreview();
 
 				/* Custom */
 			private:

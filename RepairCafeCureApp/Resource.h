@@ -58,7 +58,6 @@
 #define IDD_WORKORDER_TAB               317
 #define IDD_WORKORDER_PARTS             320
 #define IDB_ADDCUSTOMER                 322
-#define IDB_BITMAP1                     323
 #define IDB_CHANGEWORKORDERS            323
 #define IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH 1001
 #define IDC_CUSTVIEW_BUTTON_SEARCH      1002
@@ -140,13 +139,16 @@
 #define ID_APP_VIEW                     32775
 #define ID_WORKORDER_VIEW_OPEN          32776
 #define ID_WORKORDER_VIEW_PROGRESS      32777
+#define ID_WORKORDER_VIEW_REPAIRED      32778
+#define ID_CONTEXT2                     32781
+#define ID_CONTEXT_WORKORDER            32781
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        324
-#define _APS_NEXT_COMMAND_VALUE         32778
+#define _APS_NEXT_COMMAND_VALUE         32782
 #define _APS_NEXT_CONTROL_VALUE         1077
 #define _APS_NEXT_SYMED_VALUE           318
 #endif

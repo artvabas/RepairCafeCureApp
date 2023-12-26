@@ -72,7 +72,6 @@ CCustomerView::CCustomerView()
 	, m_bIsDirtyCustomerDetails(false)
 	, m_nCustomerID(0)
 {
-
 }
 
 CCustomerView::~CCustomerView()

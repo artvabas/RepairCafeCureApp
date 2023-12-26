@@ -77,6 +77,7 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_APP_VIEW, &CRepairCafeCureApp::OnAssetView)
 	ON_COMMAND(ID_WORKORDER_VIEW_OPEN, &CRepairCafeCureApp::OnWorkorderViewOpen)
 	ON_COMMAND(ID_WORKORDER_VIEW_PROGRESS, &CRepairCafeCureApp::OnWorkorderViewProgress)
+	ON_COMMAND(ID_WORKORDER_VIEW_REPAIRED, &CRepairCafeCureApp::OnWorkorderViewRepaired)
 END_MESSAGE_MAP()
 
 CRepairCafeCureApp::CRepairCafeCureApp() noexcept
@@ -303,6 +304,21 @@ void CRepairCafeCureApp::OnWorkorderViewProgress()
 	}
 }
 
+void CRepairCafeCureApp::OnWorkorderViewRepaired()
+{
+	m_enuWorkorderViewType = VIEW_WORKORDER_REPAIRED;
+
+	SwitchView(VIEW_WORKORDER);
+
+	// Get a pointer to the main frame window.
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	if (pMainFrm != NULL)
+	{
+		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
+	}
+}
+
 
 /*Custom methods*/
 
@@ -375,6 +391,22 @@ CString CRepairCafeCureApp::GetSelectedEmployeeName()
 
 	if (pMainFrame != NULL) return pMainFrame->GetSelectedEmployee();
 	else return CString("");
+}
+
+/// <summary>
+/// This method is used to get the active view type.
+/// </summary>
+/// <returns></returns>
+ViewType CRepairCafeCureApp::GetActiveViewType()
+{
+	ViewType vtView = VIEW_CUSTOMER;
+	CView* pActiveView = ((CFrameWnd*)m_pMainWnd)->GetActiveView();
+
+	if(pActiveView == m_pAssetView) vtView = VIEW_ASSET;
+	else if (pActiveView == m_pCustomerView) vtView = VIEW_CUSTOMER;
+	else if (pActiveView == m_pWorkorderView) vtView = VIEW_WORKORDER;
+	
+	return vtView;
 }
 
 //**************************************************************************************************************

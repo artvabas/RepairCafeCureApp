@@ -24,7 +24,6 @@ protected: // create from serialization only
 
 // Attributes
 public:
-
 // Operations
 public:
 

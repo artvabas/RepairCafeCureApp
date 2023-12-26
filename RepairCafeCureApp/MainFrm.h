@@ -85,7 +85,7 @@ private:
 	afx_msg void OnOptions();
 	afx_msg void OnFilePrint();
 	afx_msg void OnFilePrintPreview();
-	afx_msg void OnUpdateFilePrintPreview(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateIsPrintable(CCmdUI* pCmdUI);
 public:
 	afx_msg void OnCaptionBarComboBoxEmployeeNameChange();
 	DECLARE_MESSAGE_MAP()
@@ -95,6 +95,7 @@ private:
 	BOOL CreateCaptionBar();
 public:
 	CString GetSelectedEmployee();
+	//afx_msg void OnUpdateFilePrint(CCmdUI* pCmdUI);
 };
 
 
