@@ -159,7 +159,6 @@ BOOL CRepairCafeCureApp::InitInstance()
 	CView* pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
 	m_pCustomerView = pView;
 
-
 	m_pAssetView = (CView*)new CAssetView;
 	if (NULL == m_pAssetView) return FALSE;
 
@@ -331,6 +330,13 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 {
 	CView* pActiveView = ((CFrameWnd*)m_pMainWnd)->GetActiveView();
 	CView* pNewView = NULL;
+
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	CMFCRibbonBar* ribbonBar = pMainFrm->GetRibbonBar();
+	//CMainFrame* pMainFrame = (CMainFrame*)m_pMainWnd->GetParentFrame();
+	//CMFCRibbonBar* ribbonBar = pMainFrame->GetRibbonBar();
+	ribbonBar->HideAllContextCategories();
+	ribbonBar->ForceRecalcLayout();
 
 	switch (vtView)
 	{

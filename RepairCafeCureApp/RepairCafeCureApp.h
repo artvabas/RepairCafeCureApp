@@ -97,7 +97,6 @@ private:
 	afx_msg void OnCustomerView();
 	afx_msg void OnAssetView();
 	afx_msg void OnWorkorderViewOpen();
-public:
 	afx_msg void OnWorkorderViewProgress();
 	afx_msg void OnWorkorderViewRepaired();
 };

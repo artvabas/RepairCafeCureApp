@@ -70,7 +70,9 @@
 				CString m_strAssetHistoryLog;
 				CString m_strWorkorderCreatedDate;
 				CString m_strWorkorderCreatedBy;
+				CString m_strWorkorderDescription;
 				CString m_strWorkorderStatus;
+				CString m_strWorkorderClosedDate;
 				CString m_strWorkorderNewLog;
 				CString m_strWorkorderHistoryLog;
 				CString m_strWorkorderTotalPartsPrice;
@@ -91,6 +93,8 @@
 
 				bool m_bWorkorderSelected;
 				bool m_bResponsibleChanged;
+				bool m_bPrintCombi;
+				bool m_bPrintInvoice;
 
 				CDC* m_pDC;
 
@@ -139,6 +143,9 @@
 				bool GetCustomerInfo(const unsigned int& nCustomerId);
 				void PerformWorkorderUpdate();
 				void ResetAllControls();
+			public:
+				afx_msg void OnWorkorderExtraCombi();
+				afx_msg void OnWorkorderExtraInvoice();
 			};
 		//}
 	//}

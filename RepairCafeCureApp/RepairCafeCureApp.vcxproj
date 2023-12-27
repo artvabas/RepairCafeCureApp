@@ -191,6 +191,7 @@
     <ClInclude Include="CAssetTab.h" />
     <ClInclude Include="CCustomerView.h" />
     <ClInclude Include="CDatabaseConnection.h" />
+    <ClInclude Include="CPrintWorkorder.h" />
     <ClInclude Include="CSqlNativeAVB.h" />
     <ClInclude Include="CTabCtrlAssetWorkorder.h" />
     <ClInclude Include="CWorkorderPartsDialog.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="CAssetTab.cpp" />
     <ClCompile Include="CCustomerView.cpp" />
     <ClCompile Include="CDatabaseConnection.cpp" />
+    <ClCompile Include="CPrintWorkorder.cpp" />
     <ClCompile Include="CSqlNativeAVB.cpp" />
     <ClCompile Include="CTabCtrlAssetWorkorder.cpp" />
     <ClCompile Include="CWorkorderPartsDialog.cpp" />

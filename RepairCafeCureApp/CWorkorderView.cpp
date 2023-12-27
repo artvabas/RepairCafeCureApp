@@ -69,6 +69,7 @@
 #include "CWorkorderView.h"
 #include "CWorkorderPartsDialog.h"
 #include "MainFrm.h"
+#include "CPrintWorkorder.h"
 
 //using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::ui::dialogs;
@@ -90,11 +91,15 @@ CWorkorderView::CWorkorderView() : CFormView(IDD_WORKORDER_FORM)
 	, m_strAssetHistoryLog(_T(""))
 	, m_strWorkorderCreatedDate(_T(""))
 	, m_strWorkorderCreatedBy(_T(""))
+	, m_strWorkorderDescription(_T(""))
 	, m_strWorkorderStatus(_T(""))
+	, m_strWorkorderClosedDate(_T(""))
 	, m_strWorkorderNewLog(_T(""))
 	, m_strWorkorderHistoryLog(_T(""))
 	, m_bWorkorderSelected(false)
 	, m_bResponsibleChanged(false)
+	, m_bPrintCombi(false)
+	, m_bPrintInvoice(false)
 	, m_strWorkorderTotalPartsPrice(_T(""))
 	, m_pDC(NULL)
 {
@@ -181,8 +186,9 @@ void CWorkorderView::OnInitialUpdate()
 		m_lscWorkorderExisting.InsertColumn(6, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
 		m_lscWorkorderExisting.InsertColumn(7, _T("RESPOSIBLE"), LVCFMT_LEFT, 0);
 		m_lscWorkorderExisting.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
-		m_lscWorkorderExisting.InsertColumn(9, _T("LOG"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(9, _T("CLOSED DATE"), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(10, _T("LOG"), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(11, _T("HISTORY"), LVCFMT_LEFT, 0);
 
 		m_lscWorkorderSpareParts.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 		m_lscWorkorderSpareParts.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 0);
@@ -202,7 +208,7 @@ BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
 	// Controleer of de voorbereiding succesvol was
 	if (bRet)
 	{
-		
+
 		if (m_pDC == NULL)
 		{
 			// Verkrijg de huidige printerinstellingen
@@ -217,9 +223,16 @@ BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
 		// Controleer of de DEVMODE pointer geldig is
 		if (pDevMode != NULL)
 		{
-			// Zet de printer in landscape-modus
-			pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
-
+			if(m_bPrintCombi)
+			{
+				// Zet de printer in landscape-modus
+				 pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
+			}
+			else
+			{
+				// Zet de printer in portrait-modus
+				pDevMode->dmOrientation = DMORIENT_PORTRAIT;
+			}
 			// Pas de instellingen toe
 			::ResetDC(m_pDC->GetSafeHdc(), pDevMode);
 		}
@@ -230,23 +243,88 @@ BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
 
 void CWorkorderView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
-	//HDC hDC = pDC->GetSafeHdc();
-	// Get the default DevMode for the current default printer
+	
 }
 
 void CWorkorderView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
-	// Free the memory allocated for the DEVMODE structure
-	//delete lpDevMode;
-	//GlobalUnlock(lpDevMode);
-	//GlobalFree(pInfo->m_pPD->m_pd.hDevMode);
-	//lpDevMode = NULL
-	
+	if (m_pDC != NULL)
+	{
+		m_pDC->Detach();
+		m_pDC->DeleteDC();
+		delete m_pDC;
+		m_pDC = NULL;
+	}
 }
 
 void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 {
-	pDC->TextOut(100, 100, _T("Hello World!"));
+	BeginWaitCursor();
+	if (m_bPrintCombi)
+	{
+		CPrintWorkorder::WorkorderData workorderData;
+		workorderData.strWorkorderID.Format(_T("%d"), m_unWorkorderId);
+		workorderData.strCustomerSurname = m_strCustomerSurname;
+		workorderData.strCustomerName = m_strCustomerName;
+		workorderData.strCustomerCellPhone = m_strCustomerCellPhone;
+		workorderData.strCustomerPhone = m_strCustomerPhone;
+		workorderData.strCustomerEmail = m_strCustomerEmail;
+		workorderData.strCustomerComments = m_strCustomerComments;
+		workorderData.strAssetDescription = m_strAssetDescription;
+		workorderData.strAssetModelNumber = m_strAssetModelNumber;
+		workorderData.strAssetBrand = m_strAssetBrand;
+		workorderData.strWorkorderCreatedDate = m_strWorkorderCreatedDate;
+		m_cbxWorkorderEmployeeResponsible.GetWindowTextW(workorderData.strEmployeeResponsible);
+		workorderData.strWorkorderStatus = m_strWorkorderStatus;
+		workorderData.strWorkorderDescription = m_strWorkorderDescription;
+
+		CPrintWorkorder printWorkorder(&workorderData);
+		printWorkorder.PrintCombi(pDC);
+		m_bPrintCombi = false;
+
+	}
+	else if (m_bPrintInvoice)
+	{
+		CPrintWorkorder::WorkorderData workorderData;
+		workorderData.strWorkorderID.Format(_T("%d"), m_unWorkorderId);
+		workorderData.strCustomerSurname = m_strCustomerSurname;
+		workorderData.strCustomerName = m_strCustomerName;
+		workorderData.strCustomerCellPhone = m_strCustomerCellPhone;
+		workorderData.strCustomerPhone = m_strCustomerPhone;
+		workorderData.strCustomerEmail = m_strCustomerEmail;
+		workorderData.strCustomerComments = m_strCustomerComments;
+		workorderData.strAssetDescription = m_strAssetDescription;
+		workorderData.strAssetModelNumber = m_strAssetModelNumber;
+		workorderData.strAssetBrand = m_strAssetBrand;
+		workorderData.strWorkorderCreatedDate = m_strWorkorderCreatedDate;
+		m_cbxWorkorderEmployeeResponsible.GetWindowTextW(workorderData.strEmployeeResponsible);
+		workorderData.strWorkorderStatus = m_strWorkorderStatus;
+		workorderData.strWorkorderDescription = m_strWorkorderDescription;
+		workorderData.strWordorderTotalPartsPrice = m_strWorkorderTotalPartsPrice;
+
+		auto nCount = m_lscWorkorderSpareParts.GetItemCount();
+		for (int i = 0; i < nCount; i++)
+		{
+			
+			workorderData.m_structSparePArts.strSparePartDescription = m_lscWorkorderSpareParts.GetItemText(i, 1);
+			workorderData.m_structSparePArts.strSparePartQuantity = m_lscWorkorderSpareParts.GetItemText(i, 2);
+			workorderData.m_structSparePArts.strSparePartPrice = m_lscWorkorderSpareParts.GetItemText(i, 3);
+			workorderData.m_structSparePArts.strSparePartSubTotalPrice = m_lscWorkorderSpareParts.GetItemText(i, 4);
+			workorderData.m_vecSpareParts.push_back(workorderData.m_structSparePArts);
+		}
+
+		workorderData.m_structWorkorderLog.strWorkorderLog = m_strWorkorderHistoryLog;
+		workorderData.m_structWorkorderLog.strWorkorderRepairedDate = m_strWorkorderClosedDate;
+
+
+		//CPrintWorkorder printWorkorder(&workorderData);
+		//printWorkorder.PrintInvoice(pDC);
+		//m_bPrintInvoice = false;
+	
+	}
+	else
+		CFormView::OnPrint(pDC, pInfo);
+	EndWaitCursor();
 }
 
 /* Message handles */
@@ -264,9 +342,18 @@ BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
 	ON_COMMAND(ID_FILE_PRINT, &CFormView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CFormView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CWorkorderView::OnFilePrintPreview)
+	ON_COMMAND(ID_WORKORDER_EXTRA_COMBI, &CWorkorderView::OnWorkorderExtraCombi)
+	ON_COMMAND(ID_WORKORDER_EXTRA_INVOICE, &CWorkorderView::OnWorkorderExtraInvoice)
 END_MESSAGE_MAP()
 
 /* Message methods */
+
+void CWorkorderView::OnFilePrintPreview()
+{
+#ifndef SHARED_HANDLERS
+	AFXPrintPreview(this);
+#endif
+}
 
 /// <summary>
 /// OnUpdateUIState is called by the framework when the view is activated.
@@ -326,6 +413,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 	
 		m_strWorkorderCreatedDate = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 4);
 		m_strWorkorderCreatedBy = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 5);
+		m_strWorkorderDescription = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 6);
 		m_strWorkorderStatus = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 8);
 		m_strWorkorderNewLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 9);
 		m_strWorkorderHistoryLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 10);
@@ -348,27 +436,39 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 		else
 			m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
 
-		m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
-
 		CMainFrame* pMainFrame = (CMainFrame*)GetParentFrame();
 		CMFCRibbonBar* ribbonBar = pMainFrame->GetRibbonBar();
 
-		// Set the controls depending on the status of the workorder.
-		if (theApp.GetWorkorderViewType() != VIEW_WORKORDER_OPEN)
+		switch (theApp.GetWorkorderViewType())
 		{
-			m_edtWorkorderNewLog.EnableWindow(TRUE);
-			m_btnWorkorderParts.EnableWindow(TRUE);
-			m_chbWorkorderAssetDisposed.EnableWindow(TRUE);
-			m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
-			m_btnWorkorderUpdate.EnableWindow(FALSE);
-			m_bResponsibleChanged = false;
-			ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
-			ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
-		}
-		else
-		{
-			ribbonBar->HideAllContextCategories();
-			m_edtWorkorderNewLog.EnableWindow(FALSE);
+			case VIEW_WORKORDER_OPEN:
+				m_edtWorkorderNewLog.EnableWindow(FALSE);
+				m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
+				break;
+			case VIEW_WORKORDER_PROGRESS:
+				m_edtWorkorderNewLog.EnableWindow(TRUE);
+				m_btnWorkorderParts.EnableWindow(TRUE);
+				m_chbWorkorderAssetDisposed.EnableWindow(TRUE);
+				m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
+				m_bResponsibleChanged = false;
+				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
+				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
+				break;
+			case VIEW_WORKORDER_REPAIRED:
+				m_edtWorkorderNewLog.EnableWindow(TRUE);
+				m_btnWorkorderParts.EnableWindow(FALSE);
+				m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
+				m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				m_cbxWorkorderEmployeeResponsible.EnableWindow(FALSE);
+				m_bResponsibleChanged = false;
+				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
+				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
+				break;
+			default:
+				break;
 		}
 
 		m_bWorkorderSelected = true;
@@ -579,12 +679,18 @@ void CWorkorderView::OnBnClickedWorkorderViewParts()
 	}
 }
 
-void CWorkorderView::OnFilePrintPreview()
+void CWorkorderView::OnWorkorderExtraCombi()
 {
-#ifndef SHARED_HANDLERS
-	AFXPrintPreview(this);
-#endif
+	m_bPrintCombi = true;
+	this->SendMessage(WM_COMMAND, ID_FILE_PRINT_DIRECT);
 }
+
+void CWorkorderView::OnWorkorderExtraInvoice()
+{
+	m_bPrintInvoice = true;
+	this->SendMessage(WM_COMMAND, ID_FILE_PRINT_DIRECT);
+}
+
 
 /* Custom methods */
 
@@ -656,6 +762,9 @@ void CWorkorderView::InitWorkorderExistingList()
 
 			rs->GetFieldValue(_T("WORKORDER_STATUS"), strValue);
 			m_lscWorkorderExisting.SetItemText(nIndex, 8, strValue);
+
+			rs->GetFieldValue(_T("WORKORDER_CLOSED_DATE"), strValue);
+			m_lscWorkorderExisting.SetItemText(nIndex, 9, strValue);
 
 			rs->GetFieldValue(_T("WORKORDER_LOG"), strValue);
 			m_lscWorkorderExisting.SetItemText(nIndex, 9, strValue);
@@ -894,6 +1003,11 @@ void CWorkorderView::PerformWorkorderUpdate()
 		m_strWorkorderNewLog.Empty();
 	}
 
+	if(m_strWorkorderStatus == _T("Closed") || m_strWorkorderStatus == _T("Repaired"))
+		m_strWorkorderClosedDate = strCurDate;
+	else
+		m_strWorkorderClosedDate.Empty();
+
 	CString strQuery;
 
 	auto buildFieldValue = [](CString str) -> CString
@@ -905,9 +1019,10 @@ void CWorkorderView::PerformWorkorderUpdate()
 			return strResult;
 		};
 
-	strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_RESPONSIBLE = %s, WORKORDER_STATUS = %s, WORKORDER_LOG = %s, WORKORDER_HISTORY = %s WHERE WORKORDER_ID = %d"),
+	strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_RESPONSIBLE = %s, WORKORDER_STATUS = %s, WORKORDER_LOG = %s, WORKORDER_CLOSED_DATE = %s, WORKORDER_HISTORY = %s WHERE WORKORDER_ID = %d"),
 		static_cast<LPCTSTR>(buildFieldValue(strEmployee)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderStatus)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderClosedDate)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderNewLog)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderHistoryLog)),
 		m_unWorkorderId);
@@ -926,6 +1041,11 @@ void CWorkorderView::PerformWorkorderUpdate()
 	}
 
 	strQuery.ReleaseBuffer();
+
+	if (m_strWorkorderStatus == _T("Repaired") && m_strWorkorderTotalPartsPrice != L"0.00")
+	{
+		OnWorkorderExtraInvoice();
+	}
 
 	ResetAllControls();
 }

@@ -70,6 +70,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_CBN_SELCHANGE(IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME, &CMainFrame::OnCaptionBarComboBoxEmployeeNameChange)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT, &CMainFrame::OnUpdateIsPrintable)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_DIRECT, &CMainFrame::OnUpdateIsPrintable)
+	ON_UPDATE_COMMAND_UI(ID_WORKORDER_EXTRA_COMBI, &CMainFrame::OnUpdateWorkorderExtraCombi)
+	ON_UPDATE_COMMAND_UI(ID_WORKORDER_EXTRA_INVOICE, &CMainFrame::OnUpdateWorkorderExtraInvoice)
 END_MESSAGE_MAP()
 
 CMainFrame::CMainFrame() noexcept
@@ -341,5 +343,35 @@ void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI)
 		case VIEW_WORKORDER:
 			pCmdUI->Enable(TRUE);
 			break;
+	}
+}
+
+
+void CMainFrame::OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI)
+{
+	switch (theApp.GetWorkorderViewType())
+	{
+		case VIEW_WORKORDER_OPEN:
+			pCmdUI->Enable(FALSE);
+			break;
+		case VIEW_WORKORDER_PROGRESS:
+		case VIEW_WORKORDER_REPAIRED:
+			pCmdUI->Enable(TRUE);
+			break;
+	}
+}
+
+
+void CMainFrame::OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI)
+{
+	switch (theApp.GetWorkorderViewType())
+	{
+	case VIEW_WORKORDER_OPEN:
+	case VIEW_WORKORDER_PROGRESS:
+		pCmdUI->Enable(FALSE);
+		break;
+	case VIEW_WORKORDER_REPAIRED:
+		pCmdUI->Enable(TRUE);
+		break;
 	}
 }

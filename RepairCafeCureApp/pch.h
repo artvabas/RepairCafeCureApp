@@ -12,5 +12,6 @@
 #include <afxdb.h>
 #include <string>
 #include "CSqlNativeAVB.h" 
+#include <vector>
 
 #endif //PCH_H
