@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CPrintWorkorder.h"
 
-CPrintWorkorder::CPrintWorkorder(WorkorderData* workData)
+CPrintWorkorder::CPrintWorkorder(WorkorderData* workData) noexcept
 	
 {
 	m_pStructWorkorderData = workData;
@@ -11,7 +11,7 @@ CPrintWorkorder::~CPrintWorkorder()
 {
 }
 
-void CPrintWorkorder::PrintCombi(CDC* pDC) const
+void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 {
 	typedef unsigned int pixel;
 	const pixel pixMargin = 100; // 1 inch margin
@@ -177,7 +177,7 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const
 
 	/***** print left half (A5) on A4 - Customer receipt ******/
 
-					// Set print start position
+	// Set print start position
 	int nPosX1 = rctBorder.TopLeft().x + 10;
 	int nPosY1 = rctBorder.TopLeft().y + 10;
 
@@ -293,4 +293,273 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const
 	fontBold.DeleteObject();
 	fontItalic.DeleteObject();
 
+}
+
+void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
+{
+	typedef unsigned int pixel;
+	const pixel pixMargin = 100; // 1 inch margin
+	const pixel pixFontHeightHeader = 120;
+	const pixel pixFontHeightBody = 80;
+
+	// Create fonts
+	CFont fontPlainHeader;
+	VERIFY(fontPlainHeader.CreateFont(
+		pixFontHeightHeader, 	  // nHeight
+		0,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_NORMAL,                // nWeight
+		FALSE,                    // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+		_T("Cascadia Mono")));    // lpszFacename
+
+	CFont fontBoldHeader;
+	VERIFY(fontBoldHeader.CreateFont(
+		pixFontHeightHeader,      // nHeight
+		0,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_BOLD,				  // nWeight
+		FALSE,                    // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+		_T("Cascadia Mono")));    // lpszFacename
+
+	CFont fontPlainBody;
+	VERIFY(fontPlainBody.CreateFont(
+		pixFontHeightBody,        // nHeight
+		0,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_NORMAL,                // nWeight
+		FALSE,                    // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+		_T("Cascadia Mono")));    // lpszFacename
+
+	CFont fontBoldBody;
+	VERIFY(fontBoldBody.CreateFont(
+		pixFontHeightBody,        // nHeight
+		0,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_BOLD,		          // nWeight
+		FALSE,                     // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+		_T("Cascadia Mono")));    // lpszFacename
+
+	// Lambda functions for calculating pixels movements
+	auto TotalTabInPixels = [pixMargin](unsigned int nTotalTabs) -> pixel
+		{
+			return pixMargin * nTotalTabs;
+		};
+
+	auto HeaderTextLineDown = [pixFontHeightHeader](unsigned int nTotalLines) -> pixel
+		{
+			return pixFontHeightHeader * nTotalLines;
+		};
+
+	auto BodyTextLineDown = [pixFontHeightBody](unsigned int nTotalLines) -> pixel
+		{
+			return pixFontHeightBody * nTotalLines;
+		};
+
+	// Get printer device resolutions
+	const int nHorRes = pDC->GetDeviceCaps(HORZRES);	// get printable width
+	const int nVerRes = pDC->GetDeviceCaps(VERTRES);	// get printable height
+	const int nLogPixelsX = pDC->GetDeviceCaps(LOGPIXELSX);	// get device resolution along X
+	const int nLogPixelsY = pDC->GetDeviceCaps(LOGPIXELSY);	// get device resolution along Y
+
+	CImage imgLogo;
+	imgLogo.Load(_T("logo.bmp"));
+	CFont* pFont = nullptr;
+	unsigned long middleDocBody = 0UL;
+
+	pDC->m_bPrinting = TRUE;
+	pDC->StartPage();
+
+	// Print border
+	CRect rctBorder(0, 0, nHorRes, nVerRes);
+	rctBorder.DeflateRect(nLogPixelsX / 2, nLogPixelsY / 2);
+	pDC->Draw3dRect(rctBorder, RGB(0, 0, 0), RGB(0, 0, 0));
+
+	/* Common print jobs */
+
+	// Set print start position
+	int nPosX = rctBorder.TopLeft().x + 10;
+	int nPosY = rctBorder.TopLeft().y + 10;
+	
+	// Print logo
+	imgLogo.StretchBlt(pDC->m_hDC, nPosX, nPosY, static_cast<int>(imgLogo.GetWidth() * 6.8), static_cast<int>(imgLogo.GetHeight() * 6.8), 0, 0, imgLogo.GetWidth(), imgLogo.GetHeight(), SRCCOPY);
+
+	// Calculate new start print position
+	nPosY += static_cast<int>(imgLogo.GetHeight() * 6.8) + 10;
+
+	// Print header
+	pFont = &fontBoldHeader;
+
+	// Print Header rectangle
+	CRect rctHeader(nPosX + 60, nPosY, nPosX + static_cast<int>(imgLogo.GetWidth() * 6.8) - 60, nPosY + HeaderTextLineDown(2));
+	pDC->FillRect(rctHeader, &CBrush(RGB(0, 102, 255)));
+	pDC->Draw3dRect(rctHeader, RGB(0, 102, 255), RGB(0, 102, 255));
+
+	// Print header text
+	pDC->SelectObject(pFont);
+	pDC->SetTextColor(RGB(255, 255, 255));
+	pDC->DrawText(_T(" ") + m_pStructWorkorderData->strAssetDescription + _T(": ") + m_pStructWorkorderData->strWorkorderDescription + _T("\n") +
+		_T("Workorder: ") + m_pStructWorkorderData->strWorkorderID + _T(" | Model: ") + m_pStructWorkorderData->strAssetModelNumber + 
+		_T(" | Brand: ") + m_pStructWorkorderData->strAssetBrand, rctHeader, DT_CENTER | DT_TABSTOP);
+
+	// Calculate new start print position
+	nPosX += TotalTabInPixels(1);
+	nPosY = rctHeader.BottomRight().y + HeaderTextLineDown(1);
+	auto ulMiddle = (((rctHeader.BottomRight().x - rctHeader.TopLeft().x) + (nPosX + 60)) / 2) - TotalTabInPixels(2);
+
+	// Print customer workorder details
+	int nLineDown = 0;
+	// Set details values
+	CString strTextLine1a = _T("Date: ");// +COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"));
+	CString strTextLine1b = _T("Customer: ");// +m_strCustomerSurname + _T(" ") + m_strCustomerName;
+	CString strTextLine2a = _T("Employee: ");// +theApp.GetSelectedEmployeeName();
+	CString strTextLine2b = _T("Mobile: ");// 06 - 3456789");
+	CString strTextLine3 = _T("Phone: ");// 070 - 5647864");
+	CString strTextLine4 = _T("Email: ");// zuurtje@zuiker.com");
+
+	// Set font color
+	pDC->SetBkColor(RGB(255, 255, 255));
+	pDC->SetTextColor(RGB(0, 0, 0));
+
+	// Print details text
+	// Line 1 Date and Custemer
+	pDC->TextOut(nPosX, nPosY, strTextLine1a);
+	pDC->TextOut(nPosX + ulMiddle, nPosY, strTextLine1b);
+	//Line 2 Employee and mobile
+	pDC->TextOut(nPosX, nPosY + HeaderTextLineDown(nLineDown + 1), strTextLine2a);
+	pDC->TextOut(nPosX + ulMiddle, nPosY + HeaderTextLineDown(nLineDown + 1), strTextLine2b);
+	//Line 3 Phone
+	pDC->TextOut(nPosX + ulMiddle, nPosY + HeaderTextLineDown(nLineDown + 2), strTextLine3);
+	//Line 4 Email
+	pDC->TextOut(nPosX + ulMiddle, nPosY + HeaderTextLineDown(nLineDown + 3), strTextLine4);
+
+	pFont = &fontPlainHeader;
+	pDC->SelectObject(pFont);
+
+	CSize textSizeCustomer = pDC->GetTextExtent(strTextLine1b);
+	CSize TextSizeEmployee = pDC->GetTextExtent(strTextLine2a);
+
+	// Print detals value text
+	pDC->TextOut(nPosX + TextSizeEmployee.cx, nPosY, m_pStructWorkorderData->strWorkorderCreatedDate);
+	pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY, m_pStructWorkorderData->strCustomerSurname + _T(" ") + 
+		m_pStructWorkorderData->strCustomerName);
+	pDC->TextOut(nPosX + TextSizeEmployee.cx, nPosY + HeaderTextLineDown(++nLineDown), m_pStructWorkorderData->strEmployeeResponsible);
+	pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(nLineDown), m_pStructWorkorderData->strCustomerCellPhone);
+	pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(++nLineDown), m_pStructWorkorderData->strCustomerPhone);
+	pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY + HeaderTextLineDown(++nLineDown), m_pStructWorkorderData->strCustomerEmail);
+
+	// Calculate new start print position
+	nPosY += HeaderTextLineDown(nLineDown + 2);
+
+	// Print body text (workorder)
+	pDC->TextOut(nPosX, nPosY, _T("Date Finished: ") + m_pStructWorkorderData->m_structWorkorderLog.strWorkorderRepairedDate);
+
+	// calculate new start print position
+	nPosY += HeaderTextLineDown(2);
+
+	CRect rctDescriptionHeader(nPosX , nPosY, nPosX + static_cast<int>(imgLogo.GetWidth() * 6.8) - TotalTabInPixels(2), nPosY + BodyTextLineDown(1));
+	pDC->FillRect(rctDescriptionHeader, &CBrush(RGB(0, 102, 255)));
+	pDC->Draw3dRect(rctDescriptionHeader, RGB(0, 102, 255), RGB(0, 102, 255));
+
+	// print work comment area
+	pFont = &fontBoldBody;
+	pDC->SelectObject(pFont);
+
+	pDC->SetTextColor(RGB(255, 255, 255));
+	pDC->DrawText(_T("Werkzaamheden"), rctDescriptionHeader, DT_LEFT | DT_TABSTOP);
+
+	//nPosY += BodyTextLineDown(1);
+
+	CRect rctDescription(nPosX, nPosY, nPosX + static_cast<int>(imgLogo.GetWidth() * 6.8) - TotalTabInPixels(2), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctDescription, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	pFont = &fontPlainBody;
+	pDC->SelectObject(pFont);
+
+	// Set font color
+	pDC->SetBkColor(RGB(255, 255, 255));
+	pDC->SetTextColor(RGB(0, 0, 0));
+
+	pDC->DrawText(m_pStructWorkorderData->m_structWorkorderLog.strWorkorderLog, rctDescription, DT_LEFT | DT_TABSTOP);
+
+	// calculate new start print position
+	nPosY += BodyTextLineDown(21);
+
+	CRect rctInvoiceHeader(nPosX, nPosY, nPosX + static_cast<int>(imgLogo.GetWidth() * 6.8) - TotalTabInPixels(2), nPosY + BodyTextLineDown(1));
+	pDC->FillRect(rctInvoiceHeader, &CBrush(RGB(0, 102, 255)));
+	pDC->Draw3dRect(rctInvoiceHeader, RGB(0, 102, 255), RGB(0, 102, 255));
+
+	// print work comment area
+	pFont = &fontBoldBody;
+	pDC->SelectObject(pFont);
+
+	pDC->SetTextColor(RGB(255, 255, 255));
+	pDC->DrawText(_T("Factuur"), rctInvoiceHeader, DT_LEFT | DT_TABSTOP);
+
+	nPosY += BodyTextLineDown(1);
+
+	CRect rctPartDescription(nPosX, nPosY, nPosX + TotalTabInPixels(20), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctPartDescription, RGB(0,0, 0), RGB(0, 0, 0));
+
+	CRect rctPartAmount(rctPartDescription.right, nPosY, rctPartDescription.right + TotalTabInPixels(3), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctPartAmount, RGB(0, 0, 0), RGB(0, 0, 0));
+
+	CRect rctPartUnitPrice(rctPartAmount.right, nPosY, rctPartAmount.right + TotalTabInPixels(3), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctPartUnitPrice, RGB(0, 0, 0), RGB(0, 0, 0));
+
+	CRect rctPartSubtotal(rctPartUnitPrice.right + TotalTabInPixels(1), nPosY, rctPartUnitPrice.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctPartSubtotal, RGB(0, 0, 0), RGB(0, 0, 0));
+
+	pFont = &fontPlainBody;
+	pDC->SelectObject(pFont);
+
+	// Set font color
+	pDC->SetBkColor(RGB(255, 255, 255));
+	pDC->SetTextColor(RGB(0, 0, 0));
+
+	pDC->DrawText(_T("Omschrijving:"), rctPartDescription, DT_LEFT | DT_TABSTOP);
+	pDC->DrawText(_T("Aantal:"), rctPartAmount, DT_RIGHT | DT_TABSTOP);
+	pDC->DrawText(_T("Prijs:"), rctPartUnitPrice, DT_RIGHT | DT_TABSTOP);
+	pDC->DrawText(_T("Subtotaal:"), rctPartSubtotal, DT_RIGHT | DT_TABSTOP);
+	
+	// calculate new start print position
+	nPosY += BodyTextLineDown(20);
+
+	// Destroy image
+	imgLogo.Destroy();
+	fontPlainHeader.DeleteObject();
+	fontBoldHeader.DeleteObject();
+	fontPlainBody.DeleteObject();
+	fontBoldBody.DeleteObject();
 }

@@ -19,7 +19,7 @@ public:
 		CString strEmployeeResponsible;
 		CString strWorkorderStatus;
 		CString strWorkorderDescription;
-		CString strWordorderTotalPartsPrice;
+		CString strWorkorderTotalPartsPrice;
 
 		struct SparePart
 		{
@@ -41,10 +41,11 @@ public:
 private:
 	WorkorderData* m_pStructWorkorderData;
 public:
-	CPrintWorkorder(WorkorderData* pworkData);
+	explicit CPrintWorkorder(WorkorderData* pworkData) noexcept;
 	virtual ~CPrintWorkorder();
 
-	void PrintCombi(CDC* pDC) const;
+	void PrintCombi(CDC* pDC) const noexcept;
+	void PrintInvoice(CDC* pDC) const noexcept;
 
 };
 

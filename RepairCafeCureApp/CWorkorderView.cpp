@@ -226,11 +226,13 @@ BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
 			if(m_bPrintCombi)
 			{
 				// Zet de printer in landscape-modus
-				 pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
+				pDevMode->dmPaperSize = DMPAPER_A4;
+				pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
 			}
 			else
 			{
 				// Zet de printer in portrait-modus
+				pDevMode->dmPaperSize = DMPAPER_A4;
 				pDevMode->dmOrientation = DMORIENT_PORTRAIT;
 			}
 			// Pas de instellingen toe
@@ -300,7 +302,7 @@ void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		m_cbxWorkorderEmployeeResponsible.GetWindowTextW(workorderData.strEmployeeResponsible);
 		workorderData.strWorkorderStatus = m_strWorkorderStatus;
 		workorderData.strWorkorderDescription = m_strWorkorderDescription;
-		workorderData.strWordorderTotalPartsPrice = m_strWorkorderTotalPartsPrice;
+		workorderData.strWorkorderTotalPartsPrice = m_strWorkorderTotalPartsPrice;
 
 		auto nCount = m_lscWorkorderSpareParts.GetItemCount();
 		for (int i = 0; i < nCount; i++)
@@ -317,10 +319,9 @@ void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		workorderData.m_structWorkorderLog.strWorkorderRepairedDate = m_strWorkorderClosedDate;
 
 
-		//CPrintWorkorder printWorkorder(&workorderData);
-		//printWorkorder.PrintInvoice(pDC);
-		//m_bPrintInvoice = false;
-	
+		CPrintWorkorder printWorkorder(&workorderData);
+		printWorkorder.PrintInvoice(pDC);
+		m_bPrintInvoice = false;
 	}
 	else
 		CFormView::OnPrint(pDC, pInfo);
@@ -328,7 +329,8 @@ void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 }
 
 /* Message handles */
-
+#pragma warning ( push )
+#pragma warning ( disable : 26454 )
 BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
 	ON_WM_UPDATEUISTATE()
 	ON_NOTIFY(NM_DBLCLK, IDC_WORKORDERVIEW_EXISTING, &CWorkorderView::OnNMDoubleClickWorkorderViewExisting)
@@ -345,6 +347,7 @@ BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
 	ON_COMMAND(ID_WORKORDER_EXTRA_COMBI, &CWorkorderView::OnWorkorderExtraCombi)
 	ON_COMMAND(ID_WORKORDER_EXTRA_INVOICE, &CWorkorderView::OnWorkorderExtraInvoice)
 END_MESSAGE_MAP()
+#pragma warning ( pop )
 
 /* Message methods */
 
@@ -973,8 +976,8 @@ void CWorkorderView::PerformWorkorderUpdate()
 	UpdateData(TRUE);
 
 	CTime time = CTime::GetCurrentTime();
-
-	CString strCurDate = time.Format(_T("%d-%m-%y"));
+	//COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y");
+	CString strCurDate = COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")); //time.Format(_T("%d-%m-%y"));
 	CString strEmployee;
 
 	int nIndex = m_cbxWorkorderEmployeeResponsible.GetCurSel();
@@ -1022,8 +1025,8 @@ void CWorkorderView::PerformWorkorderUpdate()
 	strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_RESPONSIBLE = %s, WORKORDER_STATUS = %s, WORKORDER_LOG = %s, WORKORDER_CLOSED_DATE = %s, WORKORDER_HISTORY = %s WHERE WORKORDER_ID = %d"),
 		static_cast<LPCTSTR>(buildFieldValue(strEmployee)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderStatus)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderClosedDate)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderNewLog)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderClosedDate)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderHistoryLog)),
 		m_unWorkorderId);
 
