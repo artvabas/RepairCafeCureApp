@@ -46,7 +46,7 @@ CRepairCafeCureAppDoc::CRepairCafeCureAppDoc() noexcept
 CRepairCafeCureAppDoc::~CRepairCafeCureAppDoc()
 {
 }
-
+/*
 BOOL CRepairCafeCureAppDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
@@ -74,7 +74,9 @@ void CRepairCafeCureAppDoc::Serialize(CArchive& ar)
 		// TODO: add loading code here
 	}
 }
+*/
 
+/*
 #ifdef SHARED_HANDLERS
 
 // Support for thumbnails
@@ -128,6 +130,7 @@ void CRepairCafeCureAppDoc::SetSearchContent(const CString& value)
 }
 
 #endif // SHARED_HANDLERS
+*/
 
 // CRepairCafeCureAppDoc diagnostics
 

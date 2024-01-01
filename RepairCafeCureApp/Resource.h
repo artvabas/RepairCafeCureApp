@@ -37,7 +37,6 @@
 #define IDS_STATUS_PANE2                126
 #define IDR_MAINFRAME                   127
 #define IDR_MAINFRAME_256               128
-#define IDR_RepairCafeCureAppTYPE       129
 #define IDR_PASTE_MENU                  130
 #define IDR_WINDOWS_MENU                131
 #define ID_TOOLS_OPTIONS                220
@@ -139,7 +138,6 @@
 #define ID_WORKORDER_VIEW_REPAIRED      32778
 #define ID_CONTEXT_WORKORDER            32781
 #define ID_WORKORDER_EXTRA_COMBI        32785
-#define ID_BUTTON6                      32786
 #define ID_WORKORDER_EXTRA_INVOICE      32786
 
 // Next default values for new objects

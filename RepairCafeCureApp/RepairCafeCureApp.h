@@ -87,8 +87,8 @@ private:
 	BOOL InitInstance() override;
 	int ExitInstance() override;
 	void PreLoadState() override;
-	void LoadCustomState() override;
-	void SaveCustomState() override;
+	//void LoadCustomState() override;
+	//void SaveCustomState() override;
 
 // Merage handlers
 	DECLARE_MESSAGE_MAP()

@@ -29,12 +29,12 @@ public:
 
 // Overrides
 public:
-	virtual BOOL OnNewDocument();
-	virtual void Serialize(CArchive& ar);
-#ifdef SHARED_HANDLERS
-	virtual void InitializeSearchContent();
-	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
-#endif // SHARED_HANDLERS
+	//virtual BOOL OnNewDocument();
+	//virtual void Serialize(CArchive& ar);
+//#ifdef SHARED_HANDLERS
+	//virtual void InitializeSearchContent();
+	//virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
+//#endif // SHARED_HANDLERS
 
 // Implementation
 public:
@@ -50,8 +50,8 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 
-#ifdef SHARED_HANDLERS
+//#ifdef SHARED_HANDLERS
 	// Helper function that sets search content for a Search Handler
-	void SetSearchContent(const CString& value);
-#endif // SHARED_HANDLERS
+	//void SetSearchContent(const CString& value);
+//#endif // SHARED_HANDLERS
 };

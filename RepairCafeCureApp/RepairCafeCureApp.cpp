@@ -69,8 +69,8 @@ CRepairCafeCureApp theApp; // The one and only CRepairCafeCureApp object
 BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CRepairCafeCureApp::OnAppAbout)
 	// Standard file based document commands
-	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
+	//ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
+	//ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
 	// Standard print setup command
 	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 	ON_COMMAND(ID_CUSTOMER_VIEW, &CRepairCafeCureApp::OnCustomerView)
@@ -113,7 +113,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 		return FALSE;
 	}
 
-	EnableTaskbarInteraction(FALSE);
+	//EnableTaskbarInteraction(FALSE);
 
 	SetRegistryKey(_T("artvabas\\Repair cafe cure"));
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
@@ -145,8 +145,8 @@ BOOL CRepairCafeCureApp::InitInstance()
 	ParseCommandLine(cmdInfo);
 
 	// Enable DDE Execute open
-	EnableShellOpen();
-	RegisterShellFileTypes(TRUE);
+	//EnableShellOpen();
+	//RegisterShellFileTypes(TRUE);
 
 	// Dispatch commands specified on the command line.  Will return FALSE if
 	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
@@ -204,16 +204,16 @@ BOOL CRepairCafeCureApp::InitInstance()
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 	// Enable drag/drop open
-	m_pMainWnd->DragAcceptFiles();
+	//m_pMainWnd->DragAcceptFiles();
 	return TRUE;
 }
 
 // CRepairCafeCureApp exit instance 
 int CRepairCafeCureApp::ExitInstance()
 {
-	//TODO: handle additional resources you may have added
+	//TODO: handle additional resources you may have added ******************************
 	AfxOleTerm(FALSE);
-
+	
 	return CWinAppEx::ExitInstance();
 }
 
@@ -227,6 +227,7 @@ void CRepairCafeCureApp::PreLoadState()
 	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
 }
 
+/*
 // CRepairCafeCureApp customization load/save methods
 void CRepairCafeCureApp::LoadCustomState()
 {
@@ -236,6 +237,7 @@ void CRepairCafeCureApp::LoadCustomState()
 void CRepairCafeCureApp::SaveCustomState()
 {
 }
+*/
 
 /*Messages Handlers*/
 
