@@ -247,8 +247,13 @@
     <Image Include="res\main.bmp" />
     <Image Include="res\RepairCafeCureApp.ico" />
     <Image Include="res\RepairCafeCureAppDoc.ico" />
+    <Image Include="res\repaircafelarge.bmp" />
+    <Image Include="res\repaircafesmall.bmp" />
     <Image Include="res\Toolbar.bmp" />
     <Image Include="res\Toolbar256.bmp" />
+    <Image Include="res\workorderextralarge.bmp" />
+    <Image Include="res\workorderextrasmall.bmp" />
+    <Image Include="res\workorderextrasmall.png" />
     <Image Include="res\Workorders.bmp" />
     <Image Include="res\writelarge.bmp" />
     <Image Include="res\writesmall.bmp" />

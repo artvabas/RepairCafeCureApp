@@ -238,6 +238,21 @@
     <Image Include="res\Workorders.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\repaircafelarge.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\repaircafesmall.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\workorderextralarge.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\workorderextrasmall.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\workorderextrasmall.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\Cryptopp890\x64\Output\Release\cryptlib.lib">
