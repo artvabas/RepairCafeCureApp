@@ -189,6 +189,7 @@
   <ItemGroup>
     <ClInclude Include="CAssetDialog.h" />
     <ClInclude Include="CAssetTab.h" />
+    <ClInclude Include="CContributionPaymentDialog.h" />
     <ClInclude Include="CCustomerView.h" />
     <ClInclude Include="CDatabaseConnection.h" />
     <ClInclude Include="CPrintWorkorder.h" />
@@ -210,6 +211,7 @@
   <ItemGroup>
     <ClCompile Include="CAssetDialog.cpp" />
     <ClCompile Include="CAssetTab.cpp" />
+    <ClCompile Include="CContributionPaymentDialog.cpp" />
     <ClCompile Include="CCustomerView.cpp" />
     <ClCompile Include="CDatabaseConnection.cpp" />
     <ClCompile Include="CPrintWorkorder.cpp" />

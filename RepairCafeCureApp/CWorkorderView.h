@@ -84,6 +84,7 @@
 
 				CButton m_btnWorkorderUpdate;
 				CButton m_btnWorkorderFinished;
+				CButton m_btnWorkorderClose;
 				CButton m_btnWorkorderParts;
 
 				CComboBox m_cbxWorkorderEmployeeResponsible;
@@ -130,6 +131,7 @@
 				afx_msg void OnBnClickedWorkorderViewUpdate();
 				afx_msg void OnBnClickedWorkorderVewCustomerContactedCustomer();
 				afx_msg void OnBnClickedWorkorderViewFinished();
+				afx_msg void OnBnClickedWorkorderViewClose();
 				afx_msg void OnBnClickedWorkorderViewAssetDisposed();
 				afx_msg void OnBnClickedWorkorderViewParts();
 				afx_msg void OnFilePrintPreview();
@@ -139,6 +141,7 @@
 				void InitWorkorderExistingList();
 				void InitWorkorderEmployeeResponsibleComboBox();
 				void InitWorkorderSparePartsList();
+				void SetControlsAfterChangeContactedOrDisposed();
 				bool GetAssetInfo(const unsigned int& nAssetId);
 				bool GetCustomerInfo(const unsigned int& nCustomerId);
 				void PerformWorkorderUpdate();

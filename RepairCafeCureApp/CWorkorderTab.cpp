@@ -309,7 +309,7 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 	try
 	{
 		// Set printer settings
-		CPrintDialog dlg(false);
+		CPrintDialog dlg(FALSE);
 		dlg.m_pd.hDevMode = GlobalAlloc(GHND, sizeof(DEVMODE));
 
 		ASSERT(dlg.m_pd.hDevMode != NULL);

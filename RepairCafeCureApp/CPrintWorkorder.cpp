@@ -530,16 +530,33 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 	nPosY += BodyTextLineDown(1);
 
 	CRect rctPartDescription(nPosX, nPosY, nPosX + TotalTabInPixels(20), nPosY + BodyTextLineDown(20));
-	pDC->Draw3dRect(rctPartDescription, RGB(0,0, 0), RGB(0, 0, 0));
+	pDC->Draw3dRect(rctPartDescription, RGB(255, 255, 255), RGB(255, 255, 255));
 
 	CRect rctPartAmount(rctPartDescription.right, nPosY, rctPartDescription.right + TotalTabInPixels(3), nPosY + BodyTextLineDown(20));
-	pDC->Draw3dRect(rctPartAmount, RGB(0, 0, 0), RGB(0, 0, 0));
+	pDC->Draw3dRect(rctPartAmount, RGB(255, 255, 255), RGB(255, 255, 255));
 
 	CRect rctPartUnitPrice(rctPartAmount.right, nPosY, rctPartAmount.right + TotalTabInPixels(3), nPosY + BodyTextLineDown(20));
-	pDC->Draw3dRect(rctPartUnitPrice, RGB(0, 0, 0), RGB(0, 0, 0));
+	pDC->Draw3dRect(rctPartUnitPrice, RGB(255, 255, 255), RGB(255, 255, 255));
 
 	CRect rctPartSubtotal(rctPartUnitPrice.right + TotalTabInPixels(1), nPosY, rctPartUnitPrice.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(20));
-	pDC->Draw3dRect(rctPartSubtotal, RGB(0, 0, 0), RGB(0, 0, 0));
+	pDC->Draw3dRect(rctPartSubtotal, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	CString strPartDescription(_T("Omschrijving:\n"));
+	CString strPartAmount(_T("Aantal:\n"));
+	CString strPartUnitPrice(_T("Prijs:\n"));
+	CString strPartSubtotal(_T("Subtotaal:\n"));
+
+
+	if (m_pStructWorkorderData->m_vecSpareParts.size() > 0)
+	{
+		for (int i = 0; i < m_pStructWorkorderData->m_vecSpareParts.size(); i++)
+		{
+			strPartDescription += _T("\n") + m_pStructWorkorderData->m_vecSpareParts[i].strSparePartDescription;
+			strPartAmount += _T("\n") + m_pStructWorkorderData->m_vecSpareParts[i].strSparePartQuantity;
+			strPartUnitPrice += _T("\n€") + m_pStructWorkorderData->m_vecSpareParts[i].strSparePartPrice;
+			strPartSubtotal += _T("\n€") + m_pStructWorkorderData->m_vecSpareParts[i].strSparePartSubTotalPrice;
+		}
+	}
 
 	pFont = &fontPlainBody;
 	pDC->SelectObject(pFont);
@@ -548,13 +565,29 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 	pDC->SetBkColor(RGB(255, 255, 255));
 	pDC->SetTextColor(RGB(0, 0, 0));
 
-	pDC->DrawText(_T("Omschrijving:"), rctPartDescription, DT_LEFT | DT_TABSTOP);
-	pDC->DrawText(_T("Aantal:"), rctPartAmount, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(_T("Prijs:"), rctPartUnitPrice, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(_T("Subtotaal:"), rctPartSubtotal, DT_RIGHT | DT_TABSTOP);
-	
+	pDC->DrawText(strPartDescription, rctPartDescription, DT_LEFT | DT_TABSTOP);
+	pDC->DrawText(strPartAmount, rctPartAmount, DT_RIGHT | DT_TABSTOP);
+	pDC->DrawText(strPartUnitPrice, rctPartUnitPrice, DT_RIGHT | DT_TABSTOP);
+	pDC->DrawText(strPartSubtotal, rctPartSubtotal, DT_RIGHT | DT_TABSTOP);
+
 	// calculate new start print position
 	nPosY += BodyTextLineDown(20);
+
+	CRect rctTotal(rctPartAmount.right, nPosY, rctPartAmount.right + TotalTabInPixels(3), nPosY + BodyTextLineDown(1));
+	pDC->Draw3dRect(rctTotal, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	CRect rctTotalAmount(rctPartUnitPrice.right + TotalTabInPixels(1), nPosY, rctPartUnitPrice.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(1));
+	pDC->Draw3dRect(rctTotalAmount, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	pFont = &fontBoldBody;
+	pDC->SelectObject(pFont);
+
+	// Set font color
+	pDC->SetBkColor(RGB(255, 255, 255));
+	pDC->SetTextColor(RGB(0, 0, 0));
+
+	pDC->DrawText(_T("Totaal:"), rctTotal, DT_RIGHT | DT_TABSTOP);
+	pDC->DrawText(_T("€") + m_pStructWorkorderData->strWorkorderTotalPartsPrice, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
 	// Destroy image
 	imgLogo.Destroy();

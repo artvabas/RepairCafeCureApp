@@ -70,6 +70,7 @@
 #include "CWorkorderPartsDialog.h"
 #include "MainFrm.h"
 #include "CPrintWorkorder.h"
+#include "CContributionPaymentDialog.h"
 
 //using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::ui::dialogs;
@@ -165,6 +166,7 @@ void CWorkorderView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_WORKORDERVIEW_PARTS, m_btnWorkorderParts);
 	DDX_Control(pDX, IDC_WORKORDERVIEW_LOG, m_edtWorkorderNewLog);
 	DDX_Text(pDX, IDC_WORKORDERVIEW_TOTAL_PRICE, m_strWorkorderTotalPartsPrice);
+	DDX_Control(pDX, IDC_WORKORDERVIEW_CLOSE, m_btnWorkorderClose);
 }
 
 /// <summary>
@@ -205,6 +207,9 @@ BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
 	// Standaard voorbereiding
 	BOOL bRet = DoPreparePrinting(pInfo);
 
+	if(pInfo->m_bPreview)
+		return bRet;
+
 	// Controleer of de voorbereiding succesvol was
 	if (bRet)
 	{
@@ -229,7 +234,7 @@ BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
 				pDevMode->dmPaperSize = DMPAPER_A4;
 				pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
 			}
-			else
+			else if (m_bPrintInvoice)
 			{
 				// Zet de printer in portrait-modus
 				pDevMode->dmPaperSize = DMPAPER_A4;
@@ -324,7 +329,8 @@ void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		m_bPrintInvoice = false;
 	}
 	else
-		CFormView::OnPrint(pDC, pInfo);
+		//CFormView::OnPrint(pDC, pInfo);
+		pDC->TextOutW(100, 100, _T("Test"));
 	EndWaitCursor();
 }
 
@@ -346,6 +352,7 @@ BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CWorkorderView::OnFilePrintPreview)
 	ON_COMMAND(ID_WORKORDER_EXTRA_COMBI, &CWorkorderView::OnWorkorderExtraCombi)
 	ON_COMMAND(ID_WORKORDER_EXTRA_INVOICE, &CWorkorderView::OnWorkorderExtraInvoice)
+	ON_BN_CLICKED(IDC_WORKORDERVIEW_CLOSE, &CWorkorderView::OnBnClickedWorkorderViewClose)
 END_MESSAGE_MAP()
 #pragma warning ( pop )
 
@@ -465,6 +472,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
 				m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				m_btnWorkorderClose.EnableWindow(TRUE);
 				m_cbxWorkorderEmployeeResponsible.EnableWindow(FALSE);
 				m_bResponsibleChanged = false;
 				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
@@ -552,28 +560,11 @@ void CWorkorderView::OnEnChangeWorkorderViewLog()
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 			}
 			break;
-		case VIEW_WORKORDER_PROGRESS:
-			// Is the new log not empty and is a workorder selected and is the
-			// contacted customer check box not checked and is the asset disposed check box not checked?
-			if (!m_strWorkorderNewLog.IsEmpty() && m_bWorkorderSelected &&
-				(!m_chbWorkorderContactedCustomer.GetCheck()) && (!m_chbWorkorderAssetDisposed.GetCheck()))
-			{
-				m_btnWorkorderUpdate.EnableWindow(TRUE);
-				m_btnWorkorderFinished.EnableWindow(FALSE);
-			}
-			else if (m_chbWorkorderContactedCustomer.GetCheck())	// But if the Workorder Contact Customer Checkbox is selected
-			{
-				m_btnWorkorderUpdate.EnableWindow(FALSE);
-				m_btnWorkorderFinished.EnableWindow(TRUE);
-			}
-			else if (!m_bResponsibleChanged)
-			{
-				m_btnWorkorderUpdate.EnableWindow(FALSE);
-			}
-			break;
 		default:
+			SetControlsAfterChangeContactedOrDisposed();
 			break;
 	}
+	UpdateData(FALSE);
 }
 
 /// <summary>
@@ -583,31 +574,7 @@ void CWorkorderView::OnEnChangeWorkorderViewLog()
 /// <returns></returns>
 void CWorkorderView::OnBnClickedWorkorderViewAssetDisposed()
 {
-	// Is the asset disposed check box checked and is the contacted customer check box checked?
-	if (m_chbWorkorderAssetDisposed.GetCheck() && m_chbWorkorderContactedCustomer.GetCheck())
-	{
-		m_btnWorkorderFinished.EnableWindow(TRUE);
-		m_btnWorkorderUpdate.EnableWindow(FALSE);
-	}
-	// Is the asset disposed check box checked	and the contacted customer check box uncheked?
-	else if (m_chbWorkorderAssetDisposed.GetCheck() && !m_chbWorkorderContactedCustomer.GetCheck())
-	{
-		m_btnWorkorderFinished.EnableWindow(FALSE);
-		m_btnWorkorderUpdate.EnableWindow(FALSE);
-	}
-	// Is the asset disposed check box unchecked	and the contacted customer check box cheked?
-	else if (!m_chbWorkorderAssetDisposed.GetCheck() && m_chbWorkorderContactedCustomer.GetCheck())
-	{
-		m_btnWorkorderFinished.EnableWindow(TRUE);
-		m_btnWorkorderUpdate.EnableWindow(FALSE);
-	}
-	else
-	{
-		m_btnWorkorderFinished.EnableWindow(FALSE);
-
-		if(m_bResponsibleChanged || !m_strWorkorderNewLog.IsEmpty())
-			m_btnWorkorderUpdate.EnableWindow(TRUE);
-	}
+	SetControlsAfterChangeContactedOrDisposed();
 }
 
 /// <summary>
@@ -617,18 +584,7 @@ void CWorkorderView::OnBnClickedWorkorderViewAssetDisposed()
 /// <returns></returns>
 void CWorkorderView::OnBnClickedWorkorderVewCustomerContactedCustomer()
 {
-	if (m_chbWorkorderContactedCustomer.GetCheck() == BST_CHECKED)
-	{
-		m_btnWorkorderFinished.EnableWindow(TRUE);
-		m_btnWorkorderUpdate.EnableWindow(FALSE);
-	}
-	else
-	{
-		m_btnWorkorderFinished.EnableWindow(FALSE);
-
-		if((m_bResponsibleChanged || !m_strWorkorderNewLog.IsEmpty()) && !m_chbWorkorderAssetDisposed.GetCheck())
-			m_btnWorkorderUpdate.EnableWindow(TRUE);
-	}
+	SetControlsAfterChangeContactedOrDisposed();
 }
 
 /// <summary>
@@ -661,11 +617,24 @@ void CWorkorderView::OnBnClickedWorkorderViewUpdate()
 /// <returns></returns>
 void CWorkorderView::OnBnClickedWorkorderViewFinished()
 {
-	m_chbWorkorderAssetDisposed.GetCheck() == BST_CHECKED ?
-		m_strWorkorderStatus = _T("Closed") : m_strWorkorderStatus = _T("Repaired");
-
+	m_strWorkorderStatus = _T("Repaired");
 	UpdateData(FALSE);
 	PerformWorkorderUpdate();
+}
+
+void CWorkorderView::OnBnClickedWorkorderViewClose()
+{
+	m_strWorkorderStatus = _T("Closed");
+	if(m_chbWorkorderAssetDisposed.GetCheck())
+		PerformWorkorderUpdate();
+	else
+	{
+		CContributionPaymentDialog dlg;
+		if (dlg.DoModal() == IDOK)
+		{
+			//PerformWorkorderUpdate();
+		}
+	}
 }
 
 /// <summary>
@@ -879,6 +848,65 @@ void CWorkorderView::InitWorkorderSparePartsList()
 	UpdateData(FALSE);
 }
 
+void CWorkorderView::SetControlsAfterChangeContactedOrDisposed()
+{
+	UpdateData(TRUE);
+	switch (theApp.GetWorkorderViewType())
+	{
+		case VIEW_WORKORDER_PROGRESS:
+			if (m_chbWorkorderContactedCustomer.GetCheck() && m_chbWorkorderAssetDisposed.GetCheck() && !m_strWorkorderNewLog.IsEmpty())
+			{
+				m_btnWorkorderClose.EnableWindow(TRUE);
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				m_btnWorkorderFinished.EnableWindow(FALSE);
+			}
+			else if (m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck() && !m_strWorkorderNewLog.IsEmpty())
+			{
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				m_btnWorkorderFinished.EnableWindow(TRUE);
+				m_btnWorkorderClose.EnableWindow(FALSE);
+			}
+			else if (!m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck() && !m_strWorkorderNewLog.IsEmpty())
+			{
+				m_btnWorkorderClose.EnableWindow(FALSE);
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				m_btnWorkorderFinished.EnableWindow(FALSE);
+			}
+			else
+			{
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				m_btnWorkorderFinished.EnableWindow(FALSE);
+				m_btnWorkorderClose.EnableWindow(FALSE);
+			}
+			break;
+		case VIEW_WORKORDER_REPAIRED:
+			if (m_chbWorkorderContactedCustomer.GetCheck() && !m_strWorkorderNewLog.IsEmpty())
+			{
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				m_btnWorkorderClose.EnableWindow(FALSE);
+			}
+			else if (!m_chbWorkorderContactedCustomer.GetCheck() && !m_strWorkorderNewLog.IsEmpty())
+			{
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				m_btnWorkorderClose.EnableWindow(FALSE);
+			}
+			else if (m_chbWorkorderContactedCustomer.GetCheck() && m_strWorkorderNewLog.IsEmpty())
+			{
+				m_btnWorkorderClose.EnableWindow(FALSE);
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+			}
+			else
+			{
+				m_btnWorkorderClose.EnableWindow(TRUE);
+				m_btnWorkorderUpdate.EnableWindow(FALSE);
+			}
+			break;
+		default:
+			break;
+	}
+	UpdateData(FALSE);
+}
+
 /// <summary>
 /// GetAssetInfo is used to get the asset information of the selected workorder from the database.
 /// </summary>
@@ -1045,10 +1073,13 @@ void CWorkorderView::PerformWorkorderUpdate()
 
 	strQuery.ReleaseBuffer();
 
-	if (m_strWorkorderStatus == _T("Repaired") && m_strWorkorderTotalPartsPrice != L"0.00")
+	/* Do we want to print invoice when order is set to repaired?
+	if (m_strWorkorderStatus == _T("Repaired"))
 	{
-		OnWorkorderExtraInvoice();
+		if(_tstof(m_strWorkorderTotalPartsPrice) != 0.0f)
+			OnWorkorderExtraInvoice();
 	}
+	*/
 
 	ResetAllControls();
 }
@@ -1090,6 +1121,7 @@ void CWorkorderView::ResetAllControls()
 	m_edtWorkorderNewLog.EnableWindow(FALSE);
 	m_btnWorkorderUpdate.EnableWindow(FALSE);
 	m_btnWorkorderFinished.EnableWindow(FALSE);
+	m_btnWorkorderClose.EnableWindow(FALSE);
 	m_btnWorkorderParts.EnableWindow(FALSE);
 	m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
 	m_chbWorkorderContactedCustomer.EnableWindow(FALSE);
