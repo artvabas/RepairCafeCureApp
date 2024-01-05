@@ -12,6 +12,7 @@ private:
 	CString m_strContributionPaymentInvoice;
 	CString m_strContributionPaymentPaid;
 	CString m_strContributionPaymentContribution;
+	CString m_strContributionPaymentReturn;
 
 public:
 	CContributionPaymentDialog(CWnd* pParent = nullptr);   // standard constructor
@@ -27,5 +28,11 @@ private:
 
 	DECLARE_MESSAGE_MAP()
 private:
-	afx_msg void OnEnChangeContributionPaymentPayed();
+	afx_msg void OnEnChangeContributionPayment();
+	afx_msg void OnBnClickedContributionPaymentClear();
+	afx_msg void OnBnClickedOk();
+public:
+	virtual BOOL OnInitDialog();
+private:
+	BOOL m_blPinTransaction;
 };

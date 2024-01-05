@@ -625,6 +625,7 @@ void CWorkorderView::OnBnClickedWorkorderViewFinished()
 void CWorkorderView::OnBnClickedWorkorderViewClose()
 {
 	m_strWorkorderStatus = _T("Closed");
+	UpdateData(FALSE);
 	if(m_chbWorkorderAssetDisposed.GetCheck())
 		PerformWorkorderUpdate();
 	else
@@ -632,7 +633,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose()
 		CContributionPaymentDialog dlg;
 		if (dlg.DoModal() == IDOK)
 		{
-			//PerformWorkorderUpdate();
+			PerformWorkorderUpdate();
 		}
 	}
 }
@@ -1073,13 +1074,12 @@ void CWorkorderView::PerformWorkorderUpdate()
 
 	strQuery.ReleaseBuffer();
 
-	/* Do we want to print invoice when order is set to repaired?
-	if (m_strWorkorderStatus == _T("Repaired"))
+	// Do we want to print invoice when order is set to repaired?
+	if (m_strWorkorderStatus == _T("Closed"))
 	{
 		if(_tstof(m_strWorkorderTotalPartsPrice) != 0.0f)
 			OnWorkorderExtraInvoice();
 	}
-	*/
 
 	ResetAllControls();
 }
