@@ -11,8 +11,10 @@
 
 IMPLEMENT_DYNAMIC(CContributionPaymentDialog, CDialogEx)
 
-CContributionPaymentDialog::CContributionPaymentDialog(CWnd* pParent /*=nullptr*/)
-	: CDialogEx(IDD_CONTRIBUTION, pParent)
+CContributionPaymentDialog::CContributionPaymentDialog(const InvoiceData* pInvoiceData, const ContributionData* pContributionData, CWnd* pParent /*=nullptr*/)
+	: m_pInvoiceData((InvoiceData*)pInvoiceData)
+	, m_pContributionData((ContributionData*)pContributionData)
+	, CDialogEx(IDD_CONTRIBUTION, pParent)
 	, m_strContributionPaymentInvoice(_T(""))
 	, m_strContributionPaymentPaid(_T(""))
 	, m_strContributionPaymentContribution(_T(""))

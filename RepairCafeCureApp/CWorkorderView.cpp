@@ -630,7 +630,12 @@ void CWorkorderView::OnBnClickedWorkorderViewClose()
 		PerformWorkorderUpdate();
 	else
 	{
-		CContributionPaymentDialog dlg;
+		CContributionPaymentDialog::InvoiceData invoiceData;
+		CContributionPaymentDialog::ContributionData contributionData;
+
+		invoiceData.unCustomerID = _ttoi(m_lscWorkorderExisting.GetItemText(m_lscWorkorderExisting.GetSelectionMark(), 2));
+
+		CContributionPaymentDialog dlg(&invoiceData, &contributionData);
 		if (dlg.DoModal() == IDOK)
 		{
 			PerformWorkorderUpdate();
