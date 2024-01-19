@@ -117,9 +117,6 @@
     <ClInclude Include="CDatabaseConnection.h">
       <Filter>Header Files\artvabas\rcc\database</Filter>
     </ClInclude>
-    <ClInclude Include="securitydata.h">
-      <Filter>Header Files\artvabas\rcc\database\security\data</Filter>
-    </ClInclude>
     <ClInclude Include="CSqlNativeAVB.h">
       <Filter>Header Files\artvabas\sql</Filter>
     </ClInclude>
@@ -134,6 +131,9 @@
     </ClInclude>
     <ClInclude Include="CContributionPaymentDialog.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="securitydata.h">
+      <Filter>Header Files\artvabas\rcc\database\security\data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -194,7 +194,6 @@
     <None Include="res\RepairCafeCureApp.rc2">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RepairCafeCureApp.rc">

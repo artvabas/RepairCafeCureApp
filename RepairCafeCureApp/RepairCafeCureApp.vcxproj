@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\ArthurvanBasten\source\repos\Cryptopp890;$(IncludePath)</IncludePath>
+    <IncludePath>D:\source\artvabas\Cryptopp890;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\ArthurvanBasten\source\repos\RepairCafeCureApp\RepairCafeCureApp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -232,7 +232,6 @@
     <ClCompile Include="CAssetView.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="RepairCafeCureApp.reg" />
     <None Include="res\RepairCafeCureApp.rc2" />
     <None Include="res\ribbon.mfcribbon-ms" />

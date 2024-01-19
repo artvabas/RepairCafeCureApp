@@ -522,7 +522,7 @@ void CDatabaseConnection::EncryptCredentials(CString strUser, CString strPasswor
 				fsPassword.Put((byte*)cipherPassword.data(), cipherPassword.size());
 			}
 
-			PathAppendW(szPath, APP_CRDSK_SHORT_FILE);
+			//PathAppendW(szPath, APP_CRDSK_SHORT_FILE);
 			// Does the folder exist?
 			if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(szPath))
 			{
@@ -532,6 +532,7 @@ void CDatabaseConnection::EncryptCredentials(CString strUser, CString strPasswor
 			else
 			{
 				// Save private key
+				PathAppendW(szPath, APP_CRDSK_SHORT_FILE);
 				CryptoPP::ByteQueue privateKeyBytes;
 				privateKey.Save(privateKeyBytes);
 				CryptoPP::FileSink privateKeyFile(szPath);
@@ -545,9 +546,9 @@ void CDatabaseConnection::EncryptCredentials(CString strUser, CString strPasswor
 		AfxMessageBox(static_cast<CString>(e.what()));
 		OutputDebugStringA(e.what());
 	}
-	catch (const char* msg)
+	catch (const wchar_t* msg)
 	{
-		AfxMessageBox(CA2W(msg));
+		AfxMessageBox(msg);
 	}
 	catch (...)
 	{
@@ -576,6 +577,7 @@ void CDatabaseConnection::DecryptCredentials(std::string& cphUser, std::string& 
 
 		if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_TOKEN, NULL, 0, szPath)))
 		{
+			PathAppendW(szPath, APP_DESTINATION_FOLDER);
 			PathAppendW(szPath, APP_CRDSK_LONG_FILE);
 			// Does the folder exist?
 			if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(szPath))
@@ -616,9 +618,9 @@ void CDatabaseConnection::DecryptCredentials(std::string& cphUser, std::string& 
 		AfxMessageBox(static_cast<CString>(e.what()));
 		OutputDebugStringA(e.what());
 	}
-	catch (const char* msg)
+	catch (const wchar_t* msg)
 	{
-		AfxMessageBox(CA2W(msg));
+		AfxMessageBox(msg);
 	}
 	catch (...)
 	{
