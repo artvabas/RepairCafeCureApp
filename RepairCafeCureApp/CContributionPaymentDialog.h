@@ -40,12 +40,16 @@ private:
 	CString m_strContributionPaymentPaid;
 	CString m_strContributionPaymentContribution;
 	CString m_strContributionPaymentReturn;
-	InvoiceData* m_pInvoiceData;
-	ContributionData* m_pContributionData;
+	InvoiceData m_stuInvoiceData;
+	ContributionData m_stuContributionData;
+	BOOL m_blPinTransaction;
 
 public:
-	CContributionPaymentDialog(const InvoiceData* pInvoiceData, const ContributionData* pContributionData, CWnd* pParent = nullptr);   // standard constructor
+	CContributionPaymentDialog(const InvoiceData& pInvoiceData, const ContributionData& pContributionData, CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CContributionPaymentDialog();
+
+private:
+	void Calculate(const double& dPaid, const double& dInvoice, const double& dContribution);
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -54,14 +58,12 @@ public:
 
 private:
 	void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
+	BOOL OnInitDialog() override;
 
 	DECLARE_MESSAGE_MAP()
 private:
 	afx_msg void OnEnChangeContributionPayment();
+	afx_msg void OnBnClickedContributionPaymentCalculate();
 	afx_msg void OnBnClickedContributionPaymentClear();
 	afx_msg void OnBnClickedOk();
-public:
-	virtual BOOL OnInitDialog();
-private:
-	BOOL m_blPinTransaction;
 };
