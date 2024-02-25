@@ -7,11 +7,11 @@
 #include "CContributionPaymentDialog.h"
 
 
-// CContributionPaymentDialog dialog
+using namespace artvabas::rcc::ui::dialogs;
 
 IMPLEMENT_DYNAMIC(CContributionPaymentDialog, CDialogEx)
 
-CContributionPaymentDialog::CContributionPaymentDialog(const InvoiceData& invoiceData, const ContributionData& contributionData, CWnd* pParent /*=nullptr*/)
+CContributionPaymentDialog::CContributionPaymentDialog(InvoiceData& invoiceData, ContributionData& contributionData, CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_CONTRIBUTION, pParent)
 	, m_strContributionPaymentInvoice(invoiceData.strTotal)
 	, m_strContributionPaymentPaid(_T(""))
@@ -19,8 +19,8 @@ CContributionPaymentDialog::CContributionPaymentDialog(const InvoiceData& invoic
 	, m_strContributionPaymentReturn(_T(""))
 	, m_blPinTransaction(FALSE)
 {
-	m_stuInvoiceData = invoiceData;
-	m_stuContributionData = contributionData;
+	m_stuInvoiceData = &invoiceData;
+	m_stuContributionData = &contributionData;
 }
 
 CContributionPaymentDialog::~CContributionPaymentDialog()
@@ -33,12 +33,23 @@ void CContributionPaymentDialog::Calculate(const double& dPaid, const double& dI
 	{
 		if (dContribution > 0.0)
 		{
-			double dReturn = dPaid - (dInvoice + dContribution);
+			auto dReturn{ dPaid - (dInvoice + dContribution) };
 			m_strContributionPaymentReturn.Format(_T("%.2f"), dReturn);
+
+			if (dReturn < 0.0) {
+
+				AfxMessageBox(_T("Het bedrag dat betaald is, is niet voldoende om de factuur te betalen!."));
+				m_btnContributionPaymentOK.EnableWindow(FALSE);
+			}
+			else {
+				SetOKButtonState();
+			}
 		}
 		else
 		{
-			m_strContributionPaymentReturn.Format(_T("%.2f"), dPaid - dInvoice);
+			m_strContributionPaymentContribution.Format(_T("%.2f"), dPaid - dInvoice);
+			m_strContributionPaymentReturn = _T("0.00");
+			SetOKButtonState();
 		}
 	}
 	else
@@ -57,6 +68,7 @@ void CContributionPaymentDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_CONTRIBUTION_PAYMENT_CONTRIBUTE, m_strContributionPaymentContribution);
 	DDX_Text(pDX, IDC_CONTRIBUTION_PAYMENT_RETURN, m_strContributionPaymentReturn);
 	DDX_Check(pDX, IDC_CONTRIBUTION_PAYMENT_PIN, m_blPinTransaction);
+	DDX_Control(pDX, IDOK, m_btnContributionPaymentOK);
 }
 
 
@@ -76,33 +88,41 @@ void CContributionPaymentDialog::OnEnChangeContributionPayment()
 {
 	UpdateData(TRUE);
 
-	const double dInvoice = _tstof(m_strContributionPaymentInvoice);
-	double dPaid = 0.0;
-	double dContribution = 0.0;
+	const auto dInvoice{ _tstof(m_strContributionPaymentInvoice) };
+	auto dPaid{ 0.0 };
+	auto dContribution{ 0.0 };
 
-	if(m_strContributionPaymentPaid.IsEmpty())
-		dPaid = 0.0;
-	else
+	if(!m_strContributionPaymentPaid.IsEmpty())
 		m_strContributionPaymentPaid.Format(_T("%.2f"), dPaid);
 
-	if(m_strContributionPaymentContribution.IsEmpty())
-		dContribution = 0.0;
-	else
+	if(!m_strContributionPaymentContribution.IsEmpty())
 		m_strContributionPaymentContribution.Format(_T("%.2f"), dContribution);
 
 }		
 
 void CContributionPaymentDialog::OnBnClickedContributionPaymentClear()
 {
-	
-	CEdit *pEdit = (CEdit *)GetDlgItem(IDC_CONTRIBUTION_PAYMENT_CONTRIBUTE);
+	m_strContributionPaymentPaid.Empty();
+	m_strContributionPaymentContribution.Empty();
+	m_strContributionPaymentReturn.Empty();
+
+	SetOKButtonState();
+
+	CEdit *pEdit = (CEdit *)GetDlgItem(IDC_CONTRIBUTION_PAYMENT_PAID);
 	pEdit->SetFocus();
+
+	UpdateData(FALSE);
 }
 
 
 void CContributionPaymentDialog::OnBnClickedOk()
 {
-	// TODO: Add your control notification handler code here
+	UpdateData(TRUE);
+
+	m_stuContributionData->dPaid = _tstof(m_strContributionPaymentPaid);
+	m_stuContributionData->dContribution = _tstof(m_strContributionPaymentContribution);
+	m_stuContributionData->bPaymentWithPin = m_blPinTransaction ? true : false;
+
 	CDialogEx::OnOK();
 }
 
@@ -127,9 +147,9 @@ void CContributionPaymentDialog::OnBnClickedContributionPaymentCalculate()
 {
 	UpdateData(TRUE);
 
-	const double dInvoice = _tstof(m_strContributionPaymentInvoice);
-	double dPaid = 0.0;
-	double dContribution = 0.0;
+	const auto dInvoice{ _tstof(m_strContributionPaymentInvoice) };
+	auto dPaid{ 0.0 };
+	auto dContribution{ 0.0 };
 
 	if (!m_strContributionPaymentPaid.IsEmpty())
 		dPaid = _tstof(m_strContributionPaymentPaid);

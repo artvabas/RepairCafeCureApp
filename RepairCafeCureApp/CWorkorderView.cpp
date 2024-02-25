@@ -533,8 +533,6 @@ void CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible()
 				m_btnWorkorderFinished.EnableWindow(FALSE);
 				m_edtWorkorderNewLog.EnableWindow(FALSE);
 			}
-	default:
-		break;
 	}
 	m_bResponsibleChanged = true;
 }
@@ -640,6 +638,33 @@ void CWorkorderView::OnBnClickedWorkorderViewClose()
 		CContributionPaymentDialog dlg(invoiceData, contributionData);
 		if (dlg.DoModal() == IDOK)
 		{
+			CString strQuery{};
+			CString strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) }; //time.Format(_T("%d-%m-%y"));
+
+			auto buildFieldValue = [](CString str) -> CString
+				{
+					CString strResult;
+					if (str.IsEmpty())
+						return  _T("NULL");
+					strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+					return strResult;
+				};
+
+			strQuery.Format(_T("INSERT INTO [CONTRIBUTION] ([CONTRIBUTION_CUSTOMER_ID], [CONTRIBUITION_WORKORDER_ID], [CONTRIBUTION_CREATEDATE], [CONTRIBUTION_AMOUNT]) VALUES (%d, %d, %s, %f)"),
+				invoiceData.unCustomerID, 
+				invoiceData.unWorkOrderID, 
+				static_cast<LPCTSTR>(buildFieldValue(strCurDate)), 
+				contributionData.dContribution);
+
+			theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
+			CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+
+			if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+			else
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+
 			PerformWorkorderUpdate();
 		}
 	}

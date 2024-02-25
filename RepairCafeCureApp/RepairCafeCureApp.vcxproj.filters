@@ -129,11 +129,11 @@
     <ClInclude Include="CPrintWorkorder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CContributionPaymentDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="securitydata.h">
       <Filter>Header Files\artvabas\rcc\database\security\data</Filter>
+    </ClInclude>
+    <ClInclude Include="CContributionPaymentDialog.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -183,7 +183,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CContributionPaymentDialog.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
