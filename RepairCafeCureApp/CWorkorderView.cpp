@@ -1,4 +1,4 @@
-/*
+f/*
 	Copyright (C) 2023  artvabas
 
 	This program is free software: you can redistribute it and/or modify
@@ -465,6 +465,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				m_bResponsibleChanged = false;
 				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
 				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
+				ribbonBar->SetActiveCategory(ribbonBar->GetCategory(1));
 				break;
 			case VIEW_WORKORDER_REPAIRED:
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
@@ -477,6 +478,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				m_bResponsibleChanged = false;
 				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
 				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
+				ribbonBar->ActivateTopParent();
 				break;
 			default:
 				break;
@@ -1109,8 +1111,11 @@ void CWorkorderView::PerformWorkorderUpdate()
 	// Do we want to print invoice when order is set to repaired?
 	if (m_strWorkorderStatus == _T("Closed"))
 	{
-		if(_tstof(m_strWorkorderTotalPartsPrice) != 0.0f)
+		if (_tstof(m_strWorkorderTotalPartsPrice) != 0.0f)
+		{
+			// TODO: Insert invoice data to database, HERE? or in the invoice dialog?
 			OnWorkorderExtraInvoice();
+		}
 	}
 
 	ResetAllControls();

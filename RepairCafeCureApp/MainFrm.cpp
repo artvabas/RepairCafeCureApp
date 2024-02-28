@@ -61,7 +61,7 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CAPTION_BAR, &CMainFrame::OnViewCaptionBar)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_CAPTION_BAR, &CMainFrame::OnUpdateViewCaptionBar)
+	//ON_UPDATE_COMMAND_UI(ID_VIEW_CAPTION_BAR, &CMainFrame::OnUpdateViewCaptionBar)
 	ON_COMMAND(ID_TOOLS_OPTIONS, &CMainFrame::OnOptions)
 	ON_COMMAND(ID_FILE_PRINT, &CMainFrame::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CMainFrame::OnFilePrint)
@@ -72,6 +72,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_DIRECT, &CMainFrame::OnUpdateIsPrintable)
 	ON_UPDATE_COMMAND_UI(ID_WORKORDER_EXTRA_COMBI, &CMainFrame::OnUpdateWorkorderExtraCombi)
 	ON_UPDATE_COMMAND_UI(ID_WORKORDER_EXTRA_INVOICE, &CMainFrame::OnUpdateWorkorderExtraInvoice)
+	ON_COMMAND(ID_GENERAL_SHOW_LOGINBAR_CHECK, &CMainFrame::OnViewCaptionBar)
+	ON_UPDATE_COMMAND_UI(ID_GENERAL_SHOW_LOGINBAR_CHECK, &CMainFrame::OnUpdateGeneralShowLoginbarCheck)
 END_MESSAGE_MAP()
 
 CMainFrame::CMainFrame() noexcept
@@ -165,10 +167,12 @@ void CMainFrame::OnViewCaptionBar()
 /// This function is called when the user clicks on the caption bar button.
 /// It shows or hides the caption bar.
 /// </summary>
+/*
 void CMainFrame::OnUpdateViewCaptionBar(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(m_wndCaptionBar.IsVisible());
 }
+*/
 
 /// <summary>
 /// This function is called when the user clicks on the options button in the ribbon bar.
@@ -254,7 +258,7 @@ void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
 /// <returns>BOOL TRUE if succeed, FALSE if not succeed</returns>
 BOOL CMainFrame::CreateCaptionBar()
 {
-	if (!m_wndCaptionBar.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS, this, ID_VIEW_CAPTION_BAR, -1, TRUE))
+	if (!m_wndCaptionBar.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS , this, ID_VIEW_CAPTION_BAR, -1, TRUE))
 	{
 		TRACE0("Failed to create caption bar\n");
 		return FALSE;
@@ -278,7 +282,7 @@ BOOL CMainFrame::CreateCaptionBar()
 	//*******************************************************************************
 	// Make a new ComboBox
 	// Make ComboBox visible
-	m_pCmbCaptionBarEmployeeName->Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar, IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME);
+	m_pCmbCaptionBarEmployeeName->Create(WS_CHILD | WS_VISIBLE | EBS_READONLY | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar, IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME);
 
 	bNameValid = strTemp.LoadString(IDS_STATUSBAR_LOADING);
 	ASSERT(bNameValid);
@@ -374,4 +378,10 @@ void CMainFrame::OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI)
 		pCmdUI->Enable(TRUE);
 		break;
 	}
+}
+
+void CMainFrame::OnUpdateGeneralShowLoginbarCheck(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_wndCaptionBar.IsVisible());
 }

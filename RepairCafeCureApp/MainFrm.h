@@ -81,13 +81,14 @@ private:
 private:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCaptionBar();
-	afx_msg void OnUpdateViewCaptionBar(CCmdUI* pCmdUI);
+	//afx_msg void OnUpdateViewCaptionBar(CCmdUI* pCmdUI);
 	afx_msg void OnOptions();
 	afx_msg void OnFilePrint();
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnUpdateIsPrintable(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateGeneralShowLoginbarCheck(CCmdUI* pCmdUI);
 public:
 	afx_msg void OnCaptionBarComboBoxEmployeeNameChange();
 	DECLARE_MESSAGE_MAP()
@@ -97,7 +98,6 @@ private:
 	BOOL CreateCaptionBar();
 public:
 	CString GetSelectedEmployee();
-	
 };
 
 

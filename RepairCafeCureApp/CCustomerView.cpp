@@ -136,6 +136,40 @@ BOOL CCustomerView::PreTranslateMessage(MSG* pMsg)
 			{
 				// Yes, then click the search button.
 				OnClickedCustomViewButtonSearch();
+				if (m_ctlExistingCustomersList.GetItemCount() > 0) {
+					int rowIndex = 0; // Index van de gewenste rij (tweede rij).
+					UINT state = LVIS_SELECTED;// | LVIS_FOCUSED; // Selectiestatus (geselecteerd en gefocust).
+
+					m_ctlExistingCustomersList.SetItemState(rowIndex, state, LVIS_SELECTED /* | LVIS_FOCUSED*/);
+					m_ctlExistingCustomersList.Update(rowIndex);
+					m_ctlExistingCustomersList.SetFocus();
+				}
+				else
+					m_btnAddNewCustomer.SetFocus();
+
+				return TRUE;
+			}
+			if(pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER)->m_hWnd)
+			{
+				// Yes, then click the search button.
+				OnClickedCustViewButtonAddNewCustomer();
+				return TRUE;
+			}
+			if (pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_BUTTON_CUSTOMER_ASSETS)->m_hWnd)
+			{
+				OnClickedCustViewButtonCustomerAssets();
+				return TRUE;
+			}
+			if (m_bIsNewCustomer && m_bIsDirtyCustomerDetails)
+			{
+				// Yes, then click the search button.
+				OnClickedCustViewButtonCustomerAdd();
+				return TRUE;
+			}
+			if (!m_bIsNewCustomer && m_bIsDirtyCustomerDetails)
+			{
+				// Yes, then click the search button.
+				OnClickedCustViewButtonCustomerUpdate();
 				return TRUE;
 			}
 			else
@@ -340,6 +374,9 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 				EmptyAndDisableExistingCustomersList();
 				EmptyCustomerDetailsControls();
 
+				CEdit* pEdit =  static_cast<CEdit*>(GetDlgItem(IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH));
+				pEdit->SetFocus();
+
 				UpdateData(FALSE);
 			}
 			break;
@@ -398,7 +435,11 @@ void CCustomerView::OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pR
 		UpdateData(FALSE);
 
 		// Enable the customer Asset button and disable the add and update customer buttons.
-		OnChangeCustViewCustomerDetails();
+		//OnChangeCustViewCustomerDetails();
+		m_btnCustomAssets.EnableWindow();
+		//m_btnAddCustomer.EnableWindow(FALSE);
+		//m_btnUpdateCustomer.EnableWindow(FALSE);
+		m_btnCustomAssets.SetFocus();
 	}
 	*pResult = 0;
 }
@@ -414,22 +455,31 @@ void CCustomerView::OnChangeCustViewCustomerDetails()
 		(m_strCustomerCellPhone.IsEmpty() && m_strCustomerPhone.IsEmpty()))
 	{
 		DisableCustomerDetailsButtons();
+		m_bIsDirtyCustomerDetails = false;
 	}
 	else
+		m_bIsDirtyCustomerDetails = true;
+	
+	// If the customer details controls are changed and the customer is new, then enable the add customer button.
+	// Else if the customer details controls are changed and the customer is not new, then enable the update customer button.
+	// Else disable the asset button.
+	if (m_bIsDirtyCustomerDetails)
 	{
-		// If the customer details controls are changed and the customer is new, then enable the add customer button.
-		// Else if the customer details controls are changed and the customer is not new, then enable the update customer button.
-		// Else disable the asset button.
-		if (m_bIsDirtyCustomerDetails)
+		if (m_bIsNewCustomer && m_bIsDirtyCustomerDetails)
 		{
-			m_bIsNewCustomer ? m_btnAddCustomer.EnableWindow() : m_btnUpdateCustomer.EnableWindow();
+			m_btnAddCustomer.EnableWindow();
 			m_btnCustomAssets.EnableWindow(FALSE);
 		}
-		else
-			m_btnCustomAssets.EnableWindow(); // All other cases enable the asset button.
+		else if (!m_bIsNewCustomer && m_bIsDirtyCustomerDetails)
+		{
+			m_btnUpdateCustomer.EnableWindow();
+			m_btnCustomAssets.EnableWindow(FALSE);
+		}
 	}
-	m_bIsDirtyCustomerDetails = true;
-	
+	else if (!m_bIsNewCustomer) {
+		m_btnCustomAssets.EnableWindow(); // All other cases enable the asset button.
+		m_btnCustomAssets.SetFocus();
+	}
 }
 
 /// <summary>
@@ -448,6 +498,7 @@ void CCustomerView::OnClickedCustViewButtonAddNewCustomer()
 	UpdateCustomerDetailsControls();
 
 	m_strCustomerSurname = m_strSearchCustomerSurname;
+	m_ctrCustomerName.SetFocus();
 	m_strSearchCustomerSurname.Empty();
 	UpdateData(FALSE);
 }
@@ -495,8 +546,11 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd()
 		auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('CUSTOMER')"));
 		if (lastID > 0)
 		{
+			m_bIsNewCustomer = false;
+			m_bIsDirtyCustomerDetails = false;
 			m_nCustomerID = lastID;
 			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+			m_btnCustomAssets.SetFocus();
 		}
 		else
 		{
@@ -549,6 +603,8 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
 	else
 	{
 		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
+		m_bIsDirtyCustomerDetails = false;
+		m_btnCustomAssets.SetFocus();
 	}
 
 	strQuery.ReleaseBuffer();
