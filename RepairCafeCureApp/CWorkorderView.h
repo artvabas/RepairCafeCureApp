@@ -36,9 +36,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 1.0.569.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 15-11-2023, (dd-mm-yyyy)
+* Updated: 29-02-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -46,113 +46,101 @@
 
 #pragma once
 
-//namespace artvabas
-//{
-	//namespace rcc
-	//{
-		//namespace ui
-		//{
-			class CWorkorderView : public CFormView
-			{
-				DECLARE_DYNCREATE(CWorkorderView)
+namespace artvabas::rcc::ui
+{
+	class CWorkorderView : public CFormView
+	{
+		DECLARE_DYNCREATE(CWorkorderView)
 
-			private:
-				unsigned int m_unWorkorderId;
-				CString m_strCustomerSurname;
-				CString m_strCustomerName;
-				CString m_strCustomerCellPhone;
-				CString m_strCustomerPhone;
-				CString m_strCustomerEmail;
-				CString m_strCustomerComments;
-				CString m_strAssetDescription;
-				CString m_strAssetModelNumber;
-				CString m_strAssetBrand;
-				CString m_strAssetHistoryLog;
-				CString m_strWorkorderCreatedDate;
-				CString m_strWorkorderCreatedBy;
-				CString m_strWorkorderDescription;
-				CString m_strWorkorderStatus;
-				CString m_strWorkorderClosedDate;
-				CString m_strWorkorderNewLog;
-				CString m_strWorkorderHistoryLog;
-				CString m_strWorkorderTotalPartsPrice;
+	private:
+		unsigned m_unWorkorderId;
+		CString m_strCustomerSurname;
+		CString m_strCustomerName;
+		CString m_strCustomerCellPhone;
+		CString m_strCustomerPhone;
+		CString m_strCustomerEmail;
+		CString m_strCustomerComments;
+		CString m_strAssetDescription;
+		CString m_strAssetModelNumber;
+		CString m_strAssetBrand;
+		CString m_strAssetHistoryLog;
+		CString m_strWorkorderCreatedDate;
+		CString m_strWorkorderCreatedBy;
+		CString m_strWorkorderDescription;
+		CString m_strWorkorderStatus;
+		CString m_strWorkorderClosedDate;
+		CString m_strWorkorderNewLog;
+		CString m_strWorkorderHistoryLog;
+		CString m_strWorkorderTotalPartsPrice;
 
-				CEdit m_edtWorkorderNewLog;
+		CEdit m_edtWorkorderNewLog;
 
-				CButton m_chbWorkorderAssetDisposed;
-				CButton m_chbWorkorderContactedCustomer;
+		CButton m_chbWorkorderAssetDisposed;
+		CButton m_chbWorkorderContactedCustomer;
 
-				CButton m_btnWorkorderUpdate;
-				CButton m_btnWorkorderFinished;
-				CButton m_btnWorkorderClose;
-				CButton m_btnWorkorderParts;
+		CButton m_btnWorkorderUpdate;
+		CButton m_btnWorkorderFinished;
+		CButton m_btnWorkorderClose;
+		CButton m_btnWorkorderParts;
 
-				CComboBox m_cbxWorkorderEmployeeResponsible;
+		CComboBox m_cbxWorkorderEmployeeResponsible;
 
-				CListCtrl m_lscWorkorderExisting;
-				CListCtrl m_lscWorkorderSpareParts;
+		CListCtrl m_lscWorkorderExisting;
+		CListCtrl m_lscWorkorderSpareParts;
 
-				bool m_bWorkorderSelected;
-				bool m_bResponsibleChanged;
-				bool m_bPrintCombi;
-				bool m_bPrintInvoice;
+		bool m_bWorkorderSelected;
+		bool m_bResponsibleChanged;
+		bool m_bPrintCombi;
+		bool m_bPrintInvoice;
 
-				CDC* m_pDC;
+		CDC* m_pDC;
 
-			public:
-				CWorkorderView(); 
-				virtual ~CWorkorderView();
+	public:
+		CWorkorderView();
+		virtual ~CWorkorderView();
 
-			/* Overrides */
-			private:
+		/* Overrides */
+	private:
 #ifdef AFX_DESIGN_TIME
-				enum { IDD = IDD_WORKORDER_FORM };
+		enum { IDD = IDD_WORKORDER_FORM };
 #endif
 #ifdef _DEBUG
-				void AssertValid() const override;
+		void AssertValid() const override;
 #ifndef _WIN32_WCE
-				void Dump(CDumpContext& dc) const override;
+		void Dump(CDumpContext& dc) const override;
 #endif
 #endif
-				void DoDataExchange(CDataExchange* pDX) override;
-				void OnInitialUpdate() override;
-				BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
-				void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
-				void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
-				void OnPrint(CDC* pDC, CPrintInfo* pInfo) override;
+		void DoDataExchange(CDataExchange* pDX) override;
+		void OnInitialUpdate() override;
+		BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
+		void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
+		void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
+		void OnPrint(CDC* pDC, CPrintInfo* pInfo) override;
 
-			/* Massagers */
-			private:
-				DECLARE_MESSAGE_MAP()
-				afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
-				afx_msg void OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult);
-				afx_msg void OnCbnSelectChangeWorkorderViewResponsible();
-				afx_msg void OnEnChangeWorkorderViewLog();
-				afx_msg void OnBnClickedWorkorderViewUpdate();
-				afx_msg void OnBnClickedWorkorderVewCustomerContactedCustomer();
-				afx_msg void OnBnClickedWorkorderViewFinished();
-				afx_msg void OnBnClickedWorkorderViewClose();
-				afx_msg void OnBnClickedWorkorderViewAssetDisposed();
-				afx_msg void OnBnClickedWorkorderViewParts();
-				afx_msg void OnFilePrintPreview();
+		/* Massagers */
+		DECLARE_MESSAGE_MAP()
+		afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
+		afx_msg void OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void OnCbnSelectChangeWorkorderViewResponsible();
+		afx_msg void OnEnChangeWorkorderViewLog();
+		afx_msg void OnBnClickedWorkorderViewUpdate();
+		afx_msg void OnBnClickedWorkorderVewCustomerContactedCustomer();
+		afx_msg void OnBnClickedWorkorderViewFinished();
+		afx_msg void OnBnClickedWorkorderViewClose();
+		afx_msg void OnBnClickedWorkorderViewAssetDisposed();
+		afx_msg void OnBnClickedWorkorderViewParts();
+		afx_msg void OnFilePrintPreview();
+		afx_msg void OnWorkorderExtraCombi();
+		afx_msg void OnWorkorderExtraInvoice();
 
-				/* Custom */
-			private:
-				void InitWorkorderExistingList();
-				void InitWorkorderEmployeeResponsibleComboBox();
-				void InitWorkorderSparePartsList();
-				void SetControlsAfterChangeContactedOrDisposed();
-				bool GetAssetInfo(const unsigned int& nAssetId);
-				bool GetCustomerInfo(const unsigned int& nCustomerId);
-				void PerformWorkorderUpdate();
-				void ResetAllControls();
-			public:
-				afx_msg void OnWorkorderExtraCombi();
-				afx_msg void OnWorkorderExtraInvoice();
-			};
-		//}
-	//}
-//}
-
-
-
+		/* Custom */
+		void InitWorkorderExistingList();
+		void InitWorkorderEmployeeResponsibleComboBox();
+		void InitWorkorderSparePartsList();
+		void SetControlsAfterChangeContactedOrDisposed();
+		bool GetAssetInfo(const unsigned int& nAssetId);
+		bool GetCustomerInfo(const unsigned int& nCustomerId);
+		void PerformWorkorderUpdate();
+		void ResetAllControls();
+	};
+}

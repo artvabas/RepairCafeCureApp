@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
-* Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 10-11-2023, (dd-mm-yyyy)
+* Version: 1.0.569.0
+* Created: 18-10-2023, (dd-mm-yyyy)
+* Updated: 29-02-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -49,12 +49,11 @@
 
 #pragma once
 
-class CMainFrame : public CFrameWndEx
-{
-	
+class CMainFrame : public CFrameWndEx {
+	DECLARE_DYNCREATE(CMainFrame)
+
 protected: // create from serialization only
 	CMainFrame() noexcept;
-	DECLARE_DYNCREATE(CMainFrame)
 public:
 	virtual ~CMainFrame();
 
@@ -63,14 +62,12 @@ public:
 	CMFCRibbonStatusBar  m_wndStatusBar;
 private:
 	CComboBox* m_pCmbCaptionBarEmployeeName;
-protected:
 	CMFCRibbonBar     m_wndRibbonBar;
 	CMFCRibbonApplicationButton m_MainButton;
 	CMFCToolBarImages m_PanelImages;
 	CMFCCaptionBar    m_wndCaptionBar;
 
 // Overrides
-private:
 	BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 #ifdef _DEBUG
 	void AssertValid() const override;
@@ -78,7 +75,7 @@ private:
 #endif
 
 // Message Handlers
-private:
+	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCaptionBar();
 	//afx_msg void OnUpdateViewCaptionBar(CCmdUI* pCmdUI);
@@ -91,7 +88,6 @@ private:
 	afx_msg void OnUpdateGeneralShowLoginbarCheck(CCmdUI* pCmdUI);
 public:
 	afx_msg void OnCaptionBarComboBoxEmployeeNameChange();
-	DECLARE_MESSAGE_MAP()
 
 // General methods
 private:

@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 1.0.569.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 03-11-2023, (dd-mm-yyyy)
+* Updated: 29-02-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -49,84 +49,73 @@
 #pragma once
 
 // CCustomerView form view
-namespace artvabas
-{
-	namespace rcc
-	{
-		namespace ui
-		{
-			class CCustomerView : public CFormView
-			{
-				DECLARE_DYNCREATE(CCustomerView)
+namespace artvabas::rcc::ui {
+	class CCustomerView : public CFormView {
+		DECLARE_DYNCREATE(CCustomerView)
 
-			private:
-				CListCtrl m_ctlExistingCustomersList;
-				
-				CButton m_btnCustomerSurnameSearch;
-				CButton m_btnAddNewCustomer;
-				CButton m_btnAddCustomer;
-				CButton m_btnCustomAssets;
-				CButton m_btnUpdateCustomer;
+	private:
+		CListCtrl m_ctlExistingCustomersList;
 
-				CEdit m_ctrCustomerCellPhone;
-				CEdit m_ctrCustomerComment;
-				CEdit m_ctrCustomerLog;
-				CEdit m_ctrCustomerName;
-				CEdit m_ctrCustomerPhone;
-				CEdit m_ctrCustomerSurname;
-				CEdit m_ctrlCustomerEmail;
+		CButton m_btnCustomerSurnameSearch;
+		CButton m_btnAddNewCustomer;
+		CButton m_btnAddCustomer;
+		CButton m_btnCustomAssets;
+		CButton m_btnUpdateCustomer;
 
-				CString m_strSearchCustomerSurname;
-				CString m_strCustomerCellPhone;
-				CString m_strCustomerComment;
-				CString m_strCustomerLog;
-				CString m_strCustomerName;
-				CString m_strCustomerPhone;
-				CString m_strCustomerSurname;
-				CString m_strCustomerEmail;
-				int m_nCustomerID;
+		CEdit m_ctrCustomerCellPhone;
+		CEdit m_ctrCustomerComment;
+		CEdit m_ctrCustomerLog;
+		CEdit m_ctrCustomerName;
+		CEdit m_ctrCustomerPhone;
+		CEdit m_ctrCustomerSurname;
+		CEdit m_ctrlCustomerEmail;
 
-				bool m_bIsNewCustomer;
-				bool m_bIsDirtyCustomerDetails;
+		CString m_strSearchCustomerSurname;
+		CString m_strCustomerCellPhone;
+		CString m_strCustomerComment;
+		CString m_strCustomerLog;
+		CString m_strCustomerName;
+		CString m_strCustomerPhone;
+		CString m_strCustomerSurname;
+		CString m_strCustomerEmail;
+		unsigned m_nCustomerID;
 
-			public:
-				CCustomerView();          
-				virtual ~CCustomerView();
+		bool m_bIsNewCustomer;
+		bool m_bIsDirtyCustomerDetails;
 
-			private:
+	public:
+		CCustomerView();
+		virtual ~CCustomerView();
+
+	private:
 #ifdef AFX_DESIGN_TIME
-				enum { IDD = IDD_CUSTOMER_FORM };
+		enum { IDD = IDD_CUSTOMER_FORM };
 #endif
 #ifdef _DEBUG
-				void AssertValid() const override;
+		void AssertValid() const override;
 #ifndef _WIN32_WCE
-				void Dump(CDumpContext& dc) const override;;
+		void Dump(CDumpContext& dc) const override;
 #endif
 #endif
-			private:
-				BOOL PreTranslateMessage(MSG* pMsg) override;
-				void OnInitialUpdate() override;
-				void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
+		BOOL PreTranslateMessage(MSG* pMsg) override;
+		void OnInitialUpdate() override;
+		void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
 
-				DECLARE_MESSAGE_MAP()
-			private:
-				afx_msg void OnClickedCustomViewButtonSearch();
-				afx_msg void OnChangeCustomViewEditBoxSurnameSearch();
-				afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
-				afx_msg void OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pResult);
-				afx_msg void OnChangeCustViewCustomerDetails();
-				afx_msg void OnClickedCustViewButtonAddNewCustomer();
-				afx_msg void OnClickedCustViewButtonCustomerAdd();
-				afx_msg void OnClickedCustViewButtonCustomerUpdate();
-				afx_msg void OnClickedCustViewButtonCustomerAssets();
+		DECLARE_MESSAGE_MAP()
+		afx_msg void OnClickedCustomViewButtonSearch();
+		afx_msg void OnChangeCustomViewEditBoxSurnameSearch();
+		afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
+		afx_msg void OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void OnChangeCustViewCustomerDetails();
+		afx_msg void OnClickedCustViewButtonAddNewCustomer();
+		afx_msg void OnClickedCustViewButtonCustomerAdd();
+		afx_msg void OnClickedCustViewButtonCustomerUpdate();
+		afx_msg void OnClickedCustViewButtonCustomerAssets();
 
-			private:
-				void DisableCustomerSearchAndAddButtons();
-				void UpdateCustomerDetailsControls(BOOL bShow = TRUE);
-				void DisableCustomerDetailsButtons();
-				void EmptyCustomerDetailsControls();
-				void EmptyAndDisableExistingCustomersList();
-			};
-		}
-	}
+		void DisableCustomerSearchAndAddButtons();
+		void UpdateCustomerDetailsControls(BOOL bShow = TRUE);
+		void DisableCustomerDetailsButtons();
+		void EmptyCustomerDetailsControls();
+		void EmptyAndDisableExistingCustomersList();
+	};
 }

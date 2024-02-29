@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 1.0.569.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 09-11-2023, (dd-mm-yyyy)
+* Updated: 29-02-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -58,26 +58,20 @@ using namespace artvabas::sql;
 
 IMPLEMENT_DYNCREATE(CCustomerView, CFormView)
 
-CCustomerView::CCustomerView()
-	: CFormView(IDD_CUSTOMER_FORM)
-	, m_strSearchCustomerSurname(_T(""))
-	, m_strCustomerCellPhone(_T(""))
-	, m_strCustomerComment(_T(""))
-	, m_strCustomerLog(_T(""))
-	, m_strCustomerName(_T(""))
-	, m_strCustomerPhone(_T(""))
-	, m_strCustomerSurname(_T(""))
-	, m_strCustomerEmail(_T(""))
-	, m_bIsNewCustomer(false)
-	, m_bIsDirtyCustomerDetails(false)
-	, m_nCustomerID(0)
-{
-}
+CCustomerView::CCustomerView() : CFormView(IDD_CUSTOMER_FORM),
+	m_strSearchCustomerSurname{ _T("") },
+	m_strCustomerCellPhone{ _T("") },
+	m_strCustomerComment{ _T("") },
+	m_strCustomerLog{ _T("") },
+	m_strCustomerName{ _T("") },
+	m_strCustomerPhone{ _T("") },
+	m_strCustomerSurname{ _T("") },
+	m_strCustomerEmail{ _T("") },
+	m_bIsNewCustomer{ false },
+	m_bIsDirtyCustomerDetails{ false },
+	m_nCustomerID{ 0 } {}
 
-CCustomerView::~CCustomerView()
-{
-	
-}
+CCustomerView::~CCustomerView() {}
 
 /* Message maps for events */
 
@@ -86,133 +80,49 @@ CCustomerView::~CCustomerView()
 /// </summary>
 /// <param name="CCustomerView">The class that is mapped.</param>
 BEGIN_MESSAGE_MAP(CCustomerView, CFormView)
-	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_SEARCH, &CCustomerView::OnClickedCustomViewButtonSearch)
-	ON_EN_CHANGE(IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH, &CCustomerView::OnChangeCustomViewEditBoxSurnameSearch)
+	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_SEARCH,
+		&CCustomerView::OnClickedCustomViewButtonSearch)
+	ON_EN_CHANGE(IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH, 
+		&CCustomerView::OnChangeCustomViewEditBoxSurnameSearch)
 	ON_WM_UPDATEUISTATE()
-	ON_NOTIFY(NM_DBLCLK, IDC_CUSTVIEW_CUSTOMER_LIST, &CCustomerView::OnDoubleClickCustViewCustomerList)
-	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_NAME, &CCustomerView::OnChangeCustViewCustomerDetails)
-	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_SURNAME, &CCustomerView::OnChangeCustViewCustomerDetails)
-	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_CELLPHONE, &CCustomerView::OnChangeCustViewCustomerDetails)
-	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_PHONE, &CCustomerView::OnChangeCustViewCustomerDetails)
-	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_COMMENT, &CCustomerView::OnChangeCustViewCustomerDetails)
-	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_EMAIL, &CCustomerView::OnChangeCustViewCustomerDetails)
-	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER, &CCustomerView::OnClickedCustViewButtonAddNewCustomer)
-	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_ADD, &CCustomerView::OnClickedCustViewButtonCustomerAdd)
-	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_UPDATE, &CCustomerView::OnClickedCustViewButtonCustomerUpdate)
-	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_ASSETS, &CCustomerView::OnClickedCustViewButtonCustomerAssets)
+	ON_NOTIFY(NM_DBLCLK, IDC_CUSTVIEW_CUSTOMER_LIST,
+		&CCustomerView::OnDoubleClickCustViewCustomerList)
+	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_NAME,
+		&CCustomerView::OnChangeCustViewCustomerDetails)
+	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_SURNAME,
+		&CCustomerView::OnChangeCustViewCustomerDetails)
+	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_CELLPHONE,
+		&CCustomerView::OnChangeCustViewCustomerDetails)
+	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_PHONE,
+		&CCustomerView::OnChangeCustViewCustomerDetails)
+	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_COMMENT,
+		&CCustomerView::OnChangeCustViewCustomerDetails)
+	ON_EN_CHANGE(IDC_CUSTVIEW_CUSTOMER_EMAIL,
+		&CCustomerView::OnChangeCustViewCustomerDetails)
+	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER,
+		&CCustomerView::OnClickedCustViewButtonAddNewCustomer)
+	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_ADD,
+		&CCustomerView::OnClickedCustViewButtonCustomerAdd)
+	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_UPDATE,
+		&CCustomerView::OnClickedCustViewButtonCustomerUpdate)
+	ON_BN_CLICKED(IDC_CUSTVIEW_BUTTON_CUSTOMER_ASSETS, 
+		&CCustomerView::OnClickedCustViewButtonCustomerAssets)
 END_MESSAGE_MAP()
-
 
 /* Override methods */
 
 #ifdef _DEBUG
-void CCustomerView::AssertValid() const
-{
-	CFormView::AssertValid();
-}
-
+void CCustomerView::AssertValid() const { CFormView::AssertValid(); }
 #ifndef _WIN32_WCE
-void CCustomerView::Dump(CDumpContext& dc) const
-{
-	CFormView::Dump(dc);
-}
+void CCustomerView::Dump(CDumpContext& dc) const { CFormView::Dump(dc); }
 #endif
 #endif //_DEBUG
-
-/// <summary>
-/// PreTranslateMessage is used to handle the VK_RETURN key press event.
-/// If key press event is VK_RETURN and the focus is on the search surname edit control, then the search button is clicked.
-/// </summary>
-/// <param name="pMsg" the message that is send></param>
-/// <returns></returns>
-BOOL CCustomerView::PreTranslateMessage(MSG* pMsg)
-{
-	if (pMsg->message == WM_KEYDOWN)
-	{ 
-		if (pMsg->wParam == VK_RETURN)
-		{
-			// Does the message come from the search surname edit control?
-			if (pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH)->m_hWnd)
-			{
-				// Yes, then click the search button.
-				OnClickedCustomViewButtonSearch();
-				if (m_ctlExistingCustomersList.GetItemCount() > 0) {
-					int rowIndex = 0; // Index van de gewenste rij (tweede rij).
-					UINT state = LVIS_SELECTED;// | LVIS_FOCUSED; // Selectiestatus (geselecteerd en gefocust).
-
-					m_ctlExistingCustomersList.SetItemState(rowIndex, state, LVIS_SELECTED /* | LVIS_FOCUSED*/);
-					m_ctlExistingCustomersList.Update(rowIndex);
-					m_ctlExistingCustomersList.SetFocus();
-				}
-				else
-					m_btnAddNewCustomer.SetFocus();
-
-				return TRUE;
-			}
-			if(pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER)->m_hWnd)
-			{
-				// Yes, then click the search button.
-				OnClickedCustViewButtonAddNewCustomer();
-				return TRUE;
-			}
-			if (pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_BUTTON_CUSTOMER_ASSETS)->m_hWnd)
-			{
-				OnClickedCustViewButtonCustomerAssets();
-				return TRUE;
-			}
-			if (m_bIsNewCustomer && m_bIsDirtyCustomerDetails)
-			{
-				// Yes, then click the search button.
-				OnClickedCustViewButtonCustomerAdd();
-				return TRUE;
-			}
-			if (!m_bIsNewCustomer && m_bIsDirtyCustomerDetails)
-			{
-				// Yes, then click the search button.
-				OnClickedCustViewButtonCustomerUpdate();
-				return TRUE;
-			}
-			else
-			{
-				// No, then let the base class handle the message.
-				return FALSE;
-			}
-		}
-	}
-	return CFormView::PreTranslateMessage(pMsg);
-}
-
-/// <summary>
-/// OnInitialUpdate is used to set the extended style of the existing customers list control.
-/// And to insert the columns of the existing customers list control.
-/// OnitialUpdate is called by the framework after the view is created.
-/// </summary>
-void CCustomerView::OnInitialUpdate()
-{
-	CFormView::OnInitialUpdate();
-
-	m_ctlExistingCustomersList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-
-	m_ctlExistingCustomersList.InsertColumn(0, _T("ID"), LVCFMT_LEFT, 0);
-	m_ctlExistingCustomersList.InsertColumn(1, _T("SURNAME"), LVCFMT_LEFT, 150);
-	m_ctlExistingCustomersList.InsertColumn(2, _T("NAME"), LVCFMT_LEFT, 90);
-	m_ctlExistingCustomersList.InsertColumn(3, _T("CELLPHONE"), LVCFMT_LEFT, 90);
-	m_ctlExistingCustomersList.InsertColumn(4, _T("PHONE"), LVCFMT_LEFT, 90);
-	m_ctlExistingCustomersList.InsertColumn(5, _T("EMAIL"), LVCFMT_LEFT, 150);
-	m_ctlExistingCustomersList.InsertColumn(6, _T("COMMENT"), LVCFMT_LEFT, 0);
-	m_ctlExistingCustomersList.InsertColumn(7, _T("LOG"), LVCFMT_LEFT, 0);
-
-	// Disable all child controls of the view.
-	OnUpdateUIState(UIS_INITIALIZE, 0);
-
-}
 
 /// <summary>
 /// DoDataExchange() is used to exchange and validate FormView data
 /// </summary>
 /// <param name="pDX">A pointer to a CDataExchange object.</param>
-void CCustomerView::DoDataExchange(CDataExchange* pDX)
-{
+void CCustomerView::DoDataExchange(CDataExchange* pDX) {
 	CFormView::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH, m_strSearchCustomerSurname);
 	DDV_MaxChars(pDX, m_strSearchCustomerSurname, 50);
@@ -238,14 +148,89 @@ void CCustomerView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CUSTVIEW_CUSTOMER_EMAIL, m_ctrlCustomerEmail);
 }
 
+/// <summary>
+/// PreTranslateMessage is used to handle the VK_RETURN key press event.
+/// If key press event is VK_RETURN and the focus is on the search surname edit control, then the search button is clicked.
+/// </summary>
+/// <param name="pMsg" the message that is send></param>
+/// <returns></returns>
+BOOL CCustomerView::PreTranslateMessage(MSG* pMsg) {
+	if (pMsg->message == WM_KEYDOWN) { 
+		if (pMsg->wParam == VK_RETURN) {
+			// Does the message come from the search surname edit control?
+			if (pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH)->m_hWnd) {
+				// Yes, then click the search button.
+				OnClickedCustomViewButtonSearch();
+				if (m_ctlExistingCustomersList.GetItemCount() > 0) {
+					auto rowIndex{ 0 }; // Index van de gewenste rij (tweede rij).
+					UINT state = LVIS_SELECTED;// | LVIS_FOCUSED; // Selectiestatus (geselecteerd en gefocust).
+
+					m_ctlExistingCustomersList.SetItemState(rowIndex, state, LVIS_SELECTED /* | LVIS_FOCUSED*/);
+					m_ctlExistingCustomersList.Update(rowIndex);
+					m_ctlExistingCustomersList.SetFocus();
+				} else
+					m_btnAddNewCustomer.SetFocus();
+
+				return TRUE;
+			}
+			if(pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER)->m_hWnd) {
+				// Yes, then click the search button.
+				OnClickedCustViewButtonAddNewCustomer();
+				return TRUE;
+			}
+			if (pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_BUTTON_CUSTOMER_ASSETS)->m_hWnd) {
+				OnClickedCustViewButtonCustomerAssets();
+				return TRUE;
+			}
+			if (m_bIsNewCustomer && m_bIsDirtyCustomerDetails) {
+				// Yes, then click the search button.
+				OnClickedCustViewButtonCustomerAdd();
+				return TRUE;
+			}
+			if (!m_bIsNewCustomer && m_bIsDirtyCustomerDetails)	{
+				// Yes, then click the search button.
+				OnClickedCustViewButtonCustomerUpdate();
+				return TRUE;
+			} else {
+				// No, then let the base class handle the message.
+				return FALSE;
+			}
+		}
+	}
+	return CFormView::PreTranslateMessage(pMsg);
+}
+
+/// <summary>
+/// OnInitialUpdate is used to set the extended style of the existing customers list control.
+/// And to insert the columns of the existing customers list control.
+/// OnitialUpdate is called by the framework after the view is created.
+/// </summary>
+void CCustomerView::OnInitialUpdate() {
+	CFormView::OnInitialUpdate();
+
+	m_ctlExistingCustomersList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+
+	m_ctlExistingCustomersList.InsertColumn(0, _T("ID"), LVCFMT_LEFT, 0);
+	m_ctlExistingCustomersList.InsertColumn(1, _T("SURNAME"), LVCFMT_LEFT, 150);
+	m_ctlExistingCustomersList.InsertColumn(2, _T("NAME"), LVCFMT_LEFT, 90);
+	m_ctlExistingCustomersList.InsertColumn(3, _T("CELLPHONE"), LVCFMT_LEFT, 90);
+	m_ctlExistingCustomersList.InsertColumn(4, _T("PHONE"), LVCFMT_LEFT, 90);
+	m_ctlExistingCustomersList.InsertColumn(5, _T("EMAIL"), LVCFMT_LEFT, 150);
+	m_ctlExistingCustomersList.InsertColumn(6, _T("COMMENT"), LVCFMT_LEFT, 0);
+	m_ctlExistingCustomersList.InsertColumn(7, _T("LOG"), LVCFMT_LEFT, 0);
+
+	// Disable all child controls of the view.
+	OnUpdateUIState(UIS_INITIALIZE, 0);
+
+}
+
 /* Event handlers */
 
 /// <summary>
 /// OnClickedCustomViewButtonSearch is used to search for customers with the surname that is entered in the search surname edit control.
 /// It will fill the existing customers list control with the found customers from the database.
 /// </summary>
-void CCustomerView::OnClickedCustomViewButtonSearch()
-{
+void CCustomerView::OnClickedCustomViewButtonSearch() {
 	UpdateData(TRUE);
 
 	m_btnAddNewCustomer.EnableWindow();
@@ -253,20 +238,18 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 	m_ctlExistingCustomersList.DeleteAllItems();
 
 	int nIndex;			// Index of the list control item.
-	int row(0);			// Row of the list control item.
+	auto row(0);		// Row of the list control item.
 	CString strQuery;
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
-	CRecordset* rs = new CRecordset();
+	auto *rs = new CRecordset();
 	strQuery.Format(_T("SELECT CUSTOMER.*, CUSTOMER_SURNAME AS Expr1 FROM CUSTOMER WHERE(CUSTOMER_SURNAME = N\'%s\')"),
 		static_cast<LPCTSTR>(m_strSearchCustomerSurname));
 
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
-	{
+	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)) {
 		// Fill the existing customers list control with the found customers from the database.
-		while (!rs->IsEOF())
-		{
+		while (!rs->IsEOF()) {
 			CString strValue = _T("");
 			rs->GetFieldValue(_T("CUSTOMER_ID"), strValue);
 			nIndex = m_ctlExistingCustomersList.InsertItem(row++, strValue);
@@ -295,9 +278,7 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 			rs->MoveNext();
 		}
 		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_OK);
-	}
-	else
-	{
+	} else {
 		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_FAIL);
 	}
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
@@ -313,22 +294,16 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 /// Else if the existing customers list control is not empty, then empty the existing customers list control.
 /// And disable the customer details buttons. But enable the customer search button when the search surname edit control is not empty.
 /// </summary>
-void CCustomerView::OnChangeCustomViewEditBoxSurnameSearch()
-{
+void CCustomerView::OnChangeCustomViewEditBoxSurnameSearch() {
 	UpdateData(TRUE);
-	if (m_strSearchCustomerSurname.IsEmpty())
-	{
+	if (m_strSearchCustomerSurname.IsEmpty()) {
 		DisableCustomerSearchAndAddButtons();
-	}
-	else
-	{
-		if(m_ctlExistingCustomersList.GetItemCount() > 0) 
-		{
+	} else {
+		if(m_ctlExistingCustomersList.GetItemCount() > 0) {
 			EmptyAndDisableExistingCustomersList();
 		}
-		
-		if (m_ctrCustomerSurname.IsWindowEnabled())
-		{
+
+		if (m_ctrCustomerSurname.IsWindowEnabled())	{
 			DisableCustomerDetailsButtons();
 			
 			UpdateCustomerDetailsControls(FALSE);
@@ -349,18 +324,15 @@ void CCustomerView::OnChangeCustomViewEditBoxSurnameSearch()
 /// </summary>
 /// <param name="nAction">The action that is performed.</param>
 /// <param name="nUIElement">The UI element that is affected.</param>
-void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
-{
-	CWnd* pChild = GetWindow(GW_CHILD);
+void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement) {
+	auto *pChild{ GetWindow(GW_CHILD) };
 	
-	switch (nAction)
-	{
+	switch (nAction) {
 		case 1:	// UIS_SET. Employee name is selected in the caption bar.
 			// nUIElement = 0 means this method is called by the framework when the view is activated, controls are accessible.	
-			if( 0 == nUIElement)
-			{
-				while (pChild)	// Go through all child controls of the view and acitvate all.
-				{
+			if( 0 == nUIElement) {
+				// Go through all child controls of the view and acitvate all.
+				while (pChild) {
 					pChild->EnableWindow(TRUE);
 					pChild = pChild->GetWindow(GW_HWNDNEXT);
 				}
@@ -374,7 +346,7 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 				EmptyAndDisableExistingCustomersList();
 				EmptyCustomerDetailsControls();
 
-				CEdit* pEdit =  static_cast<CEdit*>(GetDlgItem(IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH));
+				auto *pEdit =  static_cast<CEdit*>(GetDlgItem(IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH));
 				pEdit->SetFocus();
 
 				UpdateData(FALSE);
@@ -382,8 +354,7 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 			break;
 		case 0:	
 		case 3:	// UIS_INITIALIZE
-			while (pChild)
-			{
+			while (pChild) {
 				pChild->EnableWindow(FALSE);
 				pChild = pChild->GetWindow(GW_HWNDNEXT);
 			}
@@ -403,14 +374,12 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement)
 /// </summary>
 /// <param name="pNMHDR">The notification message header.</param>
 /// <param name="pResult">The result of the notification message.</param>
-void CCustomerView::OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pResult)
-{
+void CCustomerView::OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pResult) {
 	// Get a pointer to the selected item in the list control.
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	auto pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 
 	//  pNMItemActivate->iItem = -1 means no existing item is selected.
-	if (pNMItemActivate->iItem != -1)
-	{
+	if (pNMItemActivate->iItem != -1) {
 		// Set control flags.
 		m_bIsNewCustomer = false;
 		m_bIsDirtyCustomerDetails = false;
@@ -447,36 +416,28 @@ void CCustomerView::OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pR
 /// <summary>
 /// OnChangeCustViewCustomerDetails is used to enable/disable the add and update customer buttons.
 /// </summary>
-void CCustomerView::OnChangeCustViewCustomerDetails()
-{
+void CCustomerView::OnChangeCustViewCustomerDetails() {
 	UpdateData(TRUE);
 	// Disable the add, update and asset buttons when the customer details controls are empty.
 	if (m_strCustomerName.IsEmpty() || m_strCustomerSurname.IsEmpty() ||
-		(m_strCustomerCellPhone.IsEmpty() && m_strCustomerPhone.IsEmpty()))
-	{
+		(m_strCustomerCellPhone.IsEmpty() && m_strCustomerPhone.IsEmpty()))	{
 		DisableCustomerDetailsButtons();
 		m_bIsDirtyCustomerDetails = false;
-	}
-	else
+	} else
 		m_bIsDirtyCustomerDetails = true;
 	
 	// If the customer details controls are changed and the customer is new, then enable the add customer button.
 	// Else if the customer details controls are changed and the customer is not new, then enable the update customer button.
 	// Else disable the asset button.
-	if (m_bIsDirtyCustomerDetails)
-	{
-		if (m_bIsNewCustomer && m_bIsDirtyCustomerDetails)
-		{
+	if (m_bIsDirtyCustomerDetails) {
+		if (m_bIsNewCustomer && m_bIsDirtyCustomerDetails) {
 			m_btnAddCustomer.EnableWindow();
 			m_btnCustomAssets.EnableWindow(FALSE);
-		}
-		else if (!m_bIsNewCustomer && m_bIsDirtyCustomerDetails)
-		{
+		} else if (!m_bIsNewCustomer && m_bIsDirtyCustomerDetails) {
 			m_btnUpdateCustomer.EnableWindow();
 			m_btnCustomAssets.EnableWindow(FALSE);
 		}
-	}
-	else if (!m_bIsNewCustomer) {
+	} else if (!m_bIsNewCustomer) {
 		m_btnCustomAssets.EnableWindow(); // All other cases enable the asset button.
 		m_btnCustomAssets.SetFocus();
 	}
@@ -486,8 +447,7 @@ void CCustomerView::OnChangeCustViewCustomerDetails()
 /// OnClickedCustViewButtonAddNewCustomer will move the given customer search surname to the customer surname edit control.
 /// And empty the customer search surname edit control, and disable the customer search and add buttons.
 /// </summary>
-void CCustomerView::OnClickedCustViewButtonAddNewCustomer()
-{
+void CCustomerView::OnClickedCustViewButtonAddNewCustomer() {
 	m_bIsNewCustomer = true;
 	UpdateData(TRUE);
 
@@ -506,8 +466,7 @@ void CCustomerView::OnClickedCustViewButtonAddNewCustomer()
 /// <summary>
 /// OnClickedCustViewButtonCustomerAdd is used to add (INSERT) a new customer to the database.
 /// </summary>
-void CCustomerView::OnClickedCustViewButtonCustomerAdd()
-{
+void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 	UpdateData(TRUE);
 	m_btnAddCustomer.EnableWindow(FALSE);
 	m_btnCustomAssets.EnableWindow();
@@ -515,57 +474,48 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd()
 	CString strQuery;
 
 	// Build the fields value for the query.
-	auto buildFieldValue = [](CString str) -> CString
-		{
+	auto buildFieldValue = [](CString str) -> CString {
 			CString strResult;
-			if (str.IsEmpty())
-				return  _T("NULL");
+			if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
 			strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 			return strResult;
-		};
+	};
 
-	strQuery.Format(_T("INSERT INTO [CUSTOMER] ([CUSTOMER_SURNAME], [CUSTOMER_NAME], [CUSTOMER_CELL_PHONE], [CUSTOMER_PHONE], [CUSTOMER_EMAIL], [CUSTOMER_COMMENT], [CUSTOMER_GENERAL_LOG]) VALUES (%s, %s, %s, %s, %s, %s, %s)"),
-		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerSurname)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerName)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerCellPhone)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerPhone)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerEmail)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)));
+	strQuery.Format(_T("INSERT INTO [CUSTOMER] ([CUSTOMER_SURNAME], [CUSTOMER_NAME], [CUSTOMER_CELL_PHONE], [CUSTOMER_PHONE], ")
+		_T("[CUSTOMER_EMAIL], [CUSTOMER_COMMENT], [CUSTOMER_GENERAL_LOG]) VALUES(% s, % s, % s, % s, % s, % s, % s)"),
+		buildFieldValue(m_strCustomerSurname),
+		buildFieldValue(m_strCustomerName),
+		buildFieldValue(m_strCustomerCellPhone),
+		buildFieldValue(m_strCustomerPhone),
+		buildFieldValue(m_strCustomerEmail),
+		buildFieldValue(m_strCustomerComment),
+		buildFieldValue(m_strCustomerLog));
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
-	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if(!sql.ExecuteQuery(strQuery.GetBuffer()))
-	{
+	if(!sql.ExecuteQuery(strQuery.GetBuffer()))	{
 		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-	}
-	else
-	{
-		auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('CUSTOMER')"));
-		if (lastID > 0)
-		{
+	} else {
+		auto lastID{ sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('CUSTOMER')")) };
+		if (lastID > 0)	{
 			m_bIsNewCustomer = false;
 			m_bIsDirtyCustomerDetails = false;
 			m_nCustomerID = lastID;
 			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
 			m_btnCustomAssets.SetFocus();
-		}
-		else
-		{
+		} else {
 			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
 		}
 	}
-
 	strQuery.ReleaseBuffer();
 }
 
 /// <summary>
 /// OnClickedCustViewButtonCustomerUpdate is used to update (UPDATE) an existing customer in the database.
 /// </summary>
-void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
-{
+void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	UpdateData(TRUE);
 	m_btnUpdateCustomer.EnableWindow(FALSE);
 	m_btnCustomAssets.EnableWindow();
@@ -573,35 +523,31 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
 	CString strQuery;
 
 	// Build the fields value for the query.
-	auto buildFieldValue = [](CString str) -> CString
-	{
+	auto buildFieldValue = [](CString str) -> CString {
 		CString strResult;
-		if (str.IsEmpty())
-			return  _T("NULL");
+		if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
 		strResult.Format(_T("N\'%s\'"),static_cast<LPCTSTR>(str));
 		return strResult;
 	};
 	
-	strQuery.Format(_T("UPDATE [CUSTOMER] SET [CUSTOMER_SURNAME] = %s, [CUSTOMER_NAME] = %s, [CUSTOMER_CELL_PHONE] = %s, [CUSTOMER_PHONE] = %s, [CUSTOMER_EMAIL] = %s, [CUSTOMER_COMMENT] = %s, [CUSTOMER_GENERAL_LOG] = %s WHERE [CUSTOMER_ID] = %d"),
-				static_cast<LPCTSTR>(buildFieldValue(m_strCustomerSurname)),
-				static_cast<LPCTSTR>(buildFieldValue(m_strCustomerName)),
-				static_cast<LPCTSTR>(buildFieldValue(m_strCustomerCellPhone)),
-				static_cast<LPCTSTR>(buildFieldValue(m_strCustomerPhone)),
-				static_cast<LPCTSTR>(buildFieldValue(m_strCustomerEmail)),
-				static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
-				static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)),
+	strQuery.Format(_T("UPDATE [CUSTOMER] SET [CUSTOMER_SURNAME] = %s, [CUSTOMER_NAME] = %s, [CUSTOMER_CELL_PHONE] = %s, [CUSTOMER_PHONE] = %s, ")
+		_T("[CUSTOMER_EMAIL] = % s, [CUSTOMER_COMMENT] = % s, [CUSTOMER_GENERAL_LOG] = % s WHERE[CUSTOMER_ID] = % d"),
+				buildFieldValue(m_strCustomerSurname),
+				buildFieldValue(m_strCustomerName),
+				buildFieldValue(m_strCustomerCellPhone),
+				buildFieldValue(m_strCustomerPhone),
+				buildFieldValue(m_strCustomerEmail),
+				buildFieldValue(m_strCustomerComment),
+				buildFieldValue(m_strCustomerLog),
 				m_nCustomerID);
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
-	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
-
-	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-	{
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
+	 
+	if (!sql.ExecuteQuery(strQuery.GetBuffer())){
 		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
-	}
-	else
-	{
+	} else {
 		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
 		m_bIsDirtyCustomerDetails = false;
 		m_btnCustomAssets.SetFocus();
@@ -610,9 +556,8 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate()
 	strQuery.ReleaseBuffer();
 }
 
-void CCustomerView::OnClickedCustViewButtonCustomerAssets()
-{
-	CAssetDialog dlg(m_strCustomerSurname, m_strCustomerName, m_nCustomerID);
+void CCustomerView::OnClickedCustViewButtonCustomerAssets() {
+	CAssetDialog dlg{ m_strCustomerSurname, m_strCustomerName, m_nCustomerID };
 	dlg.DoModal();
 	//theApp.SwitchView(CRepairCafeCureApp::VIEW_ASSET);
 }
@@ -620,8 +565,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerAssets()
 /// <summary>
 /// DisableCustomerSearchAndAddButtons is used to disable the search button and the add new customer button.
 /// </summary>
-void CCustomerView::DisableCustomerSearchAndAddButtons()
-{
+void CCustomerView::DisableCustomerSearchAndAddButtons() {
 	m_btnAddNewCustomer.EnableWindow(FALSE);
 	m_btnCustomerSurnameSearch.EnableWindow(FALSE);
 }
@@ -631,8 +575,7 @@ void CCustomerView::DisableCustomerSearchAndAddButtons()
 /// <summary>
 /// UpdateCustomerDetailsControls is used to enable/disable the customer details controls.
 /// </summary>
-void CCustomerView::UpdateCustomerDetailsControls(BOOL bShow)
-{
+void CCustomerView::UpdateCustomerDetailsControls(BOOL bShow) {
 	m_ctrCustomerCellPhone.EnableWindow(bShow);
 	m_ctrCustomerComment.EnableWindow(bShow);
 	m_ctrCustomerLog.EnableWindow(bShow);
@@ -645,8 +588,7 @@ void CCustomerView::UpdateCustomerDetailsControls(BOOL bShow)
 /// <summary>
 /// DisableCustomerDetailsButtons is used to disable the add and update customer buttons.
 /// </summary>
-void CCustomerView::DisableCustomerDetailsButtons()
-{
+void CCustomerView::DisableCustomerDetailsButtons() {
 	m_btnAddCustomer.EnableWindow(FALSE);
 	m_btnCustomAssets.EnableWindow(FALSE);
 	m_btnUpdateCustomer.EnableWindow(FALSE);
@@ -655,8 +597,7 @@ void CCustomerView::DisableCustomerDetailsButtons()
 /// <summary>
 /// EmptyCustomerDetailsControls is used to empty the customer details controls.
 /// </summary>
-void CCustomerView::EmptyCustomerDetailsControls()
-{
+void CCustomerView::EmptyCustomerDetailsControls() {
 	m_strCustomerCellPhone.Empty();
 	m_strCustomerComment.Empty();
 	m_strCustomerLog.Empty();
@@ -670,8 +611,7 @@ void CCustomerView::EmptyCustomerDetailsControls()
 /// EmptyAndDisableExistingCustomersList is used to empty the existing customers list control.
 /// And empty the search surname edit control.
 /// </summary>
-void CCustomerView::EmptyAndDisableExistingCustomersList()
-{
+void CCustomerView::EmptyAndDisableExistingCustomersList() {
 	m_ctlExistingCustomersList.DeleteAllItems();
 	m_ctlExistingCustomersList.EnableWindow(FALSE);
 }
