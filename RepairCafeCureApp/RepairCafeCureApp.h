@@ -50,6 +50,7 @@
 
 #include "resource.h"       // main symbols
 #include "CDatabaseConnection.h"
+#include "CSplashScreen.h"
 
 using namespace artvabas::rcc::database;
 
@@ -59,6 +60,8 @@ enum WorkorderViewType { VIEW_WORKORDER_OPEN, VIEW_WORKORDER_PROGRESS, VIEW_WORK
 class CRepairCafeCureApp : public CWinAppEx
 {
 // Members 
+public:
+	CSplashScreen m_pSplashScreen;
 private:
 		CDatabaseConnection* m_dbConnection;
 		CView* m_pCustomerView;
@@ -77,6 +80,7 @@ public:
 
 	void SetStatusBarText(UINT nStrID);
 	CString GetSelectedEmployeeName();
+	void IsIdle();
 
 	inline WorkorderViewType GetWorkorderViewType() { return m_enuWorkorderViewType; }
 

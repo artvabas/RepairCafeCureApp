@@ -98,6 +98,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 		&CMainFrame::OnViewCaptionBar)
 	ON_UPDATE_COMMAND_UI(ID_GENERAL_SHOW_LOGINBAR_CHECK,
 		&CMainFrame::OnUpdateGeneralShowLoginbarCheck)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 /* Overrides */
@@ -146,6 +147,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
 	m_wndRibbonBar.SetWindows7Look(TRUE);
 
+	theApp.m_pSplashScreen.ShowWindow(SW_HIDE);
 	return 0;
 }
 
@@ -264,6 +266,8 @@ BOOL CMainFrame::CreateCaptionBar() {
 	ASSERT(bNameValid);
 	m_wndStatusBar.SetInformation(strTemp);
 
+	theApp.BeginWaitCursor();
+
 	// Add items to comboBox
 	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
 	auto *rs = new CRecordset();
@@ -279,11 +283,12 @@ BOOL CMainFrame::CreateCaptionBar() {
 	delete rs;
 	m_pCmbCaptionBarEmployeeName->SetCurSel(0);
 
+	theApp.EndWaitCursor();
+
 	bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_LOCK);
 	ASSERT(bNameValid);
 	m_wndStatusBar.SetInformation(strTemp);
 	//*******************************************************************************
-
 	return TRUE;
 }
 

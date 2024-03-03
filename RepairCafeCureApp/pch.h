@@ -14,4 +14,6 @@
 #include "CSqlNativeAVB.h" 
 #include <vector>
 
+enum ColorButton { RED, BLUE, BLACK };
+
 #endif //PCH_H

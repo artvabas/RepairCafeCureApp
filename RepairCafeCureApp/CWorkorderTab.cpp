@@ -59,25 +59,23 @@ using namespace artvabas::sql;
 IMPLEMENT_DYNAMIC(CWorkorderTab, CDialogEx)
 
 CWorkorderTab::CWorkorderTab(CTabCtrlAssetWorkorder* pTabControl, CWnd* pParent /*=nullptr*/)
-	: CDialogEx(IDD_WORKORDER_TAB, pParent)
-	, m_pTabControl(pTabControl)
-	, m_uiCustomerID(0)
-	, m_uiAssetID(0)
-	, m_strCustomerSurname(_T(""))
-	, m_strCustomerName(_T(""))
-	, m_strAssetDescription(_T(""))
-	, m_strAssetModelNumber(_T(""))
-	, m_strAssetBrand(_T(""))
-	, m_strWorkorderDescription(_T(""))
-	, m_strHistoryWorkorderDescription(_T(""))
-	, m_strHistoryWorkorderLog(_T(""))
+	: CDialogEx{ IDD_WORKORDER_TAB, pParent }, 
+	m_pTabControl{ pTabControl },
+	m_uiCustomerID{ 0 },
+	m_uiAssetID{ 0 },
+	m_strCustomerSurname{ _T("") },
+	m_strCustomerName{ _T("") },
+	m_strAssetDescription{ _T("") },
+	m_strAssetModelNumber{ _T("") },
+	m_strAssetBrand{ _T("") },
+	m_strWorkorderDescription{ _T("") },
+	m_strHistoryWorkorderDescription{ _T("") },
+	m_strHistoryWorkorderLog{ _T("") }
 {
 	m_pAssetDetailsRecords = &(m_pTabControl->m_assetDetailsRecords);
 }
 
-CWorkorderTab::~CWorkorderTab()
-{
-}
+CWorkorderTab::~CWorkorderTab(){}
 
 // CWorkorderTab message handlers
 BEGIN_MESSAGE_MAP(CWorkorderTab, CDialogEx)
@@ -92,16 +90,14 @@ END_MESSAGE_MAP()
 /// otherwise the create workorder button is enabled.
 /// </summary>
 /// <returns></returns>
-void CWorkorderTab::OnEnChangeWoTabDescription()
-{
+void CWorkorderTab::OnEnChangeWoTabDescription(){
 	UpdateData(TRUE);
-	if (m_strWorkorderDescription.IsEmpty())
-	{
+	if (m_strWorkorderDescription.IsEmpty())	{
 		m_btnCreateWorkorder.EnableWindow(FALSE);
-	}
-	else
-	{
+		SetCustomFocusButton(&m_btnCreateWorkorder, BLACK, false);
+	} else if (!m_btnCreateWorkorder.IsWindowEnabled()){
 		m_btnCreateWorkorder.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnCreateWorkorder,RED, false);
 	}
 }
 
@@ -111,42 +107,42 @@ void CWorkorderTab::OnEnChangeWoTabDescription()
 /// After the workorder is created, the tab view is changed for receiving another new workorder.
 /// </summary>
 /// <returns></returns>
-void CWorkorderTab::OnBnClickedWoTabCreate()
-{
+void CWorkorderTab::OnBnClickedWoTabCreate(){
 	UpdateData(TRUE);
 	CString strQuery;
 
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString
-		{
-			CString strResult;
-			if (str.IsEmpty())
-				return  _T("NULL");
-			strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-			return strResult;
-		};
+	{
+		CString strResult;
+		if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
+		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+		return strResult;
+	};
 
-	strQuery.Format(_T("INSERT INTO [WORKORDER] ([WORKORDER_ASSET_ID], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID], [WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_STATUS], [WORKORDER_LOG], [WORKORDER_HISTORY]) VALUES (%d, %d, NULL, %s, %s, %s, NULL, %s, NULL, NULL)"),
+	strQuery.Format(_T("INSERT INTO [WORKORDER] ([WORKORDER_ASSET_ID], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID], ")
+		_T("[WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_STATUS], ")
+		_T("[WORKORDER_LOG], [WORKORDER_HISTORY]) VALUES(% d, % d, NULL, % s, % s, % s, NULL, % s, NULL, NULL)"),
 		m_uiAssetID, m_uiCustomerID,
-		static_cast<LPCTSTR>(buildFieldValue(COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")))),
-		static_cast<LPCTSTR>(buildFieldValue(theApp.GetSelectedEmployeeName())),
-		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderDescription)),
-		static_cast<LPCTSTR>(buildFieldValue(_T("Open"))));
+		buildFieldValue(COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"))),
+		buildFieldValue(theApp.GetSelectedEmployeeName()),
+		buildFieldValue(m_strWorkorderDescription),
+		buildFieldValue(_T("Open")));
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
 	// Execute the query.
-	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-	{
+	if (!sql.ExecuteQuery(strQuery.GetBuffer()))	{
 		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-	}
-	else
-	{
+	} else {
 		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
 	}
 	strQuery.ReleaseBuffer();
+
+	theApp.EndWaitCursor();
 
 	PrintReceiptAndWorkorder();
 
@@ -158,12 +154,10 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 /// The workorder description and log is displayed in the workorder history description and log edit controls.
 /// </summary>
 /// <returns></returns>
-void CWorkorderTab::OnNMClickWoTabWorkordersHistoryList(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+void CWorkorderTab::OnNMClickWoTabWorkordersHistoryList(NMHDR* pNMHDR, LRESULT* pResult){
+	auto pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 
-	if (pNMItemActivate->iItem != -1)
-	{
+	if (pNMItemActivate->iItem != -1){
 		m_strHistoryWorkorderDescription = m_ctrWorkordersHistoryList.GetItemText(pNMItemActivate->iItem, 6);
 		m_strHistoryWorkorderLog = m_ctrWorkordersHistoryList.GetItemText(pNMItemActivate->iItem, 10);
 		UpdateData(FALSE);
@@ -178,8 +172,7 @@ void CWorkorderTab::OnNMClickWoTabWorkordersHistoryList(NMHDR* pNMHDR, LRESULT* 
 /// The workorder history list control is initialized.
 /// </summary>
 /// <returns></returns>
-BOOL CWorkorderTab::OnInitDialog()
-{
+BOOL CWorkorderTab::OnInitDialog(){
 	CDialogEx::OnInitDialog();
 
 	m_ctrWorkordersHistoryList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -198,13 +191,26 @@ BOOL CWorkorderTab::OnInitDialog()
 	return TRUE;  
 }
 
+BOOL artvabas::rcc::ui::dialogs::CWorkorderTab::PreTranslateMessage(MSG* pMsg){
+	if (pMsg->message == WM_KEYDOWN) {
+		if (pMsg->wParam == VK_RETURN) {
+			if (m_btnCreateWorkorder.IsWindowEnabled()) {
+				// Yes, then click the search button.
+				OnBnClickedWoTabCreate();
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;// CAssetTab::PreTranslateMessage(pMsg);
+}
+
+
 /// <summary>
 /// Called when controls in the dialog are to be exchanged with data.
 /// </summary>
 /// <param name="pDX">The pDX.</param>
 /// <returns></returns>
-void CWorkorderTab::DoDataExchange(CDataExchange* pDX)
-{
+void CWorkorderTab::DoDataExchange(CDataExchange* pDX){	
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_WOTAB_CUSTOMER_SURNAME, m_strCustomerSurname);
 	DDX_Text(pDX, IDC_WOTAB_CUSTOMER_NAME, m_strCustomerName);
@@ -225,8 +231,7 @@ void CWorkorderTab::DoDataExchange(CDataExchange* pDX)
 /// And fills the workorder history list control with the existing workorders of the selected asset.
 /// </summary>
 /// <returns></returns>
-void CWorkorderTab::InitWithAssetDetailsRecords()
-{
+void CWorkorderTab::InitWithAssetDetailsRecords(){
 	m_uiCustomerID = m_pAssetDetailsRecords->m_nAssetCustomerID;
 	m_uiAssetID = m_pAssetDetailsRecords->m_nAssetID;
 	m_strCustomerSurname = m_pAssetDetailsRecords->m_strCustomerSurname;
@@ -238,21 +243,21 @@ void CWorkorderTab::InitWithAssetDetailsRecords()
 	m_ctrWorkordersHistoryList.DeleteAllItems();
 
 	int nIndex;			// Index of the list control item.
-	int row(0);			// Row of the list control item.
+	auto row(0);			// Row of the list control item.
 	CString strQuery;
 
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 	
-	CRecordset* rs = new CRecordset();
-	strQuery.Format(_T("SELECT WORKORDER.*, WORKORDER_ASSET_ID AS Expr1, WORKORDER_CUSTOMER_ID AS Expr2 FROM WORKORDER WHERE(WORKORDER_ASSET_ID = N\'%d\') AND (WORKORDER_CUSTOMER_ID = N\'%d\')"),
+	auto rs{ new CRecordset() };
+	strQuery.Format(_T("SELECT WORKORDER.*, WORKORDER_ASSET_ID AS Expr1, WORKORDER_CUSTOMER_ID AS Expr2 FROM WORKORDER WHERE ")
+		_T("(WORKORDER_ASSET_ID = N\'%d\') AND (WORKORDER_CUSTOMER_ID = N\'%d\')"),
 		m_uiAssetID, m_uiCustomerID);
 
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
-	{
+	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)){
 		// Fill the existing customers list control with the found customers from the database.
-		while (!rs->IsEOF())
-		{
+		while (!rs->IsEOF()){
 			CString strValue = _T("");
 			rs->GetFieldValue(_T("WORKORDER_ID"), strValue);
 			nIndex = m_ctrWorkordersHistoryList.InsertItem(row++, strValue);
@@ -290,77 +295,65 @@ void CWorkorderTab::InitWithAssetDetailsRecords()
 			rs->MoveNext();
 		}
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
-	}
-	else
-	{
+	} else {
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 	}
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
 	delete rs;
 	UpdateData(FALSE);
+	theApp.EndWaitCursor();
 }
 
 /// <summary>
 /// Prints the receipt and workorder.
 /// </summary>
 /// <returns></returns>
-void CWorkorderTab::PrintReceiptAndWorkorder()
-{
-	try
-	{
+void CWorkorderTab::PrintReceiptAndWorkorder(){
+	try {
 		// Set printer settings
-		CPrintDialog dlg(FALSE);
+		CPrintDialog dlg{ FALSE };
 		dlg.m_pd.hDevMode = GlobalAlloc(GHND, sizeof(DEVMODE));
 
 		ASSERT(dlg.m_pd.hDevMode != NULL);
 
-		if (dlg.m_pd.hDevMode != NULL)
-		{
-			DEVMODE* devMode = (DEVMODE*)GlobalLock(dlg.m_pd.hDevMode);
-			if (devMode != NULL)
-			{
+		if (dlg.m_pd.hDevMode != NULL){
+			auto* devMode{ reinterpret_cast<DEVMODE*>(GlobalLock(dlg.m_pd.hDevMode)) };
+			if (devMode != NULL){
 				devMode->dmSize = sizeof(DEVMODE);
 				devMode->dmOrientation = DMORIENT_LANDSCAPE;
 				devMode->dmFields = DM_ORIENTATION;
 				GlobalUnlock(devMode);
-			}
-			else
-			{
+			} else {
 				// Free the memory allocated for the DEVMODE structure
 				GlobalFree(dlg.m_pd.hDevMode);
 				EndWaitCursor();
 				throw 1;
 			}
-		}
-		else
-		{
+		} else {
 			// Free the memory allocated for the DEVMODE structure
 			GlobalFree(dlg.m_pd.hDevMode);
 			EndWaitCursor();
 			throw 1;
 		}
 
-		if (dlg.DoModal() == IDOK)
-		{
+		if (dlg.DoModal() == IDOK){
 			BeginWaitCursor();
 			
-			CString strLastWOID = _T("");
-			CString strCustomerCellPhone = _T("");
-			CString strCustomerPhone = _T("");
-			CString strCustomerEmail = _T("");
+			CString strLastWOID{ _T("") };
+			CString strCustomerCellPhone{ _T("") };
+			CString strCustomerPhone{ _T("") };
+			CString strCustomerEmail{ _T("") };
 
 			// Get last added workorder ID
 			theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
-			CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+			theApp.BeginWaitCursor();
+			CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
 			auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('WORKORDER')"));
-			if (lastID > 0)
-			{
+			if (lastID > 0) {
 				theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_OK);
 				strLastWOID.Format(_T("%d"), lastID);
-			}
-			else
-			{
+			} else {
 				theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
 				EndWaitCursor();
 				throw 2;
@@ -369,19 +362,17 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 			// Get customer cell phone, phone and email
 			theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
-			CRecordset* rs = new CRecordset();
+			auto rs{ new CRecordset() };
 			CString strQuery;
-			strQuery.Format(_T("SELECT CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL FROM CUSTOMER WHERE (CUSTOMER_ID = %d)"), m_uiCustomerID);
+			strQuery.Format(_T("SELECT CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL FROM CUSTOMER WHERE (CUSTOMER_ID = %d)"),
+				m_uiCustomerID);
 
-			if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
-			{
+			if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)){
 				theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 				rs->GetFieldValue(_T("CUSTOMER_CELL_PHONE"), strCustomerCellPhone);
 				rs->GetFieldValue(_T("CUSTOMER_PHONE"), strCustomerPhone);
 				rs->GetFieldValue(_T("CUSTOMER_EMAIL"), strCustomerEmail);
-			}
-			else
-			{
+			} else {
 				theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 				theApp.GetDatabaseConnection()->CloseQuery(rs);
 				delete rs;
@@ -393,15 +384,14 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 			delete rs;
 
 			// Create printer device context
-			CDC* pDC = new CDC;
+			auto pDC{ new CDC };
 			// Attach the printer device context handle to the printer device context
-			HDC hDC = CreateDCW(dlg.GetDriverName(), dlg.GetDeviceName(), NULL, dlg.GetDevMode());
+			auto hDC{ CreateDCW(dlg.GetDriverName(), dlg.GetDeviceName(), NULL, dlg.GetDevMode()) };
 
 			// Attach the printer device context handle to the printer device context, init pDC
-			if (pDC->Attach(hDC))
-			{
+			if (pDC->Attach(hDC)){
 				// Set printer title
-				CString strTitle = _T("RCCA - Combibon");
+				CString strTitle{ _T("RCCA - Combibon") };
 
 				DOCINFO di;
 				::ZeroMemory(&di, sizeof(DOCINFO));
@@ -410,8 +400,7 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 				pDC->m_hDC = dlg.GetPrinterDC();
 
 				// Start printing
-				if (pDC->StartDoc(&di))
-				{
+				if (pDC->StartDoc(&di)){
 					BeginWaitCursor();
 					CPrintWorkorder::WorkorderData workData;
 					workData.strWorkorderID = strLastWOID;
@@ -428,13 +417,11 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 					workData.strWorkorderStatus = _T("Status: In Progress");
 					workData.strWorkorderDescription = m_strWorkorderDescription;
 
-					CPrintWorkorder printCombi(&workData);
+					CPrintWorkorder printCombi{ &workData };
 					printCombi.PrintCombi(pDC);
 
 					theApp.SetStatusBarText(IDS_STATUSBAR_PRINTING_OK);
-				}
-				else
-				{
+				} else {
 					// End printing
 					pDC->EndPage();
 					pDC->EndDoc();
@@ -448,9 +435,7 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 					EndWaitCursor();
 					throw 4;
 				}
-			}
-			else
-			{
+			} else {
 				// End printing
 				pDC->EndPage();
 				pDC->EndDoc();
@@ -477,17 +462,12 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 			GlobalFree(dlg.m_pd.hDevMode);
 			EndWaitCursor();
 		}
-	}
-	catch (CException* e)
-	{
+	} catch (CException* e) {
 		e->ReportError();
 		e->Delete();
-	}
-	catch (int e)
-	{
+	} catch (int e)	{
 		CString errMsg;
-		switch (e)
-		{
+		switch (e){
 		case 1:
 			errMsg = _T("An error occurred while printing the receipt and workorder. The printer device mode could not be created.");
 			break;
@@ -500,13 +480,27 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 		case 4:
 			errMsg = _T("An error occurred while printing the receipt and workorder. Can't start document for printing.");
 			break;
-
 		}
-
 		AfxMessageBox(errMsg);
-	}
-	catch (...)
-	{
+	} catch (...) {
 		AfxMessageBox(_T("An unknown error occurred while printing the receipt and workorder."));
 	}
+}
+
+void CWorkorderTab::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus){
+	auto color = RGB(255, 0, 0);
+	switch (Color) {
+	case RED:
+		color = RGB(255, 0, 0);
+		break;
+	case BLUE:
+		color = RGB(0, 0, 255);
+		break;
+	case BLACK:
+		color = RGB(0, 0, 0);
+		break;
+	}
+	pButton->SetTextColor(color);
+	pButton->RedrawWindow();
+	if (bFocus) pButton->SetFocus();
 }

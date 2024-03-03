@@ -64,6 +64,7 @@
 #define IDB_PNG1                        328
 #define IDB_WORKORDEREXTRASMALL         329
 #define IDD_CONTRIBUTION                330
+#define IDD_SPLASHSCREEN                333
 #define IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH 1001
 #define IDC_CUSTVIEW_BUTTON_SEARCH      1002
 #define IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER 1003
@@ -146,6 +147,8 @@
 #define IDC_CONTRIBUTION_PAYMENT_CLEAR  1083
 #define IDC_BUTTON2                     1084
 #define IDC_CONTRIBUTION_PAYMENT_CALCULATE 1084
+#define IDC_MFCBUTTON1                  1085
+#define IDC_STATIC_SPHS1                1086
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_APP_VIEW                     32775
@@ -161,9 +164,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        332
+#define _APS_NEXT_RESOURCE_VALUE        335
 #define _APS_NEXT_COMMAND_VALUE         32789
-#define _APS_NEXT_CONTROL_VALUE         1085
+#define _APS_NEXT_CONTROL_VALUE         1087
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

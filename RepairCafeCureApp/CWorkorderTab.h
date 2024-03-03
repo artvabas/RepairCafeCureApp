@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 1.0.465.0
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 18-12-2023, (dd-mm-yyyy)
+* Updated: 03-03-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -50,64 +50,57 @@
 #pragma once
 #include "CTabCtrlAssetWorkorder.h"
 
-namespace artvabas {
+namespace artvabas::rcc::ui::dialogs {
 
-	namespace rcc {
+	using namespace artvabas::rcc::ui::controls;
 
-		namespace ui {
+	class CWorkorderTab : public CDialogEx
+	{
+		DECLARE_DYNAMIC(CWorkorderTab)
 
-			namespace dialogs {
+	private:
+		CTabCtrlAssetWorkorder* m_pTabControl;
+		AssetDetailsRecords* m_pAssetDetailsRecords;
 
-				using namespace artvabas::rcc::ui::controls;
+		unsigned int m_uiCustomerID;
+		unsigned int m_uiAssetID;
 
-				class CWorkorderTab : public CDialogEx
-				{
-					DECLARE_DYNAMIC(CWorkorderTab)
+		CString m_strCustomerSurname;
+		CString m_strCustomerName;
+		CString m_strAssetDescription;
+		CString m_strAssetModelNumber;
+		CString m_strAssetBrand;
+		CString m_strWorkorderDescription;
+		CString m_strHistoryWorkorderDescription;
+		CString m_strHistoryWorkorderLog;
 
-				private:
-					CTabCtrlAssetWorkorder* m_pTabControl;
-					AssetDetailsRecords* m_pAssetDetailsRecords;
+		CMFCButton m_btnCreateWorkorder;
+		CListCtrl m_ctrWorkordersHistoryList;
 
-					unsigned int m_uiCustomerID;
-					unsigned int m_uiAssetID;
+	public:
+		CWorkorderTab(CTabCtrlAssetWorkorder* pTabControl, CWnd* pParent = nullptr);
+		virtual ~CWorkorderTab();
 
-					CString m_strCustomerSurname;
-					CString m_strCustomerName;
-					CString m_strAssetDescription;
-					CString m_strAssetModelNumber;
-					CString m_strAssetBrand;
-					CString m_strWorkorderDescription;
-					CString m_strHistoryWorkorderDescription;
-					CString m_strHistoryWorkorderLog;
+		void InitWithAssetDetailsRecords();
 
-					CButton m_btnCreateWorkorder;
-					CListCtrl m_ctrWorkordersHistoryList;
+	private:
+		void PrintReceiptAndWorkorder();
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true);
 
-				public:
-					CWorkorderTab(CTabCtrlAssetWorkorder* pTabControl, CWnd* pParent = nullptr);
-					virtual ~CWorkorderTab();
-
-					void InitWithAssetDetailsRecords();
-
-				private:
-					void PrintReceiptAndWorkorder();
-
-					// Dialog Data
+		// Dialog Data
 #ifdef AFX_DESIGN_TIME
-					enum { IDD = IDD_WORKORDER_TAB };
+		enum { IDD = IDD_WORKORDER_TAB };
 #endif
 
-				private:
-					void DoDataExchange(CDataExchange* pDX) override;
-					BOOL OnInitDialog() override;
+	private:
+		void DoDataExchange(CDataExchange* pDX) override;
+		BOOL OnInitDialog() override;
+		BOOL PreTranslateMessage(MSG* pMsg) override;
 
-					DECLARE_MESSAGE_MAP()
-				private:
-					afx_msg void OnBnClickedWoTabCreate();
-					afx_msg void OnEnChangeWoTabDescription();
-					afx_msg void OnNMClickWoTabWorkordersHistoryList(NMHDR* pNMHDR, LRESULT* pResult);
-				};
-			}
-		}
-	}
+		DECLARE_MESSAGE_MAP()
+	private:
+		afx_msg void OnBnClickedWoTabCreate();
+		afx_msg void OnEnChangeWoTabDescription();
+		afx_msg void OnNMClickWoTabWorkordersHistoryList(NMHDR* pNMHDR, LRESULT* pResult);
+	};
 }

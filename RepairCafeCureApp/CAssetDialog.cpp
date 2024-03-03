@@ -35,9 +35,9 @@
 * which is the view of the CListCtrl created on the asset/workorder dialog (CAssetDialog)
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 1.0.456.0
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 11-11-2023, (dd-mm-yyyy)
+* Updated: 03-03-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -55,21 +55,16 @@ IMPLEMENT_DYNAMIC(CAssetDialog, CDialogEx)
 
 CAssetDialog::CAssetDialog(CString strCustomerSurname, CString strCustomerName, unsigned int nCustomerID, CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_ASSET_DIALOG, pParent)
-	, m_ctrTabAssetWorkorder(strCustomerSurname, strCustomerName, nCustomerID)
-{
-}
+	, m_ctrTabAssetWorkorder{ strCustomerSurname, strCustomerName, nCustomerID } {}
 
-CAssetDialog::~CAssetDialog()
-{
-}
+CAssetDialog::~CAssetDialog() {}
 
 /// <summary>
 /// Data exchange between controls and variables
 /// </summary>
 /// <param name="pDX">The pDX.</param>
 /// <returns></returns>
-void CAssetDialog::DoDataExchange(CDataExchange* pDX)
-{
+void CAssetDialog::DoDataExchange(CDataExchange* pDX){
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_ASSET_WORKORDER_TAB, m_ctrTabAssetWorkorder);
 }
@@ -78,12 +73,9 @@ void CAssetDialog::DoDataExchange(CDataExchange* pDX)
 /// Initializes the dialog.
 /// </summary>
 /// <returns></returns>
-BOOL CAssetDialog::OnInitDialog()
-{
+BOOL CAssetDialog::OnInitDialog(){
 	CDialogEx::OnInitDialog();
-
 	m_ctrTabAssetWorkorder.Init();
-
 	return TRUE;
 }
 

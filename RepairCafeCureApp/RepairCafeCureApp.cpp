@@ -65,6 +65,20 @@ using namespace artvabas::rcc::ui;
 /* Globals */
 CRepairCafeCureApp theApp; // The one and only CRepairCafeCureApp object
 
+static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	LASTINPUTINFO lii{ 0 };
+	lii.cbSize = sizeof(LASTINPUTINFO);
+	GetLastInputInfo(&lii);
+	auto dwTimeNow = GetTickCount64();
+	auto dwTimeIdle = dwTimeNow - lii.dwTime;
+	if (dwTimeIdle > 1000 * 60 * 1) {
+		theApp.IsIdle();
+		MessageBox(NULL, _T("Automaticly Locked the app!"), _T("Idle"), MB_OK);
+	}
+}
+
+
 /* Messages Maps */
 BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CRepairCafeCureApp::OnAppAbout)
@@ -88,6 +102,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_enuWorkorderViewType(VIEW_WORKORDER_OPEN)
 {
 	SetAppID(_T("RepairCafeCureApp.AppID.0.0.1.0"));
+	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
 }
 
 CRepairCafeCureApp::~CRepairCafeCureApp()
@@ -97,6 +112,7 @@ CRepairCafeCureApp::~CRepairCafeCureApp()
 		delete m_dbConnection;
 		m_dbConnection = NULL;
 	}
+	KillTimer(NULL, 1);
 }
 
 /* Overrides */
@@ -105,6 +121,8 @@ BOOL CRepairCafeCureApp::InitInstance()
 {
 	CWinAppEx::InitInstance();
 
+	m_pSplashScreen.Create(IDD_SPLASHSCREEN);
+	m_pSplashScreen.ShowWindow(SW_SHOW);
 
 	// Initialize OLE libraries
 	if (!AfxOleInit())
@@ -400,6 +418,19 @@ CString CRepairCafeCureApp::GetSelectedEmployeeName()
 	if (pMainFrame != NULL) return pMainFrame->GetSelectedEmployee();
 	else return CString("");
 }
+
+void CRepairCafeCureApp::IsIdle()
+{
+	// Get a pointer to the main frame window.
+	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
+	if (pMainFrm != NULL)
+	{
+		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+		pMainFrm->EmployeeIdle();
+		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
+	}
+}
+
 
 /// <summary>
 /// This method is used to get the active view type.

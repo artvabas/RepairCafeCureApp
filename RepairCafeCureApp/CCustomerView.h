@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.569.0
+* Version: 1.0.465.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 29-02-2024, (dd-mm-yyyy)
+* Updated: 03-03-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -50,17 +50,18 @@
 
 // CCustomerView form view
 namespace artvabas::rcc::ui {
+
 	class CCustomerView : public CFormView {
 		DECLARE_DYNCREATE(CCustomerView)
 
 	private:
 		CListCtrl m_ctlExistingCustomersList;
 
-		CButton m_btnCustomerSurnameSearch;
-		CButton m_btnAddNewCustomer;
-		CButton m_btnAddCustomer;
-		CButton m_btnCustomAssets;
-		CButton m_btnUpdateCustomer;
+		CMFCButton m_btnCustomerSurnameSearch;
+		CMFCButton m_btnAddNewCustomer;
+		CMFCButton m_btnAddCustomer;
+		CMFCButton m_btnCustomAssets;
+		CMFCButton m_btnUpdateCustomer;
 
 		CEdit m_ctrCustomerCellPhone;
 		CEdit m_ctrCustomerComment;
@@ -117,5 +118,6 @@ namespace artvabas::rcc::ui {
 		void DisableCustomerDetailsButtons();
 		void EmptyCustomerDetailsControls();
 		void EmptyAndDisableExistingCustomersList();
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true);
 	};
 }

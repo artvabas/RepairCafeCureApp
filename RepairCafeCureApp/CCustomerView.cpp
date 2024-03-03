@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.569.0
+* Version: 1.0.465.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 29-02-2024, (dd-mm-yyyy)
+* Updated: 03-03-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -233,19 +233,24 @@ void CCustomerView::OnInitialUpdate() {
 void CCustomerView::OnClickedCustomViewButtonSearch() {
 	UpdateData(TRUE);
 
-	m_btnAddNewCustomer.EnableWindow();
-	m_ctlExistingCustomersList.EnableWindow();
 	m_ctlExistingCustomersList.DeleteAllItems();
 
 	int nIndex;			// Index of the list control item.
 	auto row(0);		// Row of the list control item.
 	CString strQuery;
 
+	theApp.BeginWaitCursor();
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
+	auto buildString = [](CString str) -> CString {
+		CString strResult;
+		strResult = _T("%") + str + _T("%");//.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+		return strResult;
+	};
+
 	auto *rs = new CRecordset();
-	strQuery.Format(_T("SELECT CUSTOMER.*, CUSTOMER_SURNAME AS Expr1 FROM CUSTOMER WHERE(CUSTOMER_SURNAME = N\'%s\')"),
-		static_cast<LPCTSTR>(m_strSearchCustomerSurname));
+	strQuery.Format(_T("SELECT CUSTOMER.*, CUSTOMER_SURNAME AS Expr1 FROM CUSTOMER WHERE(CUSTOMER_SURNAME LIKE N\'%s\')"),
+		static_cast<LPCTSTR>(buildString(m_strSearchCustomerSurname)));
 
 	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)) {
 		// Fill the existing customers list control with the found customers from the database.
@@ -283,6 +288,21 @@ void CCustomerView::OnClickedCustomViewButtonSearch() {
 	}
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
 	delete rs;
+
+	theApp.EndWaitCursor();
+
+	if (m_ctlExistingCustomersList.GetItemCount() > 0) {
+		m_ctlExistingCustomersList.EnableWindow();
+		m_btnCustomerSurnameSearch.EnableWindow(FALSE);
+		m_btnAddNewCustomer.EnableWindow();
+		SetCustomFocusButton(&m_btnAddNewCustomer, ColorButton::BLUE);
+	}
+	else {
+		m_btnCustomerSurnameSearch.EnableWindow(FALSE);
+		m_btnAddNewCustomer.EnableWindow();
+		SetCustomFocusButton(&m_btnAddNewCustomer, ColorButton::RED);
+
+	}
 }
 
 /// <summary>
@@ -298,6 +318,9 @@ void CCustomerView::OnChangeCustomViewEditBoxSurnameSearch() {
 	UpdateData(TRUE);
 	if (m_strSearchCustomerSurname.IsEmpty()) {
 		DisableCustomerSearchAndAddButtons();
+	} else if (m_btnAddNewCustomer.IsWindowEnabled()) {
+		m_btnAddNewCustomer.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnAddNewCustomer, ColorButton::BLACK, false);
 	} else {
 		if(m_ctlExistingCustomersList.GetItemCount() > 0) {
 			EmptyAndDisableExistingCustomersList();
@@ -312,8 +335,10 @@ void CCustomerView::OnChangeCustomViewEditBoxSurnameSearch() {
 
 			UpdateData(FALSE);
 		}
-
+	}
+	if (!m_btnCustomerSurnameSearch.IsWindowEnabled()) {
 		m_btnCustomerSurnameSearch.EnableWindow();
+		SetCustomFocusButton(&m_btnCustomerSurnameSearch, ColorButton::RED, false);
 	}
 }
 
@@ -404,11 +429,8 @@ void CCustomerView::OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pR
 		UpdateData(FALSE);
 
 		// Enable the customer Asset button and disable the add and update customer buttons.
-		//OnChangeCustViewCustomerDetails();
 		m_btnCustomAssets.EnableWindow();
-		//m_btnAddCustomer.EnableWindow(FALSE);
-		//m_btnUpdateCustomer.EnableWindow(FALSE);
-		m_btnCustomAssets.SetFocus();
+		SetCustomFocusButton(&m_btnCustomAssets, ColorButton::RED);
 	}
 	*pResult = 0;
 }
@@ -432,14 +454,18 @@ void CCustomerView::OnChangeCustViewCustomerDetails() {
 	if (m_bIsDirtyCustomerDetails) {
 		if (m_bIsNewCustomer && m_bIsDirtyCustomerDetails) {
 			m_btnAddCustomer.EnableWindow();
+			SetCustomFocusButton(&m_btnAddCustomer, ColorButton::RED, false);
 			m_btnCustomAssets.EnableWindow(FALSE);
+			SetCustomFocusButton(&m_btnCustomAssets, ColorButton::BLACK, false);
 		} else if (!m_bIsNewCustomer && m_bIsDirtyCustomerDetails) {
 			m_btnUpdateCustomer.EnableWindow();
+			SetCustomFocusButton(&m_btnUpdateCustomer, ColorButton::RED, false);
 			m_btnCustomAssets.EnableWindow(FALSE);
+			SetCustomFocusButton(&m_btnCustomAssets, ColorButton::BLACK, false);
 		}
 	} else if (!m_bIsNewCustomer) {
 		m_btnCustomAssets.EnableWindow(); // All other cases enable the asset button.
-		m_btnCustomAssets.SetFocus();
+		SetCustomFocusButton(&m_btnCustomAssets, ColorButton::RED);
 	}
 }
 
@@ -469,7 +495,7 @@ void CCustomerView::OnClickedCustViewButtonAddNewCustomer() {
 void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 	UpdateData(TRUE);
 	m_btnAddCustomer.EnableWindow(FALSE);
-	m_btnCustomAssets.EnableWindow();
+	SetCustomFocusButton(&m_btnAddCustomer, ColorButton::BLACK, false);
 
 	CString strQuery;
 
@@ -491,6 +517,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 		buildFieldValue(m_strCustomerComment),
 		buildFieldValue(m_strCustomerLog));
 
+	theApp.BeginWaitCursor();
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
@@ -504,12 +531,14 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 			m_bIsDirtyCustomerDetails = false;
 			m_nCustomerID = lastID;
 			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-			m_btnCustomAssets.SetFocus();
+			m_btnCustomAssets.EnableWindow();
+			SetCustomFocusButton(&m_btnCustomAssets, ColorButton::RED);
 		} else {
 			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
 		}
 	}
 	strQuery.ReleaseBuffer();
+	theApp.EndWaitCursor();
 }
 
 /// <summary>
@@ -518,7 +547,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	UpdateData(TRUE);
 	m_btnUpdateCustomer.EnableWindow(FALSE);
-	m_btnCustomAssets.EnableWindow();
+	SetCustomFocusButton(&m_btnUpdateCustomer, ColorButton::BLACK, false);
 
 	CString strQuery;
 
@@ -541,6 +570,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 				buildFieldValue(m_strCustomerLog),
 				m_nCustomerID);
 
+	theApp.BeginWaitCursor();
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
@@ -550,10 +580,12 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	} else {
 		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
 		m_bIsDirtyCustomerDetails = false;
-		m_btnCustomAssets.SetFocus();
+		m_btnCustomAssets.EnableWindow();
+		SetCustomFocusButton(&m_btnCustomAssets, ColorButton::RED);
 	}
 
 	strQuery.ReleaseBuffer();
+	theApp.EndWaitCursor();
 }
 
 void CCustomerView::OnClickedCustViewButtonCustomerAssets() {
@@ -568,6 +600,8 @@ void CCustomerView::OnClickedCustViewButtonCustomerAssets() {
 void CCustomerView::DisableCustomerSearchAndAddButtons() {
 	m_btnAddNewCustomer.EnableWindow(FALSE);
 	m_btnCustomerSurnameSearch.EnableWindow(FALSE);
+	SetCustomFocusButton(&m_btnAddNewCustomer, ColorButton::BLACK, false);
+	SetCustomFocusButton(&m_btnCustomerSurnameSearch, ColorButton::BLACK, false);
 }
 
 // Custom methods
@@ -614,4 +648,22 @@ void CCustomerView::EmptyCustomerDetailsControls() {
 void CCustomerView::EmptyAndDisableExistingCustomersList() {
 	m_ctlExistingCustomersList.DeleteAllItems();
 	m_ctlExistingCustomersList.EnableWindow(FALSE);
+}
+
+void CCustomerView::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) {
+	auto color = RGB(255, 0, 0);
+	switch (Color) {
+	case RED:
+		color = RGB(255, 0, 0);
+		break;
+	case BLUE:
+		color = RGB(0, 0, 255);
+		break;
+	case BLACK:
+		color = RGB(0, 0, 0);
+		break;
+	}
+	pButton->SetTextColor(color);
+	pButton->RedrawWindow();
+	if (bFocus) pButton->SetFocus();
 }

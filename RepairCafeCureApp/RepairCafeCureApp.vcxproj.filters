@@ -135,6 +135,9 @@
     <ClInclude Include="CContributionPaymentDialog.h">
       <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="CSplashScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -184,6 +187,9 @@
     </ClCompile>
     <ClCompile Include="CContributionPaymentDialog.cpp">
       <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CSplashScreen.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

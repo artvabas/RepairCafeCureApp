@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 1.0.465.0
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 09-11-2023, (dd-mm-yyyy)
+* Updated: 03-03-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -57,29 +57,27 @@ using namespace artvabas::rcc::ui::dialogs;
 
 IMPLEMENT_DYNAMIC(CAssetTab, CDialogEx)
 
-CAssetTab::CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent /*=nullptr*/)
-	: CDialogEx(IDD_ASSET_TAB, pParent)
-	, m_pTabControl(pTabControl)
-	, m_strCustomerSurname(strCustomerSurname)
-	, m_strCustomerName(strCustomerName)
-	, m_nAssetID(0)
-	, m_nAssetCustomerID(nCustomerID)
-	, m_nAssetWorkorderID(0)
-	, m_strAssetCreateDate(_T(""))
-	, m_strDescription(_T(""))
-	, m_strModelNumber(_T(""))
-	, m_strBrand(_T(""))
-	, m_sAssetDisposed(0)
-	, m_strHistoryLog(_T(""))
-	, m_bIsSelectedFromAssetList(false)
-{
+CAssetTab::CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID,
+	CWnd* pParent /*=nullptr*/)
+	: CDialogEx{ IDD_ASSET_TAB, pParent },
+	m_pTabControl{ pTabControl },
+	m_strCustomerSurname{ strCustomerSurname },
+	m_strCustomerName{ strCustomerName },
+	m_nAssetID{ 0 },
+	m_nAssetCustomerID{ nCustomerID },
+	m_nAssetWorkorderID{ 0 },
+	m_strAssetCreateDate{ _T("") },
+	m_strDescription{ _T("") },
+	m_strModelNumber{ _T("") },
+	m_strBrand{ _T("") },
+	m_sAssetDisposed{ 0 },
+	m_strHistoryLog{ _T("") },
+	m_bIsSelectedFromAssetList{ false }{
 	// Shared data between the asset and workorder tab.
 	m_pAssetDetailsRecords = &(m_pTabControl->m_assetDetailsRecords);
 }
 
-CAssetTab::~CAssetTab()
-{
-}
+CAssetTab::~CAssetTab(){}
 
 // CAssetTab message handlers
 BEGIN_MESSAGE_MAP(CAssetTab, CDialogEx)
@@ -101,8 +99,7 @@ END_MESSAGE_MAP()
 /// Fills the list control with the existing assets, if any, from the database.
 /// </summary>
 /// <returns></returns>
-BOOL CAssetTab::OnInitDialog()
-{
+BOOL CAssetTab::OnInitDialog(){
 	CDialogEx::OnInitDialog();
 
 	m_ctrExistingAssetList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -117,19 +114,18 @@ BOOL CAssetTab::OnInitDialog()
 	m_ctrExistingAssetList.InsertColumn(8, _T("History Log"), LVCFMT_LEFT, 0);
 
 	int nIndex;			// Index of the list control item.	
-	int row(0);			// Row of the list control item.
+	auto row{ 0 };			// Row of the list control item.
 	CString strQuery;
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
-	CRecordset* rs = new CRecordset();
+	CRecordset* rs{ new CRecordset() };
 	strQuery.Format(_T("SELECT ASSET.*, ASSET_CUSTOMER_ID AS Expr1 FROM ASSET WHERE(ASSET_CUSTOMER_ID = %d)"), m_nAssetCustomerID);
 
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
-	{
-		while (!rs->IsEOF())
-		{
-			CString strValue = _T("");
+	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)){
+		while (!rs->IsEOF()){
+			CString strValue{ _T("") };
 
 			rs->GetFieldValue(_T("ASSET_ID"), strValue);
 			nIndex = m_ctrExistingAssetList.InsertItem(row, strValue);
@@ -160,10 +156,8 @@ BOOL CAssetTab::OnInitDialog()
 
 			rs->MoveNext();
 		}
-		theApp.SetStatusBarText(IDS_STATUSBAR_IDLE_UNLOCK);
-	}
-	else
-	{
+		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
+	} else {
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 		delete rs;
 		EndDialog(IDCANCEL);
@@ -171,14 +165,14 @@ BOOL CAssetTab::OnInitDialog()
 	}
 
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	theApp.EndWaitCursor();
 	delete rs;
 
 	return TRUE;
 }
 
 // Data exchange between the dialog controls and the variables.
-void CAssetTab::DoDataExchange(CDataExchange* pDX)
-{
+void CAssetTab::DoDataExchange(CDataExchange* pDX){
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_ASSETTAB_CUSTOMER_SURENAME, m_strCustomerSurname);
 	DDX_Text(pDX, IDC_ASSETTAB_CUSTOMER_NAME, m_strCustomerName);
@@ -193,6 +187,24 @@ void CAssetTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ASSETTAB_CLEAR, m_btnClear);
 }
 
+BOOL CAssetTab::PreTranslateMessage(MSG* pMsg){
+	if (pMsg->message == WM_KEYDOWN) {
+		if (pMsg->wParam == VK_RETURN) {
+			if (m_btnUpdateAsset.IsWindowEnabled()) {
+				// Yes, then click the search button.
+				OnBnClickedAssetTabUpdate();
+				return TRUE;
+			}
+			if (m_btnNewAsset.IsWindowEnabled()) {
+				// Yes, then click the search button.
+				OnBnClickedAssetTabNew();
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;// CAssetTab::PreTranslateMessage(pMsg);
+}
+
 /// <summary>
 /// Method OnEnChangeAssetDetails() is called when the user changes the text in the description, model number or brand edit controls.
 /// When the user changes the text in the description, model number or brand edit controls,
@@ -201,37 +213,34 @@ void CAssetTab::DoDataExchange(CDataExchange* pDX)
 /// the update asset button is enabled.
 /// If asset details is not dirty, the create workorder button is enabled.
 /// </summary>
-void CAssetTab::OnEnChangeAssetDetails()
-{
+void CAssetTab::OnEnChangeAssetDetails(){
 	UpdateData(TRUE);
 
-	if (!m_bIsSelectedFromAssetList)
-	{
-		if (!m_strDescription.IsEmpty() && !m_strModelNumber.IsEmpty() && !m_strBrand.IsEmpty())
-		{
+	if (!m_bIsSelectedFromAssetList){
+		if (!m_strDescription.IsEmpty()){
 			m_btnNewAsset.EnableWindow(TRUE);
-			m_btnClear.EnableWindow(TRUE);
-		}
-		else
-		{
+			SetCustomFocusButton(&m_btnNewAsset, RED, false);
+		} else {
 			m_btnNewAsset.EnableWindow(FALSE);
-			m_btnClear.EnableWindow(FALSE);
+			SetCustomFocusButton(&m_btnNewAsset, BLACK, false);
 		}
-	}
-	else if(!m_strDescription.IsEmpty() && !m_strModelNumber.IsEmpty() && !m_strBrand.IsEmpty())
-	{
+	} else if(!m_strDescription.IsEmpty()){
 		m_btnUpdateAsset.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnUpdateAsset, RED, false);
 		m_btnClear.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnClear, BLUE, false);
 		m_btnCreateWorkorder.EnableWindow(FALSE);
-	}
-	else
-	{
+		SetCustomFocusButton(&m_btnCreateWorkorder, BLACK, false);
+	} else {
 		m_btnUpdateAsset.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnUpdateAsset, BLACK, false);
 		m_btnClear.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnClear, BLACK, false);
 		m_btnCreateWorkorder.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnCreateWorkorder, BLACK, false);
 	}
-
 	m_btnCreateWorkorder.EnableWindow(FALSE);
+	SetCustomFocusButton(&m_btnCreateWorkorder, BLACK, false);
 }
 
 /// <summary>
@@ -243,13 +252,11 @@ void CAssetTab::OnEnChangeAssetDetails()
 /// <param name="pNMHDR">A pointer to an NMHDR structure that contains information about a notification message.</param>
 /// <param name="pResult">A pointer to an LRESULT structure that is used to return the result of the message processing.</param>
 /// <returns></returns>
-void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult){
+	auto pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 
 	//  pNMItemActivate->iItem = -1 means no existing item is selected.
-	if (pNMItemActivate->iItem != -1)
-	{
+	if (pNMItemActivate->iItem != -1){
 		// Get the selected item's text.
 		m_nAssetID = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 0));
 		m_nAssetCustomerID = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 1));
@@ -264,7 +271,9 @@ void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult)
 		m_bIsSelectedFromAssetList = true;
 
 		m_btnCreateWorkorder.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnCreateWorkorder, RED);
 		m_btnClear.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnClear, BLUE, false);
 
 		// Update the data in the dialog.
 		UpdateData(FALSE);
@@ -279,67 +288,60 @@ void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult)
 /// After update the update asset button is disabled and the create workorder button is enabled.
 /// </summary>
 /// <returns></returns>
-void CAssetTab::OnBnClickedAssetTabUpdate()
-{
+void CAssetTab::OnBnClickedAssetTabUpdate(){
 	CString strQuery;
 
 	// Build the fields value for the query.
-	auto buildFieldValue = [](CString str) -> CString
-		{
-			CString strResult;
-			if (str.IsEmpty())
-				return  _T("NULL");
-			strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-			return strResult;
-		};
+	auto buildFieldValue = [](CString str) -> CString{
+		CString strResult;
+		if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
+		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+		return strResult;
+	};
 
 	// A numeric zero is converted to a string zero or as an empty string, depending on the isNull parameter.
 	// Because when a CString format %d is used, a numeric zero must be converted to an zero string.
 	// otherwise the CString format will see this as a NUL-character, and causes an error on the string length check.
 	// If the isNull parameter is true, the numeric zero is converted to an empty string, so that lambda function buildFieldValue() returns "NULL".
-	auto intToCString = [](unsigned int n, bool isNull = false) -> CString
-		{
-			CString strResult(_T(""));
-			if (n == 0)
-			{
-				if (isNull)
-					return  strResult;
-				else
-					return  _T("0");
-			}
-				
-			strResult.Format(_T("%d"), n);
-			return strResult;
-		};
+	auto intToCString = [](unsigned int n, bool isNull = false) -> CString{
+		CString strResult{ _T("") };
+		if (n == 0){
+			if (isNull)	return strResult;
+			else return _T("0");
+		}
+		strResult.Format(_T("%d"), n);
+		return strResult;
+	};
 
-	strQuery.Format(_T("UPDATE [ASSET] SET [ASSET_CUSTOMER_ID] = %d, [ASSET_WORKORDER_ID] = %s, [ASSET_CREATE_DATE] = %s, [ASSET_DESCRIPTION] = %s, [ASSET_MODEL_NUMBER] = %s, [ASSET_BRAND] = %s, [ASSET_DISPOSED] = %s, [ASSET_HISTORY_LOG] = %s WHERE [ASSET_ID]  = %d"),
+	strQuery.Format(_T("UPDATE [ASSET] SET [ASSET_CUSTOMER_ID] = %d, [ASSET_WORKORDER_ID] = %s, [ASSET_CREATE_DATE] = %s, ")
+		_T("[ASSET_DESCRIPTION] = % s, [ASSET_MODEL_NUMBER] = % s, [ASSET_BRAND] = % s, [ASSET_DISPOSED] = % s, ")
+		_T("[ASSET_HISTORY_LOG] = % s WHERE[ASSET_ID] = % d"),
 		m_nAssetCustomerID,
-		static_cast<LPCTSTR>(buildFieldValue(intToCString(m_nAssetWorkorderID, true))),
-		static_cast<LPCTSTR>(buildFieldValue(m_strAssetCreateDate)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strDescription)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strModelNumber)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strBrand)),
-		static_cast<LPCTSTR>(buildFieldValue(intToCString(m_sAssetDisposed))),
-		static_cast<LPCTSTR>(buildFieldValue(m_strHistoryLog)),
+		buildFieldValue(intToCString(m_nAssetWorkorderID, true)),
+		buildFieldValue(m_strAssetCreateDate),
+		buildFieldValue(m_strDescription),
+		buildFieldValue(m_strModelNumber),
+		buildFieldValue(m_strBrand),
+		buildFieldValue(intToCString(m_sAssetDisposed)),
+		buildFieldValue(m_strHistoryLog),
 		m_nAssetID);
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
-	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-	{
+	if (!sql.ExecuteQuery(strQuery.GetBuffer())){
 		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
-	}
-	else
-	{
+	} else {
 		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
+		m_btnCreateWorkorder.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnCreateWorkorder, RED);
+		m_btnUpdateAsset.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnUpdateAsset, BLACK, false);
 	}
-	
+	theApp.EndWaitCursor();
 	strQuery.ReleaseBuffer();
-
-	m_btnCreateWorkorder.EnableWindow(TRUE);
-	m_btnUpdateAsset.EnableWindow(FALSE);
 }
 
 /// <summary>
@@ -349,58 +351,51 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 /// After creation the new asset button is disabled and the create workorder button is enabled.
 /// </summary>
 /// <returns></returns>
-void CAssetTab::OnBnClickedAssetTabNew()
-{
+void CAssetTab::OnBnClickedAssetTabNew(){
 	// Creation date is the current date.
-	CString strDate;
-	CTime time = CTime().GetCurrentTime();
-	strDate = time.Format(_T("%m/%d/%Y"));
+	auto time = CTime().GetCurrentTime();
+	auto strDate = time.Format(_T("%m/%d/%Y"));
 
 	CString strQuery;
 
 	// Build the fields value for the query.
-	auto buildFieldValue = [](CString str) -> CString
-	{
+	auto buildFieldValue = [](CString str) -> CString{
 		CString strResult;
-		if (str.IsEmpty())
-			return  _T("NULL");
+		if (str.IsEmpty()) return static_cast<LPCTSTR>(_T("NULL"));
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 		return strResult;
 	};
 
-	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_WORKORDER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], [ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES (%d, NULL, %s, %s, %s, %s, 0, NULL)"),
+	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_WORKORDER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], ")
+		_T("[ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES(% d, NULL, % s, % s, % s, % s, 0, NULL)"),
 		m_nAssetCustomerID,
-		static_cast<LPCTSTR>(buildFieldValue(strDate)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strDescription)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strModelNumber)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strBrand)));
+		buildFieldValue(strDate),
+		buildFieldValue(m_strDescription),
+		buildFieldValue(m_strModelNumber),
+		buildFieldValue(m_strBrand));
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
-	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-	{
+	if (!sql.ExecuteQuery(strQuery.GetBuffer())){
 		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-	}
-	else
-	{
+	} else {
 		auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('ASSET')"));
-		if (lastID > 0)
-		{
+		if (lastID > 0) {
 			m_nAssetID = lastID;
 			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-		}
-		else
-		{
+			m_btnCreateWorkorder.EnableWindow(TRUE);
+			SetCustomFocusButton(&m_btnCreateWorkorder, RED);
+			m_btnNewAsset.EnableWindow(FALSE);
+			SetCustomFocusButton(&m_btnNewAsset, BLACK, false);
+		} else {
 			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
 		}
 	}
 	
 	strQuery.ReleaseBuffer();
-
-	m_btnCreateWorkorder.EnableWindow(TRUE);
-	m_btnNewAsset.EnableWindow(FALSE);
 	m_bIsSelectedFromAssetList = true;
 }
 
@@ -411,8 +406,7 @@ void CAssetTab::OnBnClickedAssetTabNew()
 /// The tab control is switched to the workorder tab.
 /// </summary>
 /// <returns></returns>
-void CAssetTab::OnBnClickedAssetTabCreateWorkorder()
-{
+void CAssetTab::OnBnClickedAssetTabCreateWorkorder() {
 	UpdateData(TRUE);
 
 	m_pAssetDetailsRecords->m_strCustomerSurname = m_strCustomerSurname;
@@ -424,6 +418,8 @@ void CAssetTab::OnBnClickedAssetTabCreateWorkorder()
 	m_pAssetDetailsRecords->m_strModelNumber = m_strModelNumber;
 	m_pAssetDetailsRecords->m_strBrand = m_strBrand;
 
+	ClearForNewInput();
+
 	m_pTabControl->ChangeTabView();
 
 }
@@ -434,17 +430,13 @@ void CAssetTab::OnBnClickedAssetTabCreateWorkorder()
 /// the edit controls are cleared for new input.
 /// </summary>
 /// <returns></returns>
-void CAssetTab::OnBnClickedAssetTabClear()
-{
-	ClearForNewInput();
-}
+void CAssetTab::OnBnClickedAssetTabClear() { ClearForNewInput(); }
 
 /// <summary>
 /// Method ClearForNewInput() clears the edit controls for new input.
 /// </summary>
 /// <returns></returns>
-void CAssetTab::ClearForNewInput()
-{
+void CAssetTab::ClearForNewInput() {
 	m_nAssetID = 0;
 	m_nAssetWorkorderID = 0;
 	m_strDescription = _T("");
@@ -453,9 +445,25 @@ void CAssetTab::ClearForNewInput()
 	m_strHistoryLog = _T("");
 	m_bIsSelectedFromAssetList = false;
 	m_btnClear.EnableWindow(FALSE);
+	SetCustomFocusButton(&m_btnClear, BLACK, false);
 	UpdateData(FALSE);
-
+	OnEnChangeAssetDetails();
 }
 
-
-
+void CAssetTab::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus){
+	auto color = RGB(255, 0, 0);
+	switch (Color) {
+	case RED:
+		color = RGB(255, 0, 0);
+		break;
+	case BLUE:
+		color = RGB(0, 0, 255);
+		break;
+	case BLACK:
+		color = RGB(0, 0, 0);
+		break;
+	}
+	pButton->SetTextColor(color);
+	pButton->RedrawWindow();
+	if (bFocus) pButton->SetFocus();
+}

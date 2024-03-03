@@ -35,9 +35,9 @@
 * which is the view of the CListCtrl created on the asset/workorder dialog (CAssetDialog)
 * 
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 1.0.465.0
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 11-11-2023, (dd-mm-yyyy)
+* Updated: 03-03-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -45,41 +45,29 @@
 #pragma once
 #include "CTabCtrlAssetWorkorder.h"
 
-namespace artvabas {
+namespace artvabas::rcc::ui::dialogs {
 
-	namespace rcc {
+	using namespace artvabas::rcc::ui::controls;
 
-		namespace ui {
+	class CAssetDialog : public CDialogEx {
+		DECLARE_DYNAMIC(CAssetDialog)
 
-			namespace dialogs {
+	public:
+		CAssetDialog(CString strCustomerSurname, CString strCustomerName, unsigned int nCustomerID, CWnd* pParent = nullptr);
+		virtual ~CAssetDialog();
 
-				using namespace artvabas::rcc::ui::controls;
+	private:
+		CTabCtrlAssetWorkorder m_ctrTabAssetWorkorder;
 
-				class CAssetDialog : public CDialogEx
-				{
-					DECLARE_DYNAMIC(CAssetDialog)
+		// Dialog Data
+#ifdef AFX_DESIGN_TIME
+		enum { IDD = IDD_ASSET_DIALOG };
+#endif
 
-				public:
-					CAssetDialog(CString strCustomerSurname, CString strCustomerName, unsigned int nCustomerID, CWnd* pParent = nullptr);   // standard constructor
-					virtual ~CAssetDialog();
+	private:
+		void DoDataExchange(CDataExchange* pDX) override;
+		BOOL OnInitDialog() override;
 
-				private:
-					CTabCtrlAssetWorkorder m_ctrTabAssetWorkorder;
-
-				// Dialog Data
-				#ifdef AFX_DESIGN_TIME
-					enum { IDD = IDD_ASSET_DIALOG };
-				#endif
-
-				private:
-					void DoDataExchange(CDataExchange* pDX) override;
-					BOOL OnInitDialog() override;
-
-					DECLARE_MESSAGE_MAP()
-
-				};
-
-			}
-		}
-	}
+		DECLARE_MESSAGE_MAP()
+	};
 }

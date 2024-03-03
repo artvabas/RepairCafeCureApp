@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 1.0.465.0
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 08-11-2023, (dd-mm-yyyy)
+* Updated: 03-03-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -51,73 +51,65 @@
 
 #include "CTabCtrlAssetWorkorder.h"
 
-using namespace artvabas::rcc::ui::controls;
+namespace artvabas::rcc::ui::dialogs {
 
-namespace artvabas {
+	using namespace artvabas::rcc::ui::controls;
 
-	namespace rcc {
+	class CAssetTab : public CDialogEx
+	{
+		DECLARE_DYNAMIC(CAssetTab)
 
-		namespace ui {
+	private:
+		bool m_bIsSelectedFromAssetList;
+		CTabCtrlAssetWorkorder* m_pTabControl;
+		AssetDetailsRecords* m_pAssetDetailsRecords;
 
-			namespace dialogs {
+		CString m_strCustomerSurname;
+		CString m_strCustomerName;
 
-				using namespace artvabas::rcc::ui::controls;
+		unsigned int m_nAssetID;
+		unsigned int m_nAssetCustomerID;
+		unsigned int m_nAssetWorkorderID;
+		unsigned short m_sAssetDisposed;
 
-				class CAssetTab : public CDialogEx
-				{
-					DECLARE_DYNAMIC(CAssetTab)
+		CString m_strAssetCreateDate;
+		CString m_strDescription;
+		CString m_strModelNumber;
+		CString m_strBrand;
+		CString m_strHistoryLog;
 
-				private:
-					bool m_bIsSelectedFromAssetList;
-					CTabCtrlAssetWorkorder* m_pTabControl;
-					AssetDetailsRecords* m_pAssetDetailsRecords;
+		CMFCButton m_btnUpdateAsset;
+		CMFCButton m_btnNewAsset;
+		CMFCButton m_btnCreateWorkorder;
+		CMFCButton m_btnClear;
+		CListCtrl m_ctrExistingAssetList;
 
-					CString m_strCustomerSurname;
-					CString m_strCustomerName;
+	public:
+		CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID,
+			CWnd* pParent = nullptr);
+		virtual ~CAssetTab();
 
-					unsigned int m_nAssetID;
-					unsigned int m_nAssetCustomerID;
-					unsigned int m_nAssetWorkorderID;
-					unsigned short m_sAssetDisposed;
+		void ClearForNewInput();
 
-					CString m_strAssetCreateDate;
-					CString m_strDescription;
-					CString m_strModelNumber;
-					CString m_strBrand;
-					CString m_strHistoryLog;
-
-					CButton m_btnUpdateAsset;
-					CButton m_btnNewAsset;
-					CButton m_btnCreateWorkorder;
-					CButton m_btnClear;
-					CListCtrl m_ctrExistingAssetList;
-
-				public:
-					CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID, CWnd* pParent = nullptr);
-					virtual ~CAssetTab();
-
-					void ClearForNewInput();
-
-				private:
+	private:
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true);
 #ifdef AFX_DESIGN_TIME
-					enum { IDD = IDD_ASSET_TAB };
+		enum { IDD = IDD_ASSET_TAB };
 #endif
 
-				private:
-					BOOL OnInitDialog() override;
-					void DoDataExchange(CDataExchange* pDX) override;
+	private:
+		BOOL OnInitDialog() override;
+		void DoDataExchange(CDataExchange* pDX) override;
+		BOOL PreTranslateMessage(MSG* pMsg) override;
 
-					DECLARE_MESSAGE_MAP()
-				private:
-					afx_msg void OnEnChangeAssetDetails();
-					afx_msg void OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult);
-					afx_msg void OnBnClickedAssetTabUpdate();
-					afx_msg void OnBnClickedAssetTabNew();
-					afx_msg void OnBnClickedAssetTabClear();
-				public:
-					afx_msg void OnBnClickedAssetTabCreateWorkorder();
-				};
-			}
-		}
-	}
+		DECLARE_MESSAGE_MAP()
+	private:
+		afx_msg void OnEnChangeAssetDetails();
+		afx_msg void OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult);
+		afx_msg void OnBnClickedAssetTabUpdate();
+		afx_msg void OnBnClickedAssetTabNew();
+		afx_msg void OnBnClickedAssetTabClear();
+	public:
+		afx_msg void OnBnClickedAssetTabCreateWorkorder();
+	};
 }

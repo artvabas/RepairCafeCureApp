@@ -94,6 +94,7 @@ private:
 	BOOL CreateCaptionBar();
 public:
 	CString GetSelectedEmployee();
+	inline void EmployeeIdle() { m_pCmbCaptionBarEmployeeName->SetCurSel(0); }
 };
 
 
