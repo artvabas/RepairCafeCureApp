@@ -82,7 +82,7 @@ public:
 	CString GetSelectedEmployeeName();
 	void IsIdle();
 
-	inline WorkorderViewType GetWorkorderViewType() { return m_enuWorkorderViewType; }
+	inline WorkorderViewType GetWorkorderViewType() const{ return m_enuWorkorderViewType; }
 
 	ViewType GetActiveViewType();
 

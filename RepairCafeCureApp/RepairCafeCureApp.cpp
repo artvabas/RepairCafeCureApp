@@ -74,7 +74,7 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 	auto dwTimeIdle = dwTimeNow - lii.dwTime;
 	if (dwTimeIdle > 1000 * 60 * 1) {
 		theApp.IsIdle();
-		MessageBox(NULL, _T("Automaticly Locked the app!"), _T("Idle"), MB_OK);
+		MessageBox(NULL, _T("Automatically Locked the app!"), _T("Idle"), MB_OK);
 	}
 }
 

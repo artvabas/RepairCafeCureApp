@@ -40,7 +40,6 @@ END_MESSAGE_MAP()
 CRepairCafeCureAppDoc::CRepairCafeCureAppDoc() noexcept
 {
 	// TODO: add one-time construction code here
-
 }
 
 CRepairCafeCureAppDoc::~CRepairCafeCureAppDoc()
