@@ -102,7 +102,7 @@ CWorkorderView::CWorkorderView() : CFormView(IDD_WORKORDER_FORM),
 	m_bPrintCombi{ false },
 	m_bPrintInvoice{ false },
 	m_strWorkorderTotalPartsPrice{ _T("") },
-	m_pDC{ NULL } {}
+	m_pDC{ NULL } { }
 
 CWorkorderView::~CWorkorderView() {
 	//delete lpDevMode;
@@ -221,7 +221,29 @@ void CWorkorderView::OnInitialUpdate() {
 		m_lscWorkorderSpareParts.InsertColumn(3, _T("UNIT PRICE"), LVCFMT_LEFT, 100);
 		m_lscWorkorderSpareParts.InsertColumn(4, _T("TOTAL"), LVCFMT_LEFT, 100);
 
+		SetCustomFocusButton(&m_btnWorkorderParts, ColorButton::BLUE, false);
+
 		InitWorkorderEmployeeResponsibleComboBox();
+}
+
+BOOL CWorkorderView::PreTranslateMessage(MSG* pMsg) {
+
+	if (pMsg->message == WM_KEYDOWN) {
+		if (pMsg->wParam == VK_RETURN) {
+			if (m_btnWorkorderUpdate.IsWindowEnabled() && m_btnWorkorderFinished.IsWindowEnabled()) {
+				m_btnWorkorderFinished.SendMessage(BM_CLICK);
+			}
+			else if (m_btnWorkorderUpdate.IsWindowEnabled()) {
+				m_btnWorkorderUpdate.SendMessage(BM_CLICK);
+			}
+
+			if (m_btnWorkorderClose.IsWindowEnabled()) {
+				m_btnWorkorderClose.SendMessage(BM_CLICK);
+			}
+		}
+	}
+	
+	return CFormView::PreTranslateMessage(pMsg);
 }
 
 BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo) {
@@ -424,6 +446,10 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 			case VIEW_WORKORDER_OPEN:
 				m_edtWorkorderNewLog.EnableWindow(FALSE);
 				m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
+				m_cbxWorkorderEmployeeResponsible.SetFocus();
+				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
+				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
+				ribbonBar->SetActiveCategory(ribbonBar->GetCategory(1));
 				break;
 			case VIEW_WORKORDER_PROGRESS:
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
@@ -448,7 +474,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				m_bResponsibleChanged = false;
 				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
 				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
-				ribbonBar->ActivateTopParent();
+				ribbonBar->SetActiveCategory(ribbonBar->GetCategory(1));
 				break;
 		}
 
@@ -468,11 +494,13 @@ void CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible() {
 		case VIEW_WORKORDER_OPEN:
 			// Is a employee responsible selected and is a workorder selected?
 			if (m_cbxWorkorderEmployeeResponsible.GetCurSel() && m_bWorkorderSelected) {
-				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
+				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, true);
 			} else { // No employee responsible selected or no workorder selected.
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_edtWorkorderNewLog.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
 			}
 		break;
 		case VIEW_WORKORDER_PROGRESS:
@@ -483,14 +511,20 @@ void CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible() {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
 				m_btnWorkorderFinished.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, true);
 			} else if (m_chbWorkorderContactedCustomer.GetCheck()) { // But if the Workorder Contact Customer Checkbox is selected
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_btnWorkorderFinished.EnableWindow(TRUE);
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::RED, true);
 			} else { // No employee responsible selected.
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_btnWorkorderFinished.EnableWindow(FALSE);
 				m_edtWorkorderNewLog.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::BLACK, false);
 			}
 	}
 	m_bResponsibleChanged = true;
@@ -508,8 +542,10 @@ void CWorkorderView::OnEnChangeWorkorderViewLog() {
 			// Is the new log not empty and is a workorder selected?
 			if (!m_strWorkorderNewLog.IsEmpty() && m_bWorkorderSelected) {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, false);
 			} else if (!m_bResponsibleChanged) {
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
 			}
 			break;
 		default:
@@ -670,6 +706,7 @@ void CWorkorderView::InitWorkorderExistingList() {
 	}
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
 	auto *rs = new CRecordset();
 	strQuery.Format(_T("SELECT WORKORDER.*, WORKORDER_ASSET_ID AS Expr1, WORKORDER_CUSTOMER_ID AS Expr2 FROM WORKORDER WHERE(WORKORDER_STATUS = N\'%s\')"),
@@ -722,6 +759,7 @@ void CWorkorderView::InitWorkorderExistingList() {
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 	}
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	theApp.EndWaitCursor();
 	delete rs;
 	UpdateData(FALSE);
 }
@@ -731,10 +769,12 @@ void CWorkorderView::InitWorkorderExistingList() {
 /// </summary>
 /// <returns></returns>
 void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
+	m_cbxWorkorderEmployeeResponsible.m_nFlags |= CBS_DROPDOWNLIST;
 	m_cbxWorkorderEmployeeResponsible.ResetContent();
 	m_cbxWorkorderEmployeeResponsible.AddString(_T(">> Select name <<"));
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
 	auto *rs = new CRecordset();
 	CString strQuery = _T("SELECT EMPLOYEE_NAME FROM EMPLOYEE ORDER BY EMPLOYEE_NAME");
@@ -750,6 +790,7 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 	}
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	theApp.EndWaitCursor();
 	delete rs;
 	m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
 }
@@ -761,6 +802,7 @@ void CWorkorderView::InitWorkorderSparePartsList() {
 	auto row{ 0 };		// Row of the list control item.
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
 	auto *rs = new CRecordset();
 	CString strQuery;
@@ -802,6 +844,7 @@ void CWorkorderView::InitWorkorderSparePartsList() {
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 	}
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	theApp.EndWaitCursor();
 	delete rs;
 
 	UpdateData(FALSE);
@@ -816,35 +859,55 @@ void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() {
 				m_btnWorkorderClose.EnableWindow(TRUE);
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_btnWorkorderFinished.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::RED, false);
 			} else if (m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck()
 				&& !m_strWorkorderNewLog.IsEmpty())	{
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_btnWorkorderFinished.EnableWindow(TRUE);
 				m_btnWorkorderClose.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLUE, false);
+				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::RED, false);
 			} else if (!m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck()
 				&& !m_strWorkorderNewLog.IsEmpty()) {
 				m_btnWorkorderClose.EnableWindow(FALSE);
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_btnWorkorderFinished.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, false);
 			} else {
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_btnWorkorderFinished.EnableWindow(FALSE);
 				m_btnWorkorderClose.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::BLACK, false);
 			}
 			break;
 		case VIEW_WORKORDER_REPAIRED:
 			if (m_chbWorkorderContactedCustomer.GetCheck() && !m_strWorkorderNewLog.IsEmpty()) {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_btnWorkorderClose.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, false);
 			} else if (!m_chbWorkorderContactedCustomer.GetCheck() && !m_strWorkorderNewLog.IsEmpty()) {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_btnWorkorderClose.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, false);
 			} else if (m_chbWorkorderContactedCustomer.GetCheck() && m_strWorkorderNewLog.IsEmpty()) {
 				m_btnWorkorderClose.EnableWindow(FALSE);
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
 			} else {
 				m_btnWorkorderClose.EnableWindow(TRUE);
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::RED, false);
 			}
 			break;
 	}
@@ -990,6 +1053,7 @@ void CWorkorderView::PerformWorkorderUpdate() {
 		m_unWorkorderId);
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
@@ -997,6 +1061,8 @@ void CWorkorderView::PerformWorkorderUpdate() {
 		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
 	else
 		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+
+	theApp.EndWaitCursor();
 
 	strQuery.ReleaseBuffer();
 
@@ -1053,4 +1119,22 @@ void CWorkorderView::ResetAllControls() {
 	InitWorkorderExistingList();
 
 	UpdateData(FALSE);
+}
+
+void CWorkorderView::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) {
+	auto color = RGB(255, 0, 0);
+	switch (Color) {
+	case RED:
+		color = RGB(255, 0, 0);
+		break;
+	case BLUE:
+		color = RGB(0, 0, 255);
+		break;
+	case BLACK:
+		color = RGB(0, 0, 0);
+		break;
+	}
+	pButton->SetTextColor(color);
+	pButton->RedrawWindow();
+	if (bFocus) pButton->SetFocus();
 }

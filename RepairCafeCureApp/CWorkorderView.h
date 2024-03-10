@@ -77,11 +77,11 @@ namespace artvabas::rcc::ui
 
 		CButton m_chbWorkorderAssetDisposed;
 		CButton m_chbWorkorderContactedCustomer;
-
-		CButton m_btnWorkorderUpdate;
-		CButton m_btnWorkorderFinished;
-		CButton m_btnWorkorderClose;
-		CButton m_btnWorkorderParts;
+		
+		CMFCButton m_btnWorkorderUpdate;
+		CMFCButton m_btnWorkorderFinished;
+		CMFCButton m_btnWorkorderClose;
+		CMFCButton m_btnWorkorderParts;
 
 		CComboBox m_cbxWorkorderEmployeeResponsible;
 
@@ -112,6 +112,7 @@ namespace artvabas::rcc::ui
 #endif
 		void DoDataExchange(CDataExchange* pDX) override;
 		void OnInitialUpdate() override;
+		BOOL PreTranslateMessage(MSG* pMsg) override;
 		BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
 		void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
 		void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
@@ -142,5 +143,6 @@ namespace artvabas::rcc::ui
 		bool GetCustomerInfo(const unsigned int& nCustomerId);
 		void PerformWorkorderUpdate();
 		void ResetAllControls();
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus);
 	};
 }

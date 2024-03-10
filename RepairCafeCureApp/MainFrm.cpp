@@ -313,7 +313,7 @@ CString CMainFrame::GetSelectedEmployee() {
 void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI) {
 	switch (theApp.GetActiveViewType())	{
 		case VIEW_ASSET:
-			pCmdUI->Enable(TRUE);
+			pCmdUI->Enable(FALSE);
 			break;
 		case VIEW_CUSTOMER:
 			pCmdUI->Enable(FALSE);
@@ -327,8 +327,8 @@ void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI) {
 void CMainFrame::OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI) {
 	switch (theApp.GetWorkorderViewType()) {
 		case VIEW_WORKORDER_OPEN:
-			pCmdUI->Enable(FALSE);
-			break;
+			//pCmdUI->Enable(FALSE);
+			//break;
 		case VIEW_WORKORDER_PROGRESS:
 		case VIEW_WORKORDER_REPAIRED:
 			pCmdUI->Enable(TRUE);
