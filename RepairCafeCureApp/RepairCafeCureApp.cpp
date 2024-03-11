@@ -65,17 +65,21 @@ using namespace artvabas::rcc::ui;
 /* Globals */
 CRepairCafeCureApp theApp; // The one and only CRepairCafeCureApp object
 
-static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-{
+static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
+	static auto isIdle = false;
 	LASTINPUTINFO lii{ 0 };
 	lii.cbSize = sizeof(LASTINPUTINFO);
 	GetLastInputInfo(&lii);
 	auto dwTimeNow = GetTickCount64();
 	auto dwTimeIdle = dwTimeNow - lii.dwTime;
-	if (dwTimeIdle > 1000 * 60 * 1) {
+	if (dwTimeIdle > 1000 * 60 * 1 && !isIdle) {
 		theApp.IsIdle();
-		MessageBox(NULL, _T("Automatically Locked the app!"), _T("Idle"), MB_OK);
-	}
+		isIdle = true;
+		auto result = MessageBoxW(NULL, _T("Automatically Locked the app!"), _T("Idle"), MB_OK);
+		if (result == IDOK) {
+			isIdle = false;
+		}
+	} 
 }
 
 

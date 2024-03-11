@@ -171,7 +171,7 @@ void CTabCtrlAssetWorkorder::ChangeTabView(bool bClearForNewInput)
 		SetCurFocus(m_tabCurrent);
 
 		// Init workorder tab with asset details records
-		CWorkorderTab* pWorkorderTab = dynamic_cast<CWorkorderTab*>(m_tabPages[1]);
+		CWorkorderTab* pWorkorderTab = reinterpret_cast<CWorkorderTab*>(m_tabPages[1]);
 		if (pWorkorderTab != nullptr) pWorkorderTab->InitWithAssetDetailsRecords();
 
 	}
@@ -185,7 +185,7 @@ void CTabCtrlAssetWorkorder::ChangeTabView(bool bClearForNewInput)
 		if(bClearForNewInput)
 		{
 			// Clear asset tab for new input
-			CAssetTab* pAssetTab = dynamic_cast<CAssetTab*>(m_tabPages[0]);
+			CAssetTab* pAssetTab = reinterpret_cast<CAssetTab*>(m_tabPages[0]);
 			if (pAssetTab != nullptr) pAssetTab->ClearForNewInput();
 		}
 	}

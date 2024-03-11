@@ -93,11 +93,11 @@ END_MESSAGE_MAP()
 void CWorkorderTab::OnEnChangeWoTabDescription(){
 	UpdateData(TRUE);
 	if (m_strWorkorderDescription.IsEmpty())	{
-		m_btnCreateWorkorder.EnableWindow(FALSE);
-		SetCustomFocusButton(&m_btnCreateWorkorder, BLACK, false);
-	} else if (!m_btnCreateWorkorder.IsWindowEnabled()){
-		m_btnCreateWorkorder.EnableWindow(TRUE);
-		SetCustomFocusButton(&m_btnCreateWorkorder,RED, false);
+		m_btnWorkorderCreate.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnWorkorderCreate, BLACK, false);
+	} else {
+		m_btnWorkorderCreate.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnWorkorderCreate,RED, false);
 	}
 }
 
@@ -146,6 +146,11 @@ void CWorkorderTab::OnBnClickedWoTabCreate(){
 
 	PrintReceiptAndWorkorder();
 
+	m_strWorkorderDescription.Empty();
+	UpdateData(FALSE);
+	m_btnWorkorderCreate.EnableWindow(FALSE);
+	SetCustomFocusButton(&m_btnWorkorderCreate, BLACK, false);
+
 	m_pTabControl->ChangeTabView(true);
 }
 
@@ -191,17 +196,21 @@ BOOL CWorkorderTab::OnInitDialog(){
 	return TRUE;  
 }
 
-BOOL artvabas::rcc::ui::dialogs::CWorkorderTab::PreTranslateMessage(MSG* pMsg){
-	if (pMsg->message == WM_KEYDOWN) {
-		if (pMsg->wParam == VK_RETURN) {
-			if (m_btnCreateWorkorder.IsWindowEnabled()) {
-				// Yes, then click the search button.
-				OnBnClickedWoTabCreate();
-				return TRUE;
+BOOL CWorkorderTab::PreTranslateMessage(MSG* pMsg){
+	
+	if (m_pTabControl->GetCurFocus() == 1)
+	{
+		if (pMsg->message == WM_KEYDOWN) {
+			if (pMsg->wParam == VK_RETURN) {
+				if (m_btnWorkorderCreate.IsWindowEnabled()) {
+					// Yes, then click the search button.
+					OnBnClickedWoTabCreate();
+					return TRUE;
+				}
 			}
 		}
 	}
-	return FALSE;// CAssetTab::PreTranslateMessage(pMsg);
+	return FALSE; // CWorkorderTab::PreTranslateMessage(pMsg);
 }
 
 
@@ -220,7 +229,7 @@ void CWorkorderTab::DoDataExchange(CDataExchange* pDX){
 	DDX_Text(pDX, IDC_WOTAB_DESCRIPTION, m_strWorkorderDescription);
 	DDX_Text(pDX, IDC_WOTAB_WORKORDER_HISTORY_DESCRIPTION, m_strHistoryWorkorderDescription);
 	DDX_Text(pDX, IDC_WOTAB_WORKORDER_HISTORY_LOG, m_strHistoryWorkorderLog);
-	DDX_Control(pDX, IDC_WOTAB_CREATE, m_btnCreateWorkorder);
+	DDX_Control(pDX, IDC_WOTAB_CREATE, m_btnWorkorderCreate);
 	DDX_Control(pDX, IDC_WOTAB_WORKORDERS_HISTORY_LIST, m_ctrWorkordersHistoryList);
 }
 
@@ -299,9 +308,9 @@ void CWorkorderTab::InitWithAssetDetailsRecords(){
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 	}
 	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	theApp.EndWaitCursor();
 	delete rs;
 	UpdateData(FALSE);
-	theApp.EndWaitCursor();
 }
 
 /// <summary>

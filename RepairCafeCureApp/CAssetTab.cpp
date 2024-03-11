@@ -187,22 +187,24 @@ void CAssetTab::DoDataExchange(CDataExchange* pDX){
 	DDX_Control(pDX, IDC_ASSETTAB_CLEAR, m_btnClear);
 }
 
-BOOL CAssetTab::PreTranslateMessage(MSG* pMsg){
-	if (pMsg->message == WM_KEYDOWN) {
-		if (pMsg->wParam == VK_RETURN) {
-			if (m_btnUpdateAsset.IsWindowEnabled()) {
-				// Yes, then click the search button.
-				OnBnClickedAssetTabUpdate();
-				return TRUE;
-			}
-			if (m_btnNewAsset.IsWindowEnabled()) {
-				// Yes, then click the search button.
-				OnBnClickedAssetTabNew();
-				return TRUE;
+BOOL CAssetTab::PreTranslateMessage(MSG* pMsg) {
+	if (m_pTabControl->GetCurFocus() == 0) {
+		if (pMsg->message == WM_KEYDOWN) {
+			if (pMsg->wParam == VK_RETURN) {
+				if (m_btnUpdateAsset.IsWindowEnabled()) {
+					// Yes, then click the search button.
+					OnBnClickedAssetTabUpdate();
+					return TRUE;
+				}
+				if (m_btnNewAsset.IsWindowEnabled()) {
+					// Yes, then click the search button.
+					OnBnClickedAssetTabNew();
+					return TRUE;
+				}
 			}
 		}
 	}
-	return FALSE;// CAssetTab::PreTranslateMessage(pMsg);
+	return FALSE; //CAssetTab::PreTranslateMessage(pMsg);
 }
 
 /// <summary>

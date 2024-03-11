@@ -231,14 +231,17 @@ BOOL CWorkorderView::PreTranslateMessage(MSG* pMsg) {
 	if (pMsg->message == WM_KEYDOWN) {
 		if (pMsg->wParam == VK_RETURN) {
 			if (m_btnWorkorderUpdate.IsWindowEnabled() && m_btnWorkorderFinished.IsWindowEnabled()) {
-				m_btnWorkorderFinished.SendMessage(BM_CLICK);
+				OnBnClickedWorkorderViewFinished();
+				return TRUE;
 			}
 			else if (m_btnWorkorderUpdate.IsWindowEnabled()) {
-				m_btnWorkorderUpdate.SendMessage(BM_CLICK);
+				OnBnClickedWorkorderViewUpdate();
+				return TRUE;
 			}
 
 			if (m_btnWorkorderClose.IsWindowEnabled()) {
-				m_btnWorkorderClose.SendMessage(BM_CLICK);
+				OnBnClickedWorkorderViewClose();
+				return TRUE;
 			}
 		}
 	}
@@ -619,7 +622,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 		invoiceData.strTotal = m_strWorkorderTotalPartsPrice;
 
 		CContributionPaymentDialog dlg{ invoiceData, contributionData };
-		if (dlg.DoModal() == IDOK)
+		if (dlg.DoModal() == IDOK && contributionData.dContribution > 0.0)
 		{
 			CString strQuery{};
 			auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) }; //time.Format(_T("%d-%m-%y"));
@@ -873,7 +876,7 @@ void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() {
 			} else if (!m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck()
 				&& !m_strWorkorderNewLog.IsEmpty()) {
 				m_btnWorkorderClose.EnableWindow(FALSE);
-				m_btnWorkorderUpdate.EnableWindow(TRUE);
+				m_btnWorkorderUpdate.EnableWindow(TRUE);///////////////////////////////////////////////////////////
 				m_btnWorkorderFinished.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::BLACK, false);
@@ -1116,9 +1119,8 @@ void CWorkorderView::ResetAllControls() {
 	m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
 	m_chbWorkorderContactedCustomer.EnableWindow(FALSE);
 
-	InitWorkorderExistingList();
-
 	UpdateData(FALSE);
+	InitWorkorderExistingList();
 }
 
 void CWorkorderView::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) {

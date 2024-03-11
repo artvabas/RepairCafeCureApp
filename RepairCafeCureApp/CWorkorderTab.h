@@ -77,7 +77,7 @@ namespace artvabas {
 					CString m_strHistoryWorkorderDescription;
 					CString m_strHistoryWorkorderLog;
 
-					CMFCButton m_btnCreateWorkorder;
+					CMFCButton m_btnWorkorderCreate;
 					CListCtrl m_ctrWorkordersHistoryList;
 
 				public:
