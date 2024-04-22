@@ -1,4 +1,4 @@
-f/*
+/*
 	Copyright (C) 2023  artvabas
 
 	This program is free software: you can redistribute it and/or modify
@@ -412,10 +412,10 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 	auto pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	if (pNMItemActivate->iItem != -1) {
 		// Get the selected item's text.
-		m_unWorkorderId = _tstoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 0));
+		m_unWorkorderId = _wtoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 0));
 
-		const unsigned unAssetID = _tstoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 1));
-		const unsigned unCustomerID = _tstoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 2));
+		const unsigned unAssetID = _wtoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 1));
+		const unsigned unCustomerID = _wtoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 2));
 	
 		m_strWorkorderCreatedDate = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 4);
 		m_strWorkorderCreatedBy = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 5);
@@ -617,7 +617,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 		CContributionPaymentDialog::InvoiceData invoiceData;
 		CContributionPaymentDialog::ContributionData contributionData;
 
-		invoiceData.unCustomerID = _ttoi(m_lscWorkorderExisting.GetItemText(m_lscWorkorderExisting.GetSelectionMark(), 2));
+		invoiceData.unCustomerID = _wtoi(m_lscWorkorderExisting.GetItemText(m_lscWorkorderExisting.GetSelectionMark(), 2));
 		invoiceData.unWorkOrderID= m_unWorkorderId;
 		invoiceData.strTotal = m_strWorkorderTotalPartsPrice;
 

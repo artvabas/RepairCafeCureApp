@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\source\artvabas\Cryptopp890;$(IncludePath)</IncludePath>
+    <IncludePath>D:\Cryptopp890;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\ArthurvanBasten\source\repos\RepairCafeCureApp\RepairCafeCureApp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -203,6 +203,7 @@
     <ClInclude Include="CWorkorderPartsDialog.h" />
     <ClInclude Include="CWorkorderTab.h" />
     <ClInclude Include="CWorkorderView.h" />
+    <ClInclude Include="DatabaseTables.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="pch.h" />

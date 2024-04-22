@@ -52,6 +52,8 @@
 #include "RepairCafeCureApp.h"
 #include "MainFrm.h"
 
+using namespace artvabas::sql;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -236,7 +238,7 @@ void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange() {
 /// </summary>
 /// <returns>BOOL TRUE if succeed, FALSE if not succeed</returns>
 BOOL CMainFrame::CreateCaptionBar() {
-	if (!m_wndCaptionBar.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS , this, ID_VIEW_CAPTION_BAR, -1, TRUE))	{
+	if (!m_wndCaptionBar.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS, this, ID_VIEW_CAPTION_BAR, -1, TRUE)) {
 		TRACE0("Failed to create caption bar\n");
 		return FALSE;
 	}
@@ -270,17 +272,43 @@ BOOL CMainFrame::CreateCaptionBar() {
 
 	// Add items to comboBox
 	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
-	auto *rs = new CRecordset();
-	CString strQuery{ _T("SELECT EMPLOYEE_NAME FROM EMPLOYEE ORDER BY EMPLOYEE_NAME") };
-	theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery);
-	while (!rs->IsEOF()) {
-		CString strValue{ _T("") };
-		rs->GetFieldValue(_T("EMPLOYEE_NAME"), strValue);
-		m_pCmbCaptionBarEmployeeName->AddString(strValue);
-		rs->MoveNext();
+	//auto *rs = new CRecordset();
+
+	//*************************************************************************************************************
+
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
+
+	if (sql.CreateSQLConnection()) {
+
+		SQLCHAR szName[50]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ _T("SELECT EMPLOYEE_NAME FROM EMPLOYEE ORDER BY EMPLOYEE_NAME") };
+
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
+
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Employee Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+
+					// Get data for columns 1, employee names
+					SQLGetData(hstmt, 1, SQL_C_CHAR, szName, 50, &cbName);
+					m_pCmbCaptionBarEmployeeName->AddString(static_cast<CString>(szName));
+				}
+				else {
+					break;
+				}
+			}
+		}
+		sql.CheckReturnCodeForClosing(retcode);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
-	delete rs;
+	sql.CloseConnection();
+
 	m_pCmbCaptionBarEmployeeName->SetCurSel(0);
 
 	theApp.EndWaitCursor();

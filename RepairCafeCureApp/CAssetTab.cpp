@@ -51,9 +51,11 @@
 #include "pch.h"
 #include "RepairCafeCureApp.h"
 #include "CAssetTab.h"
+#include "DatabaseTables.h"
 
 using namespace artvabas::sql;
 using namespace artvabas::rcc::ui::dialogs;
+using namespace artvabas::database::tables::asset;
 
 IMPLEMENT_DYNAMIC(CAssetTab, CDialogEx)
 
@@ -115,59 +117,88 @@ BOOL CAssetTab::OnInitDialog(){
 
 	int nIndex;			// Index of the list control item.	
 	auto row{ 0 };			// Row of the list control item.
-	CString strQuery;
+	CString strBuildQuery;
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();
 
-	CRecordset* rs{ new CRecordset() };
-	strQuery.Format(_T("SELECT ASSET.*, ASSET_CUSTOMER_ID AS Expr1 FROM ASSET WHERE(ASSET_CUSTOMER_ID = %d)"), m_nAssetCustomerID);
+	strBuildQuery.Format(_T("SELECT ASSET.*, ASSET_CUSTOMER_ID AS Expr1 FROM ASSET WHERE(ASSET_CUSTOMER_ID = %d)"), m_nAssetCustomerID);
 
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)){
-		while (!rs->IsEOF()){
-			CString strValue{ _T("") };
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			rs->GetFieldValue(_T("ASSET_ID"), strValue);
-			nIndex = m_ctrExistingAssetList.InsertItem(row, strValue);
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("ASSET_CUSTOMER_ID"), strValue);
-			m_ctrExistingAssetList.SetItemText(nIndex, 1, strValue);
+		SQLCHAR szName[SQLCHARVSMAL] {};
+		SQLCHAR szNameLong[SQLCHARVMAX] {};
+		SQLLEN cbName {};
+		SQLRETURN retcode {};
+		SQLHSTMT hstmt { sql.GetStatementHandle() };
+		SQLWCHAR* strQuery { strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("ASSET_WORKORDER_ID"), strValue);
-			m_ctrExistingAssetList.SetItemText(nIndex, 2, strValue);
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->GetFieldValue(_T("ASSET_CREATE_DATE"), strValue);
-			m_ctrExistingAssetList.SetItemText(nIndex, 3, strValue);
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-			rs->GetFieldValue(_T("ASSET_DESCRIPTION"), strValue);
-			m_ctrExistingAssetList.SetItemText(nIndex, 4, strValue);
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+					};
 
-			rs->GetFieldValue(_T("ASSET_MODEL_NUMBER"), strValue);
-			m_ctrExistingAssetList.SetItemText(nIndex, 5, strValue);
+					// Get data for columns 1, employee names
+					SQLGetData(hstmt, ASSET.ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					nIndex = m_ctrExistingAssetList.InsertItem(row++, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("ASSET_BRAND"), strValue);
-			m_ctrExistingAssetList.SetItemText(nIndex, 6, strValue);
+					SQLGetData(hstmt, ASSET.ASSET_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("ASSET_DISPOSED"), strValue);
-			m_ctrExistingAssetList.SetItemText(nIndex, 7, strValue);
+					SQLGetData(hstmt, ASSET.ASSET_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("ASSET_HISTORY_LOG"), strValue);
-			m_ctrExistingAssetList.SetItemText(nIndex, 8, strValue);
+					SQLGetData(hstmt, ASSET.ASSET_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-			rs->MoveNext();
+					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
+
+				}
+				else {
+					break;
+				}
+			}
 		}
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
-	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
-		delete rs;
-		EndDialog(IDCANCEL);
-		return FALSE;
+		if (!sql.CheckReturnCodeForClosing(retcode))
+		{
+			sql.CloseConnection();
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+			EndDialog(IDCANCEL);
+			return FALSE;
+		}
+		else 
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	sql.CloseConnection();
 	theApp.EndWaitCursor();
-	delete rs;
-
 	return TRUE;
 }
 
@@ -294,11 +325,11 @@ void CAssetTab::OnBnClickedAssetTabUpdate(){
 	CString strQuery;
 
 	// Build the fields value for the query.
-	auto buildFieldValue = [](CString str) -> CString{
+	auto buildFieldValue = [](CString str) ->CString{
 		CString strResult;
-		if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
+		if (str.IsEmpty()) return  _T("NULL");
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-		return strResult;
+		return static_cast<LPCTSTR>(strResult);
 	};
 
 	// A numeric zero is converted to a string zero or as an empty string, depending on the isNull parameter.
@@ -333,17 +364,21 @@ void CAssetTab::OnBnClickedAssetTabUpdate(){
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (!sql.ExecuteQuery(strQuery.GetBuffer())){
-		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
-	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
-		m_btnCreateWorkorder.EnableWindow(TRUE);
-		SetCustomFocusButton(&m_btnCreateWorkorder, RED);
-		m_btnUpdateAsset.EnableWindow(FALSE);
-		SetCustomFocusButton(&m_btnUpdateAsset, BLACK, false);
+	if (sql.CreateSQLConnection()) {
+		if (!sql.ExecuteQuery(strQuery.GetBuffer())) {
+			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
+		}
+		else {
+			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
+			m_btnCreateWorkorder.EnableWindow(TRUE);
+			SetCustomFocusButton(&m_btnCreateWorkorder, RED);
+			m_btnUpdateAsset.EnableWindow(FALSE);
+			SetCustomFocusButton(&m_btnUpdateAsset, BLACK, false);
+		}
 	}
-	theApp.EndWaitCursor();
 	strQuery.ReleaseBuffer();
+	sql.CloseConnection();
+	theApp.EndWaitCursor();
 }
 
 /// <summary>
@@ -363,9 +398,9 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString{
 		CString strResult;
-		if (str.IsEmpty()) return static_cast<LPCTSTR>(_T("NULL"));
+		if (str.IsEmpty()) return _T("NULL");
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-		return strResult;
+		return static_cast<LPCTSTR>(strResult);
 	};
 
 	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_WORKORDER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], ")
@@ -381,23 +416,30 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (!sql.ExecuteQuery(strQuery.GetBuffer())){
-		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-	} else {
-		auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('ASSET')"));
-		if (lastID > 0) {
-			m_nAssetID = lastID;
-			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-			m_btnCreateWorkorder.EnableWindow(TRUE);
-			SetCustomFocusButton(&m_btnCreateWorkorder, RED);
-			m_btnNewAsset.EnableWindow(FALSE);
-			SetCustomFocusButton(&m_btnNewAsset, BLACK, false);
-		} else {
-			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
+	if (sql.CreateSQLConnection()) {
+
+
+		if (!sql.ExecuteQuery(strQuery.GetBuffer())) {
+			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+		}
+		else {
+			auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('ASSET')"));
+			if (lastID > 0) {
+				m_nAssetID = lastID;
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+				m_btnCreateWorkorder.EnableWindow(TRUE);
+				SetCustomFocusButton(&m_btnCreateWorkorder, RED);
+				m_btnNewAsset.EnableWindow(FALSE);
+				SetCustomFocusButton(&m_btnNewAsset, BLACK, false);
+			}
+			else {
+				theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
+			}
 		}
 	}
-	
 	strQuery.ReleaseBuffer();
+	sql.CloseConnection();
+	theApp.EndWaitCursor();
 	m_bIsSelectedFromAssetList = true;
 }
 

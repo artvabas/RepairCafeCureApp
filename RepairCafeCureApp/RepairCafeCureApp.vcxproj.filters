@@ -138,6 +138,9 @@
     <ClInclude Include="CSplashScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DatabaseTables.h">
+      <Filter>Header Files\artvabas\rcc\database</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -167,9 +170,6 @@
     <ClCompile Include="CSqlNativeAVB.cpp">
       <Filter>Source Files\artvabas\sql</Filter>
     </ClCompile>
-    <ClCompile Include="CWorkorderView.cpp">
-      <Filter>Source Files\artvabas\rcc\ui</Filter>
-    </ClCompile>
     <ClCompile Include="CAssetTab.cpp">
       <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
     </ClCompile>
@@ -190,6 +190,9 @@
     </ClCompile>
     <ClCompile Include="CSplashScreen.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CWorkorderView.cpp">
+      <Filter>Source Files\artvabas\rcc\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

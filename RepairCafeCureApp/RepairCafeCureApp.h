@@ -62,6 +62,7 @@ class CRepairCafeCureApp : public CWinAppEx
 // Members 
 public:
 	CSplashScreen m_pSplashScreen;
+
 private:
 		CDatabaseConnection* m_dbConnection;
 		CView* m_pCustomerView;

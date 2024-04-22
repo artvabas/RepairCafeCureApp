@@ -14,16 +14,23 @@ namespace artvabas
 			SQLHENV     m_hEnvironment;
 			SQLHDBC     m_hDatabaseConnection;
 			SQLHSTMT    m_hStatement;
+			int m_nTryCount;
 
 		public:
 			CSqlNativeAVB(SQLWCHAR* pszSqlConnectionString);
 			virtual ~CSqlNativeAVB();
-			bool ExecuteQuery(SQLWCHAR* pszQuery);
-			SQLINTEGER GetLastAddedID(SQLWCHAR* pszQuery);
-		private:
+
 			bool CreateSQLConnection();
+			bool ExecuteQuery(SQLWCHAR* pszQuery);
+			SQLINTEGER ExecuteReceiveQuery(SQLWCHAR* pszQuery);
+			SQLINTEGER GetLastAddedID(SQLWCHAR* pszQuery);
 			bool CheckReturnCodeForClosing(SQLRETURN RetCode);
+
+			inline SQLHSTMT& GetStatementHandle() { return m_hStatement; }
 			void CloseConnection();
+		private:
+			//bool CreateSQLConnection();
+			//void CloseConnection();
 			bool TryODBC(SQLHANDLE h, SQLSMALLINT ht, SQLRETURN x);
 			bool HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode);
 		};

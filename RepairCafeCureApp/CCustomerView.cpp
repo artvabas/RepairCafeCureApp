@@ -51,10 +51,12 @@
 #include "RepairCafeCureApp.h"
 #include "CCustomerView.h"
 #include "CAssetDialog.h"
+#include "DatabaseTables.h"
 
 using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::sql;
+using namespace artvabas::database::tables::customer;
 
 IMPLEMENT_DYNCREATE(CCustomerView, CFormView)
 
@@ -232,77 +234,102 @@ void CCustomerView::OnInitialUpdate() {
 /// </summary>
 void CCustomerView::OnClickedCustomViewButtonSearch() {
 	UpdateData(TRUE);
-
+	
 	m_ctlExistingCustomersList.DeleteAllItems();
 
 	int nIndex;			// Index of the list control item.
 	auto row(0);		// Row of the list control item.
-	CString strQuery;
+	CString strBuildQuery;
 
 	theApp.BeginWaitCursor();
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 	auto buildString = [](CString str) -> CString {
 		CString strResult;
-		strResult = _T("%") + str + _T("%");//.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+		strResult = _T("%") + str + _T("%");
 		return strResult;
-	};
+		};
 
-	auto *rs = new CRecordset();
-	strQuery.Format(_T("SELECT CUSTOMER.*, CUSTOMER_SURNAME AS Expr1 FROM CUSTOMER WHERE(CUSTOMER_SURNAME LIKE N\'%s\')"),
+	strBuildQuery.Format(_T("SELECT CUSTOMER.*, CUSTOMER_SURNAME AS Expr1 FROM CUSTOMER WHERE(CUSTOMER_SURNAME LIKE N\'%s\')"),
 		static_cast<LPCTSTR>(buildString(m_strSearchCustomerSurname)));
 
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)) {
-		// Fill the existing customers list control with the found customers from the database.
-		while (!rs->IsEOF()) {
-			CString strValue = _T("");
-			rs->GetFieldValue(_T("CUSTOMER_ID"), strValue);
-			nIndex = m_ctlExistingCustomersList.InsertItem(row++, strValue);
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			rs->GetFieldValue(_T("CUSTOMER_SURNAME"), strValue);
-			m_ctlExistingCustomersList.SetItemText(nIndex, 1, strValue);
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("CUSTOMER_NAME"), strValue);
-			m_ctlExistingCustomersList.SetItemText(nIndex, 2, strValue);
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szNameLong[SQLCHARVMAX]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("CUSTOMER_CELL_PHONE"), strValue);
-			m_ctlExistingCustomersList.SetItemText(nIndex, 3, strValue);
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->GetFieldValue(_T("CUSTOMER_PHONE"), strValue);
-			m_ctlExistingCustomersList.SetItemText(nIndex, 4, strValue);
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-			rs->GetFieldValue(_T("CUSTOMER_EMAIL"), strValue);
-			m_ctlExistingCustomersList.SetItemText(nIndex, 5, strValue);
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+						};
 
-			rs->GetFieldValue(_T("CUSTOMER_COMMENT"), strValue);
-			m_ctlExistingCustomersList.SetItemText(nIndex, 6, strValue);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					nIndex = m_ctlExistingCustomersList.InsertItem(row++, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("CUSTOMER_GENERAL_LOG"), strValue);
-			m_ctlExistingCustomersList.SetItemText(nIndex, 7, strValue);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_SURNAME, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctlExistingCustomersList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-			rs->MoveNext();
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_NAME, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctlExistingCustomersList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctlExistingCustomersList.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctlExistingCustomersList.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_EMAIL, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctlExistingCustomersList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_COMMENT, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_ctlExistingCustomersList.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_GENERAL_LOG, SQL_C_CHAR, szNameLong, SQLCHARVSMAL, &cbName);
+					m_ctlExistingCustomersList.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
+				}
+				else {
+					break;
+				}
+			}
 		}
-		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_OK);
-	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_SEARCH_FAIL);
-	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
-	delete rs;
+		if (!sql.CheckReturnCodeForClosing(retcode)) {
+			sql.CloseConnection();
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		} else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 
+		if (m_ctlExistingCustomersList.GetItemCount() > 0) {
+			m_ctlExistingCustomersList.EnableWindow();
+			m_btnCustomerSurnameSearch.EnableWindow(FALSE);
+			m_btnAddNewCustomer.EnableWindow();
+			SetCustomFocusButton(&m_btnAddNewCustomer, ColorButton::BLUE);
+		} else {
+			m_btnCustomerSurnameSearch.EnableWindow(FALSE);
+			m_btnAddNewCustomer.EnableWindow();
+			SetCustomFocusButton(&m_btnAddNewCustomer, ColorButton::RED);
+		}
+	}
+	sql.CloseConnection();
 	theApp.EndWaitCursor();
-
-	if (m_ctlExistingCustomersList.GetItemCount() > 0) {
-		m_ctlExistingCustomersList.EnableWindow();
-		m_btnCustomerSurnameSearch.EnableWindow(FALSE);
-		m_btnAddNewCustomer.EnableWindow();
-		SetCustomFocusButton(&m_btnAddNewCustomer, ColorButton::BLUE);
-	}
-	else {
-		m_btnCustomerSurnameSearch.EnableWindow(FALSE);
-		m_btnAddNewCustomer.EnableWindow();
-		SetCustomFocusButton(&m_btnAddNewCustomer, ColorButton::RED);
-
-	}
 }
 
 /// <summary>
@@ -522,21 +549,26 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if(!sql.ExecuteQuery(strQuery.GetBuffer()))	{
-		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-	} else {
-		auto lastID{ sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('CUSTOMER')")) };
-		if (lastID > 0)	{
-			m_bIsNewCustomer = false;
-			m_bIsDirtyCustomerDetails = false;
-			m_nCustomerID = lastID;
-			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-			m_btnCustomAssets.EnableWindow();
-			SetCustomFocusButton(&m_btnCustomAssets, ColorButton::RED);
-		} else {
-			theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
+	if (sql.CreateSQLConnection()) {
+		if (!sql.ExecuteQuery(strQuery.GetBuffer())) {
+			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+		}
+		else {
+			auto lastID{ sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('CUSTOMER')")) };
+			if (lastID > 0) {
+				m_bIsNewCustomer = false;
+				m_bIsDirtyCustomerDetails = false;
+				m_nCustomerID = lastID;
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+				m_btnCustomAssets.EnableWindow();
+				SetCustomFocusButton(&m_btnCustomAssets, ColorButton::RED);
+			}
+			else {
+				theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
+			}
 		}
 	}
+	sql.CloseConnection();
 	strQuery.ReleaseBuffer();
 	theApp.EndWaitCursor();
 }
@@ -574,16 +606,20 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
-	 
-	if (!sql.ExecuteQuery(strQuery.GetBuffer())){
-		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
-	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
-		m_bIsDirtyCustomerDetails = false;
-		m_btnCustomAssets.EnableWindow();
-		SetCustomFocusButton(&m_btnCustomAssets, ColorButton::RED);
-	}
 
+	if (sql.CreateSQLConnection()) {
+
+		if (!sql.ExecuteQuery(strQuery.GetBuffer())) {
+			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
+		}
+		else {
+			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
+			m_bIsDirtyCustomerDetails = false;
+			m_btnCustomAssets.EnableWindow();
+			SetCustomFocusButton(&m_btnCustomAssets, ColorButton::RED);
+		}
+	}
+	sql.CloseConnection();
 	strQuery.ReleaseBuffer();
 	theApp.EndWaitCursor();
 }

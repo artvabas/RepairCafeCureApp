@@ -45,9 +45,12 @@
 #include "RepairCafeCureApp.h"
 #include "afxdialogex.h"
 #include "CWorkorderPartsDialog.h"
+#include "DatabaseTables.h"
 
 using namespace artvabas::sql;
 using namespace artvabas::rcc::ui::dialogs;
+using namespace artvabas::database::tables::sparepartstock;
+using namespace artvabas::database::tables::workorderparts;
 
 IMPLEMENT_DYNAMIC(CWorkorderPartsDialog, CDialogEx)
 
@@ -132,47 +135,58 @@ void CWorkorderPartsDialog::OnOK()
 	CString strQuery;
 	strQuery.Format(_T("DELETE FROM [WORKORDER_PARTS] WHERE ([WORKORDER_PARTS_WORKORDER_ID] = %d)"), m_unWorkorderID);
 
+	theApp.BeginWaitCursor();
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
 
-	sql.ExecuteQuery(strQuery.GetBuffer());
+	if (sql.CreateSQLConnection()) {
 
-	if (m_lscWorkorderAddedPartList.GetItemCount() > 0)
-	{
-		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
-		
-		strQuery.ReleaseBuffer();
+		if (sql.ExecuteQuery(strQuery.GetBuffer())) {
+			strQuery.ReleaseBuffer();
 
-		for (int i = 0; i < m_lscWorkorderAddedPartList.GetItemCount(); i++)
-		{
-			CString strDescription = m_lscWorkorderAddedPartList.GetItemText(i, 1);
-			unsigned int uiAmount = _ttoi(m_lscWorkorderAddedPartList.GetItemText(i, 2));
-			double dUnitPrice = _ttof(m_lscWorkorderAddedPartList.GetItemText(i, 3));
-			double dTotalPrice = _ttof(m_lscWorkorderAddedPartList.GetItemText(i, 4));
-
-			// Build the fields value for the query.
-			auto buildFieldValue = [](CString str) -> CString
+			if (m_lscWorkorderAddedPartList.GetItemCount() > 0)
+			{
+				for (int i = 0; i < m_lscWorkorderAddedPartList.GetItemCount(); i++)
 				{
-					CString strResult;
-					if (str.IsEmpty())
-						return  _T("NULL");
-					strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-					return strResult;
-				};
+					CString strDescription = m_lscWorkorderAddedPartList.GetItemText(i, 1);
+					unsigned int uiAmount = _ttoi(m_lscWorkorderAddedPartList.GetItemText(i, 2));
+					double dUnitPrice = _ttof(m_lscWorkorderAddedPartList.GetItemText(i, 3));
+					double dTotalPrice = _ttof(m_lscWorkorderAddedPartList.GetItemText(i, 4));
 
-			strQuery.Format(_T("INSERT INTO [WORKORDER_PARTS] ([WORKORDER_PARTS_WORKORDER_ID], [WORKORDER_PARTS_DESCRIPTION], [WORKORDER_PARTS_AMOUNT], [WORKORDER_PARTS_UNIT_PRICE], [WORKORDER_PARTS_TOTAL_PRICE]) VALUES (%d, %s, %d, %f, %f)"),
-				m_unWorkorderID, static_cast<LPCTSTR>(buildFieldValue(strDescription)), uiAmount, dUnitPrice, dTotalPrice);
-				
-			if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-			{
-				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+					// Build the fields value for the query.
+					auto buildFieldValue = [](CString str) -> CString
+						{
+							CString strResult;
+							if (str.IsEmpty())
+								return  _T("NULL");
+							strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+							return strResult;
+						};
+
+					strQuery.Format(_T("INSERT INTO [WORKORDER_PARTS] ([WORKORDER_PARTS_WORKORDER_ID], [WORKORDER_PARTS_DESCRIPTION], [WORKORDER_PARTS_AMOUNT], [WORKORDER_PARTS_UNIT_PRICE], [WORKORDER_PARTS_TOTAL_PRICE]) VALUES (%d, %s, %d, %f, %f)"),
+						m_unWorkorderID, static_cast<LPCTSTR>(buildFieldValue(strDescription)), uiAmount, dUnitPrice, dTotalPrice);
+
+					if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+					{
+						theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+					}
+					else
+					{
+						theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+					}
+					strQuery.ReleaseBuffer();
+				}
 			}
-			else
-			{
-				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-			}
+		}
+		else
+		{
+			theApp.SetStatusBarText(IDS_STATUSBAR_DELETE_FAIL);
 			strQuery.ReleaseBuffer();
 		}
 	}
+	sql.CloseConnection();
+	theApp.EndWaitCursor();
 	CDialogEx::OnOK();
 }
 
@@ -367,8 +381,6 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart()
 /// <returns>Boolean true if successful otherwise false</returns>
 bool CWorkorderPartsDialog::InitStockPartList()
 {
-	bool bResult = false;
-
 	m_lscWorkorderStockPartList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	m_lscWorkorderStockPartList.InsertColumn(0, _T("PART ID"), LVCFMT_LEFT, 0);
 	m_lscWorkorderStockPartList.InsertColumn(1, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
@@ -377,40 +389,73 @@ bool CWorkorderPartsDialog::InitStockPartList()
 
 	int nIndex;			// Index of the list control item.
 	int row(0);			// Row of the list control item.
-	CString strQuery;	// Query string.
+	CString strBuildQuery;	// Query string.
+
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
 	// Query all parts from the database.
-	strQuery.Format(_T("SELECT * FROM SPAREPARTSTOCK"));
-	CRecordset* rs = new CRecordset();
+	strBuildQuery.Format(_T("SELECT * FROM SPAREPARTSTOCK"));
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (bResult = theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
-	{
-		// Fill the existing customers list control with the found customers from the database.
-		while (!rs->IsEOF())
-		{
-			CString strValue = _T("");
-			rs->GetFieldValue(_T("SPAREPARTSTOCK_ID"), strValue);
-			nIndex = m_lscWorkorderStockPartList.InsertItem(row++, strValue);
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("SPAREPARTSTOCK_DESCRIPTION"), strValue);
-			m_lscWorkorderStockPartList.SetItemText(nIndex, 1, strValue);
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("SPAREPARTSTOCK_IN_STOCK"), strValue);
-			m_lscWorkorderStockPartList.SetItemText(nIndex, 2, strValue);
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->GetFieldValue(_T("SPAREPARTSTOCK_PRICE"), strValue);
-			auto dPrice = _ttof(strValue);
-			strValue.Format(_T("%.2f"), dPrice);
-			m_lscWorkorderStockPartList.SetItemText(nIndex, 3, strValue);
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-			rs->MoveNext();
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+						};
+
+					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					nIndex = m_lscWorkorderStockPartList.InsertItem(row++, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderStockPartList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_IN_STOCK, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderStockPartList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					CString strValue = static_cast<CString>(szName);
+					auto dPrice = _ttof(strValue);
+					strValue.Format(_T("%.2f"), dPrice);
+					m_lscWorkorderStockPartList.SetItemText(nIndex, 3, strValue);
+				}
+				else {
+					break;
+				}
+			}
 		}
+		if (!sql.CheckReturnCodeForClosing(retcode))
+		{
+			sql.CloseConnection();
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+			return false;
+		}
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
-	delete rs;
-	UpdateData(FALSE);
-
-	return bResult;
+	sql.CloseConnection();
+	theApp.EndWaitCursor();
+	return true;
 }
 
 /// <summary>
@@ -420,8 +465,6 @@ bool CWorkorderPartsDialog::InitStockPartList()
 /// <returns>Boolean true if successful otherwise false</returns>
 bool CWorkorderPartsDialog::InitAddedPartList()
 {
-	bool bResult = false;
-
 	m_lscWorkorderAddedPartList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	m_lscWorkorderAddedPartList.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 0);
 	m_lscWorkorderAddedPartList.InsertColumn(1, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
@@ -431,47 +474,84 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 
 	int nIndex;			// Index of the list control item.
 	int row(0);			// Row of the list control item.
-	CString strQuery;	// Query string.
+	CString strBuildQuery;	// Query string.
+
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
 	// Query all parts from the database.
-	strQuery.Format(_T("SELECT * FROM WORKORDER_PARTS WHERE WORKORDER_PARTS_WORKORDER_ID = %d"), m_unWorkorderID);
-	CRecordset* rs = new CRecordset();
+	strBuildQuery.Format(_T("SELECT * FROM WORKORDER_PARTS WHERE WORKORDER_PARTS_WORKORDER_ID = %d"), m_unWorkorderID);
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (bResult = theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery))
-	{
-		while (!rs->IsEOF())
-		{
-			CString strValue = _T("");
-			double dConvertToMoney = 0.0;
-			rs->GetFieldValue(_T("WORKORDER_PARTS_WORKORDER_ID"), strValue);
-			nIndex = m_lscWorkorderAddedPartList.InsertItem(row++, strValue);
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("WORKORDER_PARTS_DESCRIPTION"), strValue);
-			m_lscWorkorderAddedPartList.SetItemText(nIndex, 1, strValue);
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("WORKORDER_PARTS_AMOUNT"), strValue);
-			m_lscWorkorderAddedPartList.SetItemText(nIndex, 2, strValue);
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->GetFieldValue(_T("WORKORDER_PARTS_UNIT_PRICE"), strValue);
-			dConvertToMoney = _ttof(strValue);
-			strValue.Format(_T("%.2f"), dConvertToMoney);
-			m_lscWorkorderAddedPartList.SetItemText(nIndex, 3, strValue);
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-			rs->GetFieldValue(_T("WORKORDER_PARTS_TOTAL_PRICE"), strValue);
-			dConvertToMoney = _ttof(strValue);
-			strValue.Format(_T("%.2f"), dConvertToMoney);
-			m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, strValue);
+					CString strValue{};
+					double dConvertToMoney{ 0.0 };
 
-			rs->MoveNext();
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+						};
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					nIndex = m_lscWorkorderAddedPartList.InsertItem(row++, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderAddedPartList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderStockPartList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_UNIT_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					dConvertToMoney = _ttof(static_cast<CString>(szName));
+					strValue.Format(_T("%.2f"), dConvertToMoney);
+					m_lscWorkorderAddedPartList.SetItemText(nIndex, 3, strValue);
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_TOTAL_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					dConvertToMoney = _ttof(static_cast<CString>(szName));
+					strValue.Format(_T("%.2f"), dConvertToMoney);
+					m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, strValue);
+				}
+				else {
+					break;
+				}
+			}
 		}
+		if (!sql.CheckReturnCodeForClosing(retcode))
+		{
+			sql.CloseConnection();
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+			return false;
+		}
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
-	delete rs;
+	sql.CloseConnection();
+	theApp.EndWaitCursor();
+	
 	UpdateData(FALSE);
-
 	CalculateTotalPrice();
 
-	return bResult;
+	return true;
 }
 
 /// <summary>
