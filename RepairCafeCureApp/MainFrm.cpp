@@ -54,6 +54,9 @@
 
 using namespace artvabas::sql;
 
+
+//extern bool IsWaitingForSQL;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -149,7 +152,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
 	m_wndRibbonBar.SetWindows7Look(TRUE);
 
-	theApp.m_pSplashScreen.ShowWindow(SW_HIDE);
+	theApp.m_SplashScreen.DestroyWindow();
 	return 0;
 }
 

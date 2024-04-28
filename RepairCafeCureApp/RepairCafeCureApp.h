@@ -57,11 +57,12 @@ using namespace artvabas::rcc::database;
 enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER };
 enum WorkorderViewType { VIEW_WORKORDER_OPEN, VIEW_WORKORDER_PROGRESS, VIEW_WORKORDER_REPAIRED };
 
+
 class CRepairCafeCureApp : public CWinAppEx
 {
 // Members 
 public:
-	CSplashScreen m_pSplashScreen;
+	CSplashScreen m_SplashScreen;
 
 private:
 		CDatabaseConnection* m_dbConnection;

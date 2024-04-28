@@ -68,8 +68,6 @@ namespace artvabas
 				// inline method for getting the database instance
 				inline CDatabase* GetDatabaseInstance() { return this;};
 				wchar_t* ConnectionString();
-				BOOL OpenQuery(CRecordset* prcsRecords, CString& strQuery);
-				void CloseQuery(CRecordset* rcsRecords);
 			private:
 				CString GetConnectionString();
 				CString CreateConnectionString();

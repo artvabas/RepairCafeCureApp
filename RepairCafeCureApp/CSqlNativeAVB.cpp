@@ -73,7 +73,6 @@ bool CSqlNativeAVB::CreateSQLConnection()
     bool bSuccess = false;
 
     do {
-        //CloseConnection();
         m_nTryCount++;
 
         // Allocate an environment
@@ -111,7 +110,7 @@ bool CSqlNativeAVB::CreateSQLConnection()
         if (m_hStatement == NULL)
             if (!TryODBC(m_hDatabaseConnection, SQL_HANDLE_DBC, SQLAllocHandle(SQL_HANDLE_STMT, m_hDatabaseConnection, &m_hStatement)))
                 continue;
-         
+
         bSuccess = true;
        
     } while (m_nTryCount < 20 && !bSuccess);

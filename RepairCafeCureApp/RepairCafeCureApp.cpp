@@ -116,6 +116,7 @@ CRepairCafeCureApp::~CRepairCafeCureApp()
 		delete m_dbConnection;
 		m_dbConnection = NULL;
 	}
+	m_SplashScreen.DestroyWindow();
 	KillTimer(NULL, 1);
 }
 
@@ -125,8 +126,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 {
 	CWinAppEx::InitInstance();
 
-	m_pSplashScreen.Create(IDD_SPLASHSCREEN);
-	m_pSplashScreen.ShowWindow(SW_SHOW);
+	m_SplashScreen.Create(IDD_SPLASHSCREEN);
 
 	// Initialize OLE libraries
 	if (!AfxOleInit())

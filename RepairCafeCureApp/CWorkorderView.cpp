@@ -71,10 +71,15 @@
 #include "MainFrm.h"
 #include "CPrintWorkorder.h"
 #include "CContributionPaymentDialog.h"
+#include "DatabaseTables.h"
 
 using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::sql;
+using namespace artvabas::database::tables::workorder;
+using namespace artvabas::database::tables::workorderparts;
+using namespace artvabas::database::tables::asset;
+using namespace artvabas::database::tables::customer;
 
 IMPLEMENT_DYNCREATE(CWorkorderView, CFormView)
 
@@ -645,11 +650,17 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 
 			CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+			if (sql.CreateSQLConnection()) {
+				if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+					theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+				else
+					theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+			}
 			else
-				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+			
+			strQuery.ReleaseBuffer();
+			sql.CloseConnection();
 			PerformWorkorderUpdate();
 		}
 	}
@@ -687,10 +698,10 @@ void CWorkorderView::OnWorkorderExtraInvoice() {
 void CWorkorderView::InitWorkorderExistingList() {
 	m_lscWorkorderExisting.DeleteAllItems();
 
-	int nIndex;			// Index of the list control item.
+	int nIndex{ 0 };			// Index of the list control item.
 	auto row{ 0 };		// Row of the list control item.
-	CString strQuery;
-	CString strWorkorderStatus;
+	CString strBuildQuery{};
+	CString strWorkorderStatus{};
 
 	// Set the workorder status depending on the view type.
 	switch (theApp.GetWorkorderViewType()) {
@@ -711,59 +722,88 @@ void CWorkorderView::InitWorkorderExistingList() {
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();
 
-	auto *rs = new CRecordset();
-	strQuery.Format(_T("SELECT WORKORDER.*, WORKORDER_ASSET_ID AS Expr1, WORKORDER_CUSTOMER_ID AS Expr2 FROM WORKORDER WHERE(WORKORDER_STATUS = N\'%s\')"),
+	
+	strBuildQuery.Format(_T("SELECT WORKORDER.*, WORKORDER_ASSET_ID AS Expr1, WORKORDER_CUSTOMER_ID AS Expr2 FROM WORKORDER WHERE(WORKORDER_STATUS = N\'%s\')"),
 		static_cast<LPCTSTR>(strWorkorderStatus));
 
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)) {
-		// Fill the existing customers list control with the found customers from the database.
-		while (!rs->IsEOF()) {
-			CString strValue = _T("");
-			rs->GetFieldValue(_T("WORKORDER_ID"), strValue);
-			nIndex = m_lscWorkorderExisting.InsertItem(row++, strValue);
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			rs->GetFieldValue(_T("WORKORDER_ASSET_ID"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 1, strValue);
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("WORKORDER_CUSTOMER_ID"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 2, strValue);
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szNameLong[SQLCHARVMAX]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("WORKORDER_INVOICE_ID"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 3, strValue);
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->GetFieldValue(_T("WORKORDER_CREATE_DATE"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 4, strValue);
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-			rs->GetFieldValue(_T("WORKORDER_CREATE_BY"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 5, strValue);
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+					};
 
-			rs->GetFieldValue(_T("WORKORDER_DESCRIPTION"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 6, strValue);
+					// Get data for columns 1, employee names
+					SQLGetData(hstmt, WORKORDER.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					nIndex = m_lscWorkorderExisting.InsertItem(row++, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_RESPONSIBLE"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 7, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_STATUS"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 8, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_CLOSED_DATE"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 9, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_LOG"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 9, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_HISTORY"), strValue);
-			m_lscWorkorderExisting.SetItemText(nIndex, 10, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_BY, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
-			rs->MoveNext();
+					SQLGetData(hstmt, WORKORDER.WORKORDER_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 6, CheckForNull(szNameLong, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 9, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 10, CheckForNull(szNameLong, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 11, CheckForNull(szNameLong, cbName));
+				}
+				else {
+					break;
+				}
+			}
 		}
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
-	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		if (!sql.CheckReturnCodeForClosing(retcode))
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	sql.CloseConnection();
 	theApp.EndWaitCursor();
-	delete rs;
 	UpdateData(FALSE);
 }
 
@@ -779,77 +819,135 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();
 
-	auto *rs = new CRecordset();
-	CString strQuery = _T("SELECT EMPLOYEE_NAME FROM EMPLOYEE ORDER BY EMPLOYEE_NAME");
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)) {
-		while (!rs->IsEOF()) {
-			CString strValue = _T("");
-			rs->GetFieldValue(_T("EMPLOYEE_NAME"), strValue);
-			m_cbxWorkorderEmployeeResponsible.AddString(strValue);
-			rs->MoveNext();
+	CString strBuildQuery = _T("SELECT EMPLOYEE_NAME FROM EMPLOYEE ORDER BY EMPLOYEE_NAME");
+
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
+
+	if (sql.CreateSQLConnection()) {
+
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szNameLong[SQLCHARVMAX]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
+
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
+
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+					};
+
+					// Get data for columns 1, employee names
+					SQLGetData(hstmt, 1, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_cbxWorkorderEmployeeResponsible.AddString(CheckForNull(szName, cbName));
+				}
+				else {
+					break;
+				}
+			}
 		}
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
-	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		if (!sql.CheckReturnCodeForClosing(retcode)) 
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	sql.CloseConnection();
 	theApp.EndWaitCursor();
-	delete rs;
 	m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
 }
 
 void CWorkorderView::InitWorkorderSparePartsList() {
 	m_lscWorkorderSpareParts.DeleteAllItems();
 
-	int nIndex;			// Index of the list control item.
+	int nIndex{ 0 };			// Index of the list control item.
 	auto row{ 0 };		// Row of the list control item.
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();
 
-	auto *rs = new CRecordset();
-	CString strQuery;
-	strQuery.Format(_T("SELECT * FROM WORKORDER_PARTS WHERE WORKORDER_PARTS_WORKORDER_ID = %d"), m_unWorkorderId);
+	CString strBuildQuery;
+	strBuildQuery.Format(_T("SELECT * FROM WORKORDER_PARTS WHERE WORKORDER_PARTS_WORKORDER_ID = %d"), m_unWorkorderId);
 
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)) {
-		auto dTotalPrice = 0.0;
-		// Fill the existing customers list control with the found customers from the database.
-		while (!rs->IsEOF()) {
-			CString strValue = _T("");
-			CString strConvert = _T("");
-			auto dConvertToMoney = 0.0;
-			rs->GetFieldValue(_T("WORKORDER_PARTS_WORKORDER_ID"), strValue);
-			nIndex = m_lscWorkorderSpareParts.InsertItem(row++, strValue);
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			rs->GetFieldValue(_T("WORKORDER_PARTS_DESCRIPTION"), strValue);
-			m_lscWorkorderSpareParts.SetItemText(nIndex, 1, strValue);
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("WORKORDER_PARTS_AMOUNT"), strValue);
-			m_lscWorkorderSpareParts.SetItemText(nIndex, 2, strValue);
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szNameLong[SQLCHARVMAX]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("WORKORDER_PARTS_UNIT_PRICE"), strValue);
-			dConvertToMoney = _ttof(strValue);
-			strConvert.Format(_T("% .2f"), dConvertToMoney);
-			m_lscWorkorderSpareParts.SetItemText(nIndex, 3, strConvert);
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->GetFieldValue(_T("WORKORDER_PARTS_TOTAL_PRICE"), strValue);
-			dTotalPrice += (dConvertToMoney = _ttof(strValue));
-			
-			strConvert.Format(_T("% .2f"), dConvertToMoney);
-			m_lscWorkorderSpareParts.SetItemText(nIndex, 4, strConvert);
+		if (retcode == SQL_SUCCESS) {
+			auto dTotalPrice = 0.0;
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-			rs->MoveNext();
+					CString strValue = _T("");
+					CString strConvert = _T("");
+					auto dConvertToMoney = 0.0;
+
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+					};
+
+					// Get data for columns 1, employee names
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					nIndex = m_lscWorkorderSpareParts.InsertItem(row++, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_lscWorkorderSpareParts.SetItemText(nIndex, 1, CheckForNull(szNameLong, cbName));
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_lscWorkorderSpareParts.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_UNIT_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					dConvertToMoney = _ttof(CheckForNull(szName, cbName));
+					strConvert.Format(_T("% .2f"), dConvertToMoney);
+					m_lscWorkorderSpareParts.SetItemText(nIndex, 3, strConvert);
+
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_TOTAL_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					dTotalPrice += (dConvertToMoney = _ttof(CheckForNull(szName, cbName)));
+					strConvert.Format(_T("% .2f"), dConvertToMoney);
+					m_lscWorkorderSpareParts.SetItemText(nIndex, 4, strConvert);
+				}
+				else {
+					break;
+				}
+			}
+			m_strWorkorderTotalPartsPrice.Format(_T("% .2f"), dTotalPrice);
 		}
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
-
-		m_strWorkorderTotalPartsPrice.Format(_T("% .2f"), dTotalPrice);
-	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		if (!sql.CheckReturnCodeForClosing(retcode))
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	sql.CloseConnection();
 	theApp.EndWaitCursor();
-	delete rs;
-
 	UpdateData(FALSE);
 }
 
@@ -923,35 +1021,68 @@ void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() {
 /// <param name="nAssetId"> ID asset index number</param>
 /// <returns></returns>
 bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
-	CString strQuery;
-	auto bResult = false;
-	auto *rs = new CRecordset();
+	CString strBuildQuery{};
 
-	strQuery.Format(_T("SELECT ASSET_DESCRIPTION, ASSET_MODEL_NUMBER, ASSET_BRAND, ASSET_HISTORY_LOG FROM ASSET WHERE ASSET_ID = %d"), nAssetId);
+	strBuildQuery.Format(_T("SELECT ASSET_DESCRIPTION, ASSET_MODEL_NUMBER, ASSET_BRAND, ASSET_HISTORY_LOG FROM ASSET WHERE ASSET_ID = %d"), nAssetId);
 
-	if (bResult = theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)) {
-		while (!rs->IsEOF()) {
-			CString strValue = _T("");
-			rs->GetFieldValue(_T("ASSET_DESCRIPTION"), strValue);
-			m_strAssetDescription = strValue;
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			rs->GetFieldValue(_T("ASSET_MODEL_NUMBER"), strValue);
-			m_strAssetModelNumber = strValue;
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("ASSET_BRAND"), strValue);
-			m_strAssetBrand = strValue;
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szNameLong[SQLCHARVMAX]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("ASSET_HISTORY_LOG"), strValue);
-			m_strAssetHistoryLog = strValue;
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->MoveNext();
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+					};
+
+					// Get data for columns 1, employee names
+					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_strAssetDescription = CheckForNull(szNameLong, cbName);
+
+					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_strAssetModelNumber = CheckForNull(szName, cbName);
+
+					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_strAssetBrand = CheckForNull(szName, cbName);
+
+					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_strAssetHistoryLog = CheckForNull(szNameLong, cbName);
+				}
+				else {
+					break;
+				}
+			}
 		}
+		if (!sql.CheckReturnCodeForClosing(retcode)) {
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+			sql.CloseConnection();
+			return false;
+		}
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
-	delete rs;
+	sql.CloseConnection();
 	UpdateData(FALSE);
-
-	return bResult;
+	return true;
 }
 
 /// <summary>
@@ -960,44 +1091,79 @@ bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 /// <param name="nCustomerId"> ID customer index number</param>
 /// <returns></returns>
 bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
-	CString strQuery;
-	auto bResult = false;
+	CString strBuildQuery;
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
 
-	auto *rs = new CRecordset();
-	strQuery.Format(_T("SELECT CUSTOMER_SURNAME, CUSTOMER_NAME, CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL, CUSTOMER_COMMENT FROM CUSTOMER WHERE CUSTOMER_ID = %d"), nCustomerId);
+	strBuildQuery.Format(_T("SELECT CUSTOMER_SURNAME, CUSTOMER_NAME, CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL, CUSTOMER_COMMENT FROM CUSTOMER WHERE CUSTOMER_ID = %d"), nCustomerId);
 
-	if (bResult = theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)) {
-		while (!rs->IsEOF()) {
-			CString strValue = _T("");
-			rs->GetFieldValue(_T("CUSTOMER_SURNAME"), strValue);
-			m_strCustomerSurname = strValue;
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			rs->GetFieldValue(_T("CUSTOMER_NAME"), strValue);
-			m_strCustomerName = strValue;
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("CUSTOMER_CELL_PHONE"), strValue);
-			m_strCustomerCellPhone = strValue;
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szNameLong[SQLCHARVMAX]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("CUSTOMER_PHONE"), strValue);
-			m_strCustomerPhone = strValue;
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->GetFieldValue(_T("CUSTOMER_EMAIL"), strValue);
-			m_strCustomerEmail = strValue;
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-			rs->GetFieldValue(_T("CUSTOMER_COMMENT"), strValue);
-			m_strCustomerComments = strValue;
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+						};
 
-			rs->MoveNext();
+					// Get data for columns 1, employee names
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_SURNAME, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_strCustomerSurname = CheckForNull(szNameLong, cbName);
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_NAME, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_strCustomerName = CheckForNull(szName, cbName);
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_strCustomerCellPhone = CheckForNull(szName, cbName);
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_strCustomerPhone = CheckForNull(szName, cbName);
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_EMAIL, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_strCustomerEmail = CheckForNull(szName, cbName);
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_COMMENT, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_strCustomerComments = CheckForNull(szNameLong, cbName);
+				}
+				else {
+					break;
+				}
+			}
 		}
+		if (!sql.CheckReturnCodeForClosing(retcode)) {
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+			sql.CloseConnection();
+			return false;
+		}
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
-	delete rs;
+	sql.CloseConnection();
 	UpdateData(FALSE);
-
-	return bResult;
+	return true;
 }
+
 
 /// <summary>
 /// PerformWorkorderUpdate is used to update the selected workorder in the database.
@@ -1060,10 +1226,13 @@ void CWorkorderView::PerformWorkorderUpdate() {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-	else
-		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+	if (sql.CreateSQLConnection()) {
+
+		if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+	}
 
 	theApp.EndWaitCursor();
 

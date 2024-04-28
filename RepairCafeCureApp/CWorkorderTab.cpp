@@ -52,9 +52,12 @@
 #include "RepairCafeCureApp.h"
 #include "CWorkorderTab.h"
 #include "CPrintWorkorder.h"
+#include "DatabaseTables.h"
 
 using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::sql;
+using namespace artvabas::database::tables::workorder;
+using namespace artvabas::database::tables::customer;
 
 IMPLEMENT_DYNAMIC(CWorkorderTab, CDialogEx)
 
@@ -135,13 +138,16 @@ void CWorkorderTab::OnBnClickedWoTabCreate(){
 	// Execute the query.
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (!sql.ExecuteQuery(strQuery.GetBuffer()))	{
-		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+	if (sql.CreateSQLConnection()) {
+		if (!sql.ExecuteQuery(strQuery.GetBuffer())) {
+			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+		} else {
+			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+		}
 	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+		theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
 	}
 	strQuery.ReleaseBuffer();
-
 	theApp.EndWaitCursor();
 
 	PrintReceiptAndWorkorder();
@@ -251,65 +257,97 @@ void CWorkorderTab::InitWithAssetDetailsRecords(){
 
 	m_ctrWorkordersHistoryList.DeleteAllItems();
 
-	int nIndex;			// Index of the list control item.
+	int nIndex{};			// Index of the list control item.
 	auto row(0);			// Row of the list control item.
-	CString strQuery;
+	CString strBuildQuery{};
 
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();
 	
-	auto rs{ new CRecordset() };
-	strQuery.Format(_T("SELECT WORKORDER.*, WORKORDER_ASSET_ID AS Expr1, WORKORDER_CUSTOMER_ID AS Expr2 FROM WORKORDER WHERE ")
+	strBuildQuery.Format(_T("SELECT WORKORDER.*, WORKORDER_ASSET_ID AS Expr1, WORKORDER_CUSTOMER_ID AS Expr2 FROM WORKORDER WHERE ")
 		_T("(WORKORDER_ASSET_ID = N\'%d\') AND (WORKORDER_CUSTOMER_ID = N\'%d\')"),
 		m_uiAssetID, m_uiCustomerID);
 
-	if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)){
-		// Fill the existing customers list control with the found customers from the database.
-		while (!rs->IsEOF()){
-			CString strValue = _T("");
-			rs->GetFieldValue(_T("WORKORDER_ID"), strValue);
-			nIndex = m_ctrWorkordersHistoryList.InsertItem(row++, strValue);
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			rs->GetFieldValue(_T("WORKORDER_ASSET_ID"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 1, strValue);
+	if (sql.CreateSQLConnection()) {
 
-			rs->GetFieldValue(_T("WORKORDER_CUSTOMER_ID"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 2, strValue);
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szNameLong[SQLCHARVMAX]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
 
-			rs->GetFieldValue(_T("WORKORDER_INVOICE_ID"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 3, strValue);
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-			rs->GetFieldValue(_T("WORKORDER_CREATE_DATE"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 4, strValue);
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
-			rs->GetFieldValue(_T("WORKORDER_CREATE_BY"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 5, strValue);
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+						};
 
-			rs->GetFieldValue(_T("WORKORDER_DESCRIPTION"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 6, strValue);
+					// Get data for columns 1, employee names
+					SQLGetData(hstmt, WORKORDER.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					nIndex = m_ctrWorkordersHistoryList.InsertItem(row++, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_RESPONSIBLE"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 7, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_STATUS"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 8, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_LOG"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 9, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-			rs->GetFieldValue(_T("WORKORDER_HISTORY"), strValue);
-			m_ctrWorkordersHistoryList.SetItemText(nIndex, 10, strValue);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-			rs->MoveNext();
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_BY, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVMAX, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 9, CheckForNull(szNameLong, cbName));
+
+					SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_ctrWorkordersHistoryList.SetItemText(nIndex, 10, CheckForNull(szNameLong, cbName));
+
+				}
+				else {
+					break;
+				}
+			}
 		}
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
-	} else {
-		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		if (!sql.CheckReturnCodeForClosing(retcode))
+		{
+			sql.CloseConnection();
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+		}
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
-	theApp.GetDatabaseConnection()->CloseQuery(rs);
+	sql.CloseConnection();
 	theApp.EndWaitCursor();
-	delete rs;
 	UpdateData(FALSE);
 }
 
@@ -358,39 +396,79 @@ void CWorkorderTab::PrintReceiptAndWorkorder(){
 			theApp.BeginWaitCursor();
 			CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('WORKORDER')"));
-			if (lastID > 0) {
-				theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_OK);
-				strLastWOID.Format(_T("%d"), lastID);
-			} else {
-				theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
-				EndWaitCursor();
-				throw 2;
+			if (sql.CreateSQLConnection()) {
+
+				auto lastID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('WORKORDER')"));
+				if (lastID > 0) {
+					theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_OK);
+					strLastWOID.Format(_T("%d"), lastID);
+				}
+				else {
+					theApp.SetStatusBarText(IDS_STATUSBAR_LASTID_FAIL);
+					sql.CloseConnection();
+					EndWaitCursor();
+					throw 2;
+				}
+
+				// Get customer cell phone, phone and email
+				theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
+				CString strBuildQuery {};
+				strBuildQuery.Format(_T("SELECT CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL FROM CUSTOMER WHERE (CUSTOMER_ID = %d)"),
+					m_uiCustomerID);
+
+				SQLCHAR szName[SQLCHARVSMAL]{};
+				SQLLEN cbName{};
+				SQLRETURN retcode{};
+				SQLHSTMT hstmt{ sql.GetStatementHandle() };
+				SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+				strBuildQuery.ReleaseBuffer();
+
+				retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
+
+				if (retcode == SQL_SUCCESS) {
+					while (TRUE) {
+						retcode = SQLFetch(hstmt);
+						if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+							AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+							sql.CloseConnection();
+							throw 2;
+						}
+						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+
+							auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+								if (cbName == SQL_NULL_DATA) {
+									return _T("");
+								}
+								return static_cast<CString>(szName);
+								};
+							SQLGetData(hstmt, CUSTOMER.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+							strCustomerCellPhone = CheckForNull(szName, cbName);
+
+							SQLGetData(hstmt, CUSTOMER.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+							strCustomerPhone = CheckForNull(szName, cbName);
+
+							SQLGetData(hstmt, CUSTOMER.CUSTOMER_EMAIL, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+							strCustomerEmail = CheckForNull(szName, cbName);
+						}
+						else {
+							break;
+						}
+					}
+				}
+				if (!sql.CheckReturnCodeForClosing(retcode))
+				{
+					sql.CloseConnection();
+					theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+					EndWaitCursor();
+					throw 2;
+				}
+				else
+					theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
+
 			}
 
-			// Get customer cell phone, phone and email
-			theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
-
-			auto rs{ new CRecordset() };
-			CString strQuery;
-			strQuery.Format(_T("SELECT CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL FROM CUSTOMER WHERE (CUSTOMER_ID = %d)"),
-				m_uiCustomerID);
-
-			if (theApp.GetDatabaseConnection()->OpenQuery(rs, strQuery)){
-				theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
-				rs->GetFieldValue(_T("CUSTOMER_CELL_PHONE"), strCustomerCellPhone);
-				rs->GetFieldValue(_T("CUSTOMER_PHONE"), strCustomerPhone);
-				rs->GetFieldValue(_T("CUSTOMER_EMAIL"), strCustomerEmail);
-			} else {
-				theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
-				theApp.GetDatabaseConnection()->CloseQuery(rs);
-				delete rs;
-				EndWaitCursor();
-				throw 2;
-			}
-
-			theApp.GetDatabaseConnection()->CloseQuery(rs);
-			delete rs;
+			sql.CloseConnection();
 
 			// Create printer device context
 			auto pDC{ new CDC };

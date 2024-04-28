@@ -115,9 +115,9 @@ BOOL CAssetTab::OnInitDialog(){
 	m_ctrExistingAssetList.InsertColumn(7, _T("Disposed"), LVCFMT_LEFT, 0);
 	m_ctrExistingAssetList.InsertColumn(8, _T("History Log"), LVCFMT_LEFT, 0);
 
-	int nIndex;			// Index of the list control item.	
+	int nIndex{};			// Index of the list control item.	
 	auto row{ 0 };			// Row of the list control item.
-	CString strBuildQuery;
+	CString strBuildQuery{};
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();
@@ -179,7 +179,7 @@ BOOL CAssetTab::OnInitDialog(){
 					m_ctrExistingAssetList.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
+					m_ctrExistingAssetList.SetItemText(nIndex, 8, CheckForNull(szNameLong, cbName));
 
 				}
 				else {
@@ -367,14 +367,15 @@ void CAssetTab::OnBnClickedAssetTabUpdate(){
 	if (sql.CreateSQLConnection()) {
 		if (!sql.ExecuteQuery(strQuery.GetBuffer())) {
 			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
-		}
-		else {
+		} else {
 			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
 			m_btnCreateWorkorder.EnableWindow(TRUE);
 			SetCustomFocusButton(&m_btnCreateWorkorder, RED);
 			m_btnUpdateAsset.EnableWindow(FALSE);
 			SetCustomFocusButton(&m_btnUpdateAsset, BLACK, false);
 		}
+	} else {
+		theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
 	}
 	strQuery.ReleaseBuffer();
 	sql.CloseConnection();

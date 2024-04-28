@@ -18,5 +18,5 @@ void CSplashScreen::DoDataExchange(CDataExchange* pDX) {
 }
 
 BEGIN_MESSAGE_MAP(CSplashScreen, CDialogEx)
-	ON_WM_CREATE()
 END_MESSAGE_MAP()
+

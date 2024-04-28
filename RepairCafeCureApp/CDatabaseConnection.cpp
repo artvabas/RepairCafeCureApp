@@ -103,53 +103,6 @@ wchar_t* CDatabaseConnection::ConnectionString()
 /// <param name="strQuery">The string query.</param>
 /// <returns>TRUE if successful, FALSE otherwise</returns>
 
-/**/
-BOOL CDatabaseConnection::OpenQuery(CRecordset* rcsRecords, CString& strQuery)
-{ //CDatabase::noOdbcDialog
-	try
-	{
-		BOOL b = FALSE;
-		SetLoginTimeout(60);
-		if (Open(NULL, false, false, m_strDsn))
-		{
-			if (rcsRecords->m_pDatabase == NULL)
-			{
-				rcsRecords->m_pDatabase = this;
-				b = rcsRecords->Open(AFX_DB_USE_DEFAULT_TYPE, strQuery );
-			}
-
-			return b;
-		}
-		else {
-			AfxMessageBox(_T("Unable to open database"));
-			return FALSE;
-		}
-
-	}
-	catch (CDBException* e)
-	{
-		AfxMessageBox(e->m_strError);
-		e->Delete();
-		return FALSE;
-	}
-	catch (...)
-	{
-		AfxMessageBox(_T("Unable to open database"));
-		return FALSE;
-	}
-}
-
-/// <summary>
-/// Closes the query.
-/// </summary>
-/// <param name="rcsRecords">The CRecordSet instance as reference.</param>
-void CDatabaseConnection::CloseQuery(CRecordset* rcsRecords)
-{
-	rcsRecords->Close();
-	Close();
-}
-/**/
-
 /* General private methods */
 
 /// <summary>
