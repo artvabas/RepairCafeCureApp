@@ -368,3 +368,5 @@ FodyWeavers.xsd
 /RepairCafeCureApp/Screenshot.bmp
 /RepairCafeCureApp/logoNME.bmp
 /RepairCafeCureApp/logo.bmp
+/RepairCafeCureApp/CDatabaseConnection.h
+/RepairCafeCureApp/CDatabaseConnection.cpp
