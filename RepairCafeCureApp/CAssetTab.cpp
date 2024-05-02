@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.465.0
+* Version: 0.0.1.0 (alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 03-03-2024, (dd-mm-yyyy)
+* Updated: 29-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -60,28 +60,30 @@ using namespace artvabas::database::tables::asset;
 IMPLEMENT_DYNAMIC(CAssetTab, CDialogEx)
 
 CAssetTab::CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID,
-	CWnd* pParent /*=nullptr*/)
-	: CDialogEx{ IDD_ASSET_TAB, pParent },
-	m_pTabControl{ pTabControl },
-	m_strCustomerSurname{ strCustomerSurname },
-	m_strCustomerName{ strCustomerName },
-	m_nAssetID{ 0 },
-	m_nAssetCustomerID{ nCustomerID },
-	m_nAssetWorkorderID{ 0 },
-	m_strAssetCreateDate{ _T("") },
-	m_strDescription{ _T("") },
-	m_strModelNumber{ _T("") },
-	m_strBrand{ _T("") },
-	m_sAssetDisposed{ 0 },
-	m_strHistoryLog{ _T("") },
-	m_bIsSelectedFromAssetList{ false }{
+	CWnd* pParent) noexcept
+
+	: CDialogEx{ IDD_ASSET_TAB, pParent }
+	, m_pTabControl{ pTabControl }
+	, m_strCustomerSurname{ strCustomerSurname }
+	, m_strCustomerName{ strCustomerName }
+	, m_nAssetID{ 0 }
+	, m_nAssetCustomerID{ nCustomerID }
+	, m_nAssetWorkorderID{ 0 }
+	, m_strAssetCreateDate{ _T("") }
+	, m_strDescription{ _T("") }
+	, m_strModelNumber{ _T("") }
+	, m_strBrand{ _T("") }
+	, m_sAssetDisposed{ 0 }
+	, m_strHistoryLog{ _T("") }
+	, m_bIsSelectedFromAssetList{ false }
+{
 	// Shared data between the asset and workorder tab.
 	m_pAssetDetailsRecords = &(m_pTabControl->m_assetDetailsRecords);
 }
 
 CAssetTab::~CAssetTab(){}
 
-// CAssetTab message handlers
+/* CAssetTab message handlers */
 BEGIN_MESSAGE_MAP(CAssetTab, CDialogEx)
 	ON_EN_CHANGE(IDC_ASSETTAB_DESCRIPTION, &CAssetTab::OnEnChangeAssetDetails)
 	ON_EN_CHANGE(IDC_ASSTETTAB_MODEL_NUMBER, &CAssetTab::OnEnChangeAssetDetails)
@@ -95,13 +97,11 @@ END_MESSAGE_MAP()
 
 /* override methods */
 
-/// <summary>
-/// Initializes the dialog on creation.
-/// Creates the list control columns.
-/// Fills the list control with the existing assets, if any, from the database.
-/// </summary>
-/// <returns></returns>
-BOOL CAssetTab::OnInitDialog(){
+// Initializes the dialog on creation.
+// Creates the list control columns.
+// Fills the list control with the existing assets, if any, from the database.
+BOOL CAssetTab::OnInitDialog()
+{
 	CDialogEx::OnInitDialog();
 
 	m_ctrExistingAssetList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -138,13 +138,13 @@ BOOL CAssetTab::OnInitDialog(){
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
+		if ( retcode == SQL_SUCCESS ) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO ) {
 					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
 				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
 						if (cbName == SQL_NULL_DATA) {
@@ -153,7 +153,6 @@ BOOL CAssetTab::OnInitDialog(){
 						return static_cast<CString>(szName);
 					};
 
-					// Get data for columns 1, employee names
 					SQLGetData(hstmt, ASSET.ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					nIndex = m_ctrExistingAssetList.InsertItem(row++, CheckForNull(szName, cbName));
 
@@ -187,14 +186,12 @@ BOOL CAssetTab::OnInitDialog(){
 				}
 			}
 		}
-		if (!sql.CheckReturnCodeForClosing(retcode))
-		{
+		if ( !sql.CheckReturnCodeForClosing(retcode) ) {
 			sql.CloseConnection();
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 			EndDialog(IDCANCEL);
 			return FALSE;
-		}
-		else 
+		} else 
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
 	sql.CloseConnection();
@@ -203,7 +200,8 @@ BOOL CAssetTab::OnInitDialog(){
 }
 
 // Data exchange between the dialog controls and the variables.
-void CAssetTab::DoDataExchange(CDataExchange* pDX){
+void CAssetTab::DoDataExchange(CDataExchange* pDX)
+{
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_ASSETTAB_CUSTOMER_SURENAME, m_strCustomerSurname);
 	DDX_Text(pDX, IDC_ASSETTAB_CUSTOMER_NAME, m_strCustomerName);
@@ -218,17 +216,18 @@ void CAssetTab::DoDataExchange(CDataExchange* pDX){
 	DDX_Control(pDX, IDC_ASSETTAB_CLEAR, m_btnClear);
 }
 
-BOOL CAssetTab::PreTranslateMessage(MSG* pMsg) {
+// Catch the Enter key press event from the OS
+// Depend on state, when enter is pressed asset will be updated or inserted (new) 
+BOOL CAssetTab::PreTranslateMessage(MSG* pMsg)
+{
 	if (m_pTabControl->GetCurFocus() == 0) {
 		if (pMsg->message == WM_KEYDOWN) {
 			if (pMsg->wParam == VK_RETURN) {
 				if (m_btnUpdateAsset.IsWindowEnabled()) {
-					// Yes, then click the search button.
 					OnBnClickedAssetTabUpdate();
 					return TRUE;
 				}
 				if (m_btnNewAsset.IsWindowEnabled()) {
-					// Yes, then click the search button.
 					OnBnClickedAssetTabNew();
 					return TRUE;
 				}
@@ -238,15 +237,15 @@ BOOL CAssetTab::PreTranslateMessage(MSG* pMsg) {
 	return FALSE; //CAssetTab::PreTranslateMessage(pMsg);
 }
 
-/// <summary>
-/// Method OnEnChangeAssetDetails() is called when the user changes the text in the description, model number or brand edit controls.
-/// When the user changes the text in the description, model number or brand edit controls,
-/// the new asset button is enabled if all the edit controls have text.
-/// If the user selects an existing asset from the list control and changes the text in the description, model number or brand edit controls,
-/// the update asset button is enabled.
-/// If asset details is not dirty, the create workorder button is enabled.
-/// </summary>
-void CAssetTab::OnEnChangeAssetDetails(){
+/* Message handle methods */
+
+// OnEnChangeAssetDetails is called when the user changes the text in the description, model number or brand edit controls.
+// the new asset button is enabled if all the edit controls have text.
+// If the user selects an existing asset from the list control and changes the text in these controls,
+// the update asset button is enabled.
+// If asset details is not dirty, the create workorder button is enabled.
+void CAssetTab::OnEnChangeAssetDetails() noexcept
+{
 	UpdateData(TRUE);
 
 	if (!m_bIsSelectedFromAssetList){
@@ -276,21 +275,17 @@ void CAssetTab::OnEnChangeAssetDetails(){
 	SetCustomFocusButton(&m_btnCreateWorkorder, BLACK, false);
 }
 
-/// <summary>
-/// Method OnDoubleClickAssetTabAssetList() is called when the user double clicks on an item in the list control.
-/// When the user double clicks on an item in the list control,
-/// the selected asset details are loaded into the edit controls.
-/// The update asset button is enabled.
-/// </summary>
-/// <param name="pNMHDR">A pointer to an NMHDR structure that contains information about a notification message.</param>
-/// <param name="pResult">A pointer to an LRESULT structure that is used to return the result of the message processing.</param>
-/// <returns></returns>
-void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult){
+// OnDoubleClickAssetTabAssetList is called when the user double clicks on an item in the list control.
+// The selected asset details are loaded into the edit controls.
+// and the update asset button is enabled.
+// - pNMHDR is a pointer to an NMHDR structure that contains information about a notification message.
+// - pResult is a pointer to an LRESULT structure that is used to return the result of the message processing.
+void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult) noexcept
+{
 	auto pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 
-	//  pNMItemActivate->iItem = -1 means no existing item is selected.
-	if (pNMItemActivate->iItem != -1){
-		// Get the selected item's text.
+	//  iItem = -1 means no existing item is selected.
+	if ( pNMItemActivate->iItem != -1 ) {
 		m_nAssetID = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 0));
 		m_nAssetCustomerID = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 1));
 		m_nAssetWorkorderID = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 2));
@@ -308,20 +303,16 @@ void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult){
 		m_btnClear.EnableWindow(TRUE);
 		SetCustomFocusButton(&m_btnClear, BLUE, false);
 
-		// Update the data in the dialog.
 		UpdateData(FALSE);
 	}
 	*pResult = 0;
 }
 
-/// <summary>
-/// Method OnBnClickedAssetTabUpdate() is called when the user clicks on the update asset button.
-/// When the user clicks on the update asset button,
-/// the asset details are updated in the database.
-/// After update the update asset button is disabled and the create workorder button is enabled.
-/// </summary>
-/// <returns></returns>
-void CAssetTab::OnBnClickedAssetTabUpdate(){
+// OnBnClickedAssetTabUpdate is called when the user clicks on the update asset button.
+// The asset details are updated in the database.
+// After update the update asset button is disabled and the create workorder button is enabled.
+void CAssetTab::OnBnClickedAssetTabUpdate()
+{
 	CString strQuery;
 
 	// Build the fields value for the query.
@@ -380,15 +371,10 @@ void CAssetTab::OnBnClickedAssetTabUpdate(){
 	strQuery.ReleaseBuffer();
 	sql.CloseConnection();
 	theApp.EndWaitCursor();
-}
-
-/// <summary>
-/// Method OnBnClickedAssetTabNew() is called when the user clicks on the new asset button.
-/// When the user clicks on the new asset button,
-/// a new asset is created in the database.
-/// After creation the new asset button is disabled and the create workorder button is enabled.
-/// </summary>
-/// <returns></returns>
+} 
+// OnBnClickedAssetTabNew is called when the user clicks on the new asset button.
+// a new asset is created in the database.
+// After creation the new asset button is disabled and the create workorder button is enabled.
 void CAssetTab::OnBnClickedAssetTabNew(){
 	// Creation date is the current date.
 	auto time = CTime().GetCurrentTime();
@@ -444,14 +430,11 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 	m_bIsSelectedFromAssetList = true;
 }
 
-/// <summary>
-/// Method OnBnClickedAssetTabCreateWorkorder() is called when the user clicks on the create workorder button.
-/// When the user clicks on the create workorder button,
-/// the asset details are loaded into the shared data structure.
-/// The tab control is switched to the workorder tab.
-/// </summary>
-/// <returns></returns>
-void CAssetTab::OnBnClickedAssetTabCreateWorkorder() {
+// OnBnClickedAssetTabCreateWorkorder is called when the user clicks on the create workorder button.
+// The asset details are loaded into the shared data structure.
+// The tab control is switched to the workorder tab.
+void CAssetTab::OnBnClickedAssetTabCreateWorkorder() noexcept
+{
 	UpdateData(TRUE);
 
 	m_pAssetDetailsRecords->m_strCustomerSurname = m_strCustomerSurname;
@@ -469,19 +452,15 @@ void CAssetTab::OnBnClickedAssetTabCreateWorkorder() {
 
 }
 
-/// <summary>
-/// Method OnBnClickedAssetTabClear() is called when the user clicks on the clear button.
-/// When the user clicks on the clear button,
-/// the edit controls are cleared for new input.
-/// </summary>
-/// <returns></returns>
-void CAssetTab::OnBnClickedAssetTabClear() { ClearForNewInput(); }
+// OnBnClickedAssetTabClear is called when the user clicks on the clear button.
+// The edit controls are cleared for new input.
+void CAssetTab::OnBnClickedAssetTabClear() noexcept { ClearForNewInput(); }
 
-/// <summary>
-/// Method ClearForNewInput() clears the edit controls for new input.
-/// </summary>
-/// <returns></returns>
-void CAssetTab::ClearForNewInput() {
+/* Member methods*/
+
+// ClearForNewInput clears the edit controls for new input.
+void CAssetTab::ClearForNewInput() noexcept
+{
 	m_nAssetID = 0;
 	m_nAssetWorkorderID = 0;
 	m_strDescription = _T("");
@@ -495,7 +474,12 @@ void CAssetTab::ClearForNewInput() {
 	OnEnChangeAssetDetails();
 }
 
-void CAssetTab::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus){
+// SetCustomFocusButton sets the focus on the button and changes the text color.
+// - pButton is a pointer to the button control.
+// - Color is the color of the text.
+// - bFocus is a boolean value that indicates whether the button should have the focus.
+void CAssetTab::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) noexcept 
+{
 	auto color = RGB(255, 0, 0);
 	switch (Color) {
 	case RED:

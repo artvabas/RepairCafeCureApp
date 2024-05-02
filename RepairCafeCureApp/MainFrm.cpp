@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.569.0
+* Version: 0.0.1.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 29-02-2024, (dd-mm-yyyy)
+* Updated: 02-05-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -52,28 +52,28 @@
 #include "RepairCafeCureApp.h"
 #include "MainFrm.h"
 
-using namespace artvabas::sql;
-
-
-//extern bool IsWaitingForSQL;
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+using namespace artvabas::sql;
+
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
-CMainFrame::CMainFrame() noexcept {
+CMainFrame::CMainFrame() noexcept
+{
 	m_pCmbCaptionBarEmployeeName = new CComboBox();
 }
 
-CMainFrame::~CMainFrame() {
-	if (m_pCmbCaptionBarEmployeeName != nullptr) {
+CMainFrame::~CMainFrame()
+{
+	if ( m_pCmbCaptionBarEmployeeName != nullptr ) {
 		delete m_pCmbCaptionBarEmployeeName;
 		m_pCmbCaptionBarEmployeeName = nullptr;
 	}
 }
 
+/* Message handles bindings */
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CAPTION_BAR,
@@ -108,42 +108,41 @@ END_MESSAGE_MAP()
 
 /* Overrides */
 
-BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs) {
+// PreCreateWindow is called before the window is created
+// It is used to modify the window class or styles
+BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
+{
 	if (!CFrameWndEx::PreCreateWindow(cs)) return FALSE;
 	// TODO: Modify the Window class or styles here by modifying
 	//  the CREATESTRUCT cs
 	return TRUE;
 }
-	
-// CMainFrame diagnostics
 #ifdef _DEBUG
+// AssertValid is called to check the validity of the object
 void CMainFrame::AssertValid() const { CFrameWndEx::AssertValid(); }
+// Dump is called to dump the object
 void CMainFrame::Dump(CDumpContext& dc) const { CFrameWndEx::Dump(dc); }
 #endif //_DEBUG
 
 /* Messages */
 
-/// <summary>
-/// This function is called when the main window is created.
-/// It creates the ribbon bar and the status bar.
-/// It also creates the caption bar, the ribbon bar 
-/// and the status bar. 
-/// </summary>
-/// <param name="lpCreateStruct"></param>
-/// <returns>int -1 not succeed, 0 succeed</returns>
-int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
-	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1) return -1;
+// OnCreate is called when the window is created
+// It is used to create the ribbon bar and the status bar
+// - lpCreateStruct is a pointer to a CREATESTRUCT structure that contains information about the CWnd object being created
+int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if ( CFrameWndEx::OnCreate(lpCreateStruct) == -1 ) return -1;
 
 	m_wndRibbonBar.Create(this);
 	m_wndRibbonBar.LoadFromResource(IDR_RIBBON);
 
-	if (!m_wndStatusBar.Create(this)) {
+	if ( !m_wndStatusBar.Create(this) ) {
 		TRACE0("Failed to create status bar\n");
 		return -1;      // fail to create
 	}
 
 	// Create a caption bar:
-	if (!CreateCaptionBar()) {
+	if ( !CreateCaptionBar() ) {
 		TRACE0("Failed to create caption bar\n");
 		return -1;      // fail to create
 	}
@@ -156,30 +155,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	return 0;
 }
 
-/// <summary>
-/// This function is called when the user clicks on the caption bar button.
-/// It shows or hides the caption bar.
-/// </summary>
-void CMainFrame::OnViewCaptionBar() {
+// OnViewCaptionBar is called when the user clicks on hide show caption bar button
+void CMainFrame::OnViewCaptionBar()
+{
 	m_wndCaptionBar.ShowWindow(m_wndCaptionBar.IsVisible() ? SW_HIDE : SW_SHOW);
 	RecalcLayout(FALSE);
 }
 
-/// <summary>
-/// This function is called when the user clicks on the caption bar button.
-/// It shows or hides the caption bar.
-/// </summary>
-/*
-void CMainFrame::OnUpdateViewCaptionBar(CCmdUI* pCmdUI)
-{
-	pCmdUI->SetCheck(m_wndCaptionBar.IsVisible());
-}
-*/
-
-/// <summary>
-/// This function is called when the user clicks on the options button in the ribbon bar.
-/// It shows the options dialog.
-/// </summary>
+// OnOptions is called when the user clicks on the options button in the ribbon bar
 void CMainFrame::OnOptions() {
 	auto *pOptionsDlg = new CMFCRibbonCustomizeDialog(this, &m_wndRibbonBar);
 	ASSERT(pOptionsDlg != nullptr);
@@ -188,39 +171,28 @@ void CMainFrame::OnOptions() {
 	delete pOptionsDlg;
 }
 
-/// <summary>
-/// This function is called when the user clicks on the print button in the ribbon bar.
-/// It shows the print dialog.
-/// </summary>
-void CMainFrame::OnFilePrint() {
-	if (IsPrintPreview()) PostMessage(WM_COMMAND, AFX_ID_PREVIEW_PRINT);
+// OnFilePrint is called when the user clicks on the print button in the ribbon bar
+void CMainFrame::OnFilePrint()
+{
+	if ( IsPrintPreview() ) PostMessage(WM_COMMAND, AFX_ID_PREVIEW_PRINT);
 }
 
-/// <summary>
-/// This function is called when the user clicks on the print preview button in the ribbon bar.
-/// It shows the print preview dialog.
-/// </summary>
-void CMainFrame::OnFilePrintPreview() {
-	if (IsPrintPreview()) PostMessage(WM_COMMAND, AFX_ID_PREVIEW_CLOSE);
+// 
+void CMainFrame::OnFilePrintPreview()
+{
+	if ( IsPrintPreview() ) PostMessage(WM_COMMAND, AFX_ID_PREVIEW_CLOSE);
 }
 
-//void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI)
-//{
-//	pCmdUI->SetCheck(IsPrintPreview());
-//}
-
-/// <summary>
-/// This function is called when the user changes the selected item in the combobox on the caption bar
-/// Get the active view and update the data
-/// </summary>
-void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange() {
-	if (m_pCmbCaptionBarEmployeeName == nullptr) return;
+// OnCaptionBarComboBoxEmployeeNameChange is called when the user selects an employee name from the combobox
+void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
+{
+	if ( m_pCmbCaptionBarEmployeeName == nullptr ) return;
 
 	BOOL bNameValid;
 	CString strTemp;
 	auto *pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
 
-	if (m_pCmbCaptionBarEmployeeName->GetCurSel() != 0) {
+	if ( m_pCmbCaptionBarEmployeeName->GetCurSel() != 0 ) {
 		pView->SendMessage(WM_UPDATEUISTATE, 1);
 		bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_UNLOCK);
 		ASSERT(bNameValid);
@@ -233,15 +205,13 @@ void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange() {
 	}
 }
 
-/* General methods*/
+/* Member methods*/
 
-/// <summary>
-/// This function is called by the OnCreate method.
-/// It creates the caption bar.
-/// </summary>
-/// <returns>BOOL TRUE if succeed, FALSE if not succeed</returns>
-BOOL CMainFrame::CreateCaptionBar() {
-	if (!m_wndCaptionBar.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS, this, ID_VIEW_CAPTION_BAR, -1, TRUE)) {
+// CreateCaptionBar is called to create the caption bar
+// It is used to create the caption bar and the combobox for the employee names
+BOOL CMainFrame::CreateCaptionBar()
+{
+	if ( !m_wndCaptionBar.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS, this, ID_VIEW_CAPTION_BAR, -1, TRUE) ) {
 		TRACE0("Failed to create caption bar\n");
 		return FALSE;
 	}
@@ -261,9 +231,7 @@ BOOL CMainFrame::CreateCaptionBar() {
 	ASSERT(bNameValid);
 	m_wndCaptionBar.SetImageToolTip(strTemp, strTemp2);
 
-	//*******************************************************************************
-	// Make a new ComboBox
-	// Make ComboBox visible
+	// Combobox for employee names
 	m_pCmbCaptionBarEmployeeName->Create(WS_CHILD | WS_VISIBLE | EBS_READONLY | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar,
 		IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME);
 
@@ -273,15 +241,12 @@ BOOL CMainFrame::CreateCaptionBar() {
 
 	theApp.BeginWaitCursor();
 
-	// Add items to comboBox
+	// Add names to comboBox
 	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
-	//auto *rs = new CRecordset();
-
-	//*************************************************************************************************************
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
 		SQLCHAR szName[50]{};
 		SQLLEN cbName{};
@@ -291,21 +256,17 @@ BOOL CMainFrame::CreateCaptionBar() {
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
+		if ( retcode == SQL_SUCCESS ) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO )
 					AfxMessageBox(_T("Error fetching data from Employee Table!"), MB_ICONEXCLAMATION);
-				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-
-					// Get data for columns 1, employee names
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 					SQLGetData(hstmt, 1, SQL_C_CHAR, szName, 50, &cbName);
 					m_pCmbCaptionBarEmployeeName->AddString(static_cast<CString>(szName));
 				}
-				else {
+				else
 					break;
-				}
 			}
 		}
 		sql.CheckReturnCodeForClosing(retcode);
@@ -319,21 +280,16 @@ BOOL CMainFrame::CreateCaptionBar() {
 	bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_LOCK);
 	ASSERT(bNameValid);
 	m_wndStatusBar.SetInformation(strTemp);
-	//*******************************************************************************
 	return TRUE;
 }
 
-/// <summary>
-/// This function is called by the App class, for giving back the selected
-/// employee name from the combobox on the caption bar.
-/// </summary>
-/// <returns>CString the selected employee name</returns>
+// GetSelectedEmployee is called to get the selected employee name from the combobox
 CString CMainFrame::GetSelectedEmployee() {
 	CString strEmployee;
 	auto nIndex = m_pCmbCaptionBarEmployeeName->GetCurSel();
-	if (nIndex != CB_ERR && nIndex != 0) {
+	if ( nIndex != CB_ERR && nIndex != 0 ) {
 		auto nLength = m_pCmbCaptionBarEmployeeName->GetLBTextLen(nIndex);
-		if (nLength != CB_ERR) {
+		if ( nLength != CB_ERR ) {
 			m_pCmbCaptionBarEmployeeName->GetLBText(nIndex, strEmployee.GetBuffer(nLength));
 			strEmployee.ReleaseBuffer();
 		}
@@ -341,6 +297,7 @@ CString CMainFrame::GetSelectedEmployee() {
 	return strEmployee;
 }
 
+// OnUpdateIsPrintable is called to update the print button in the ribbon bar
 void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI) {
 	switch (theApp.GetActiveViewType())	{
 		case VIEW_ASSET:
@@ -355,6 +312,7 @@ void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI) {
 	}
 }
 
+// OnUpdateWorkorderExtraCombi is called to update the print combi button in the ribbon bar
 void CMainFrame::OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI) {
 	switch (theApp.GetWorkorderViewType()) {
 		case VIEW_WORKORDER_OPEN:
@@ -367,6 +325,7 @@ void CMainFrame::OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI) {
 	}
 }
 
+// OnUpdateWorkorderExtraInvoice is called to update the print invoice button in the ribbon bar
 void CMainFrame::OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI) {
 	switch (theApp.GetWorkorderViewType()) {
 	case VIEW_WORKORDER_OPEN:
@@ -379,6 +338,8 @@ void CMainFrame::OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI) {
 	}
 }
 
+// OnUpdateGeneralShowLoginbarCheck toggle for show hide caption bar
+// trigged when user check or uncheck the checkbox on ribbinbar -> General
 void CMainFrame::OnUpdateGeneralShowLoginbarCheck(CCmdUI* pCmdUI) {
 	pCmdUI->SetCheck(m_wndCaptionBar.IsVisible());
 }

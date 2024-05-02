@@ -1,25 +1,49 @@
-// This MFC Samples source code demonstrates using MFC Microsoft Office Fluent User Interface
-// (the "Fluent UI") and is provided only as referential material to supplement the
-// Microsoft Foundation Classes Reference and related electronic documentation
-// included with the MFC C++ library software.
-// License terms to copy, use or distribute the Fluent UI are available separately.
-// To learn more about our Fluent UI licensing program, please visit
-// https://go.microsoft.com/fwlink/?LinkId=238214.
-//
-// Copyright (C) Microsoft Corporation
-// All rights reserved.
+/*
+Copyright(C) 2023 / 24  artvabas
 
-// CAssetView.cpp : implementation of the CCAssetView class
-//
+This program is free software : you can redistribute it and /or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.If not, see < https://www.gnu.org/licenses/>
+
+To see the license for this source code, please visit :
+< https ://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit :
+< https ://artvabas.com>
+	< https ://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at :
+< https ://artvabas.com/contact>
+
+	*/
+
+	/*
+	* This file is part of RepairCafeCureApp.
+	* File: CAssetView.h, implements class CAssetView
+	*
+	* This class is the view of the Asset form
+	*
+	* Target: Windows 10/11 64bit
+	* Version: 0.0.1.0 (alpha)
+	* Created: 04-11-2023, (dd-mm-yyyy)
+	* Updated: 30-04-2024, (dd-mm-yyyy)
+	* Creator: artvabasDev / artvabas
+	*
+	* Description: Database connection class
+	* License: GPLv3
+	*/
 
 #include "pch.h"
-//#include "framework.h"
-// SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
-// and search filter handlers and allows sharing of document code with that project.
-#ifndef SHARED_HANDLERS
 #include "RepairCafeCureApp.h"
-#endif
-
 #include "RepairCafeCureAppDoc.h"
 #include "CAssetView.h"
 
@@ -29,11 +53,17 @@
 
 using namespace artvabas::rcc::ui;
 
-// CCAssetView
-
 IMPLEMENT_DYNCREATE(CAssetView, CFormView)
+
+CAssetView::CAssetView() noexcept
+	: CFormView(IDD_ASSET_FORM)
+{}
+
+CAssetView::~CAssetView()
+{}
+
+/* message handle binders */
 BEGIN_MESSAGE_MAP(CAssetView, CFormView)
-	// Standard printing commands
 	ON_COMMAND(ID_FILE_PRINT, &CFormView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CFormView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CAssetView::OnFilePrintPreview)
@@ -41,103 +71,109 @@ BEGIN_MESSAGE_MAP(CAssetView, CFormView)
 	ON_WM_RBUTTONUP()
 END_MESSAGE_MAP()
 
-// CCAssetView construction/destruction
+/* Override methods */
 
-CAssetView::CAssetView() noexcept
-	: CFormView(IDD_ASSET_FORM)
+// PreCreateWindow: Modify the Window class or styles here by modifying the CREATESTRUCT cs
+// - cs: The create structure
+BOOL CAssetView::PreCreateWindow(CREATESTRUCT& cs)
 {
+	//cs.style |= WS_HSCROLL | WS_VSCROLL;
+	return CFormView::PreCreateWindow(cs);
 }
 
-CAssetView::~CAssetView()
-{
-}
-
+// DoDataExchange: Exchange and validate form data between controls and class members.
+// - pDX: The data exchange object
 void CAssetView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
 }
 
-BOOL CAssetView::PreCreateWindow(CREATESTRUCT& cs)
-{
-	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
-
-	return CFormView::PreCreateWindow(cs);
-}
-
+// OnInitialUpdate: Called after the view is first attached to the document
 void CAssetView::OnInitialUpdate()
 {
 	CFormView::OnInitialUpdate();
 	GetParentFrame()->RecalcLayout();
 	ResizeParentToFit();
-	
 }
 
-
-// CCAssetView printing
-
-
-void CAssetView::OnFilePrintPreview()
-{
-#ifndef SHARED_HANDLERS
-	AFXPrintPreview(this);
-#endif
-}
-
+// OnPreparePrinting: Prepare the printing process
+// - pInfo: The print information
 BOOL CAssetView::OnPreparePrinting(CPrintInfo* pInfo)
 {
 	// default preparation
 	return DoPreparePrinting(pInfo);
 }
 
+// OnBeginPrinting: Initialize the printing process
+// - pDC: The device context
+// - pInfo: The print information
 void CAssetView::OnBeginPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add extra initialization before printing
 }
 
+// OnEndPrinting: Clean up after printing
+// - pDC: The device context
+// - pInfo: The print information
 void CAssetView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add cleanup after printing
 }
 
+// OnPrint: Print the view
+// - pDC: The device context
+// - pInfo: The print information
 void CAssetView::OnPrint(CDC* pDC, CPrintInfo* /*pInfo*/)
 {
 	// TODO: add customized printing code here
 }
 
-void CAssetView::OnRButtonUp(UINT /* nFlags */, CPoint point)
-{
-	ClientToScreen(&point);
-	OnContextMenu(this, point);
-}
-
-void CAssetView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
-{
-#ifndef SHARED_HANDLERS
-	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
-#endif
-}
-
-
-// CCAssetView diagnostics
-
 #ifdef _DEBUG
+// AssertValid: Assert the view is valid
 void CAssetView::AssertValid() const
 {
 	CFormView::AssertValid();
 }
 
+// Dump: Dump the view
+// - dc: The dump context
 void CAssetView::Dump(CDumpContext& dc) const
 {
 	CFormView::Dump(dc);
 }
+#endif
 
+/* Message handlers methods */
+
+// OnFilePrintPreview: Print preview the view
+void CAssetView::OnFilePrintPreview() noexcept
+{
+	AFXPrintPreview(this);
+}
+
+// OnRButtonUp: Handle right button up event
+// - nFlags: The flags of the event
+// - point: The point where the event occured
+void CAssetView::OnRButtonUp(UINT /* nFlags */, CPoint point) noexcept
+{
+	ClientToScreen(&point);
+	OnContextMenu(this, point);
+}
+
+// OnContextMenu: Handle context menu event
+// - pWnd: The window that the context menu is for
+// - point: The point where the context menu is to be displayed
+void CAssetView::OnContextMenu(CWnd* /* pWnd */, CPoint point) noexcept
+{
+	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
+}
+
+/* Member methods */
+#ifdef _DEBUG
+// GetDocument: Get the document of this applicaton
 CRepairCafeCureAppDoc* CAssetView::GetDocument() const // non-debug version is inline
 {
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CRepairCafeCureAppDoc)));
 	return (CRepairCafeCureAppDoc*)m_pDocument;
 }
 #endif //_DEBUG
-
-
-// CCAssetView message handlers

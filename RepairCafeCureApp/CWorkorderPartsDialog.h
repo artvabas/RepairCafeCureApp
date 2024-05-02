@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -28,14 +28,14 @@
 
 /*
 * This file is part of RepairCafeCureApp.
-* File: CWorkorderPartsDialog.h, defines classCWorkorderPartsDialog
+* File: CWorkorderPartsDialog.h, defines class CWorkorderPartsDialog
 *
-* This class is the dialog of the adding parts to workorder dialog (CWorkorderPartsDialog)
+* This class is the dialog for adding parts to workorder
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 0.0.1.0 (Alpha)
 * Created: 15-11-2023, (dd-mm-yyyy)
-* Updated: 02-12-2023, (dd-mm-yyyy)
+* Updated: 29-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -43,64 +43,56 @@
 #pragma once
 #include "afxdialogex.h"
 
-namespace artvabas {
+namespace artvabas::rcc::ui::dialogs {
 
-	namespace rcc {
-
-		namespace ui {
-
-			namespace dialogs {
-
-				class CWorkorderPartsDialog : public CDialogEx
-				{
-					DECLARE_DYNAMIC(CWorkorderPartsDialog)
-				private:
-					bool m_bIsAddedPartListSelected;
-					unsigned int m_unWorkorderID;
-					CListCtrl m_lscWorkorderStockPartList;
-					CListCtrl m_lscWorkorderAddedPartList;
-					CString m_strWorkorderPartDescription;
-					CString m_strWorkorderPartAmount;
-					CString m_strWorkorderPartUnitPrice;
-					CString m_strWorkorderPartTotalPrice;
-					CButton m_btnWorkorderPartAdd;
-					CButton m_btnWorkorderPartDelete;
-					CButton m_btnWorkorderPartChange;
-
-				public:
-					CWorkorderPartsDialog(const unsigned int& nWorkorderID, CWnd* pParent = nullptr);
-					virtual ~CWorkorderPartsDialog();
-
-					// Dialog Data
+	class CWorkorderPartsDialog : public CDialogEx
+	{
+		DECLARE_DYNAMIC(CWorkorderPartsDialog)
 #ifdef AFX_DESIGN_TIME
-					enum { IDD = IDD_WORKORDER_PARTS };
+		enum { IDD = IDD_WORKORDER_PARTS };
 #endif
 
-					DECLARE_MESSAGE_MAP()
+	private:
+		bool m_bIsAddedPartListSelected;
+		unsigned int m_unWorkorderID;
 
-				private:
-					void DoDataExchange(CDataExchange* pDX) override;
-					BOOL OnInitDialog() override;
-					void OnOK() override;
+		CListCtrl m_lscWorkorderStockPartList;
+		CListCtrl m_lscWorkorderAddedPartList;
 
-				private:
-					afx_msg void OnEnChangeWorkorderAddParts();
-					afx_msg void OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR, LRESULT* pResult);
-					afx_msg void OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRESULT* pResult);
-					afx_msg void OnBnClickedWorkorderAddPart();
-					afx_msg void OnBnClickedWorkorderDeleteAddedPart();
-					afx_msg void OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult);
-					afx_msg void OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult);
-					afx_msg void OnBnClickedWorkorderChange();
+		CString m_strWorkorderPartDescription;
+		CString m_strWorkorderPartAmount;
+		CString m_strWorkorderPartUnitPrice;
+		CString m_strWorkorderPartTotalPrice;
 
-				private:
-					bool InitStockPartList();
-					bool InitAddedPartList();
-					void CalculateTotalPrice();
-					void SetChangeDeleteButtonState(BOOL bFlag = TRUE);
-					void ClearPartInputFields();
-				};
-			}
-		}
-	}
+		CButton m_btnWorkorderPartAdd;
+		CButton m_btnWorkorderPartDelete;
+		CButton m_btnWorkorderPartChange;
+
+	public:
+		CWorkorderPartsDialog(const unsigned int& nWorkorderID, CWnd* pParent = nullptr) noexcept;
+		virtual ~CWorkorderPartsDialog();
+
+	private:
+		void DoDataExchange(CDataExchange* pDX) override;
+		BOOL OnInitDialog() override;
+		void OnOK() override;
+
+	private:
+		DECLARE_MESSAGE_MAP()
+		afx_msg void OnEnChangeWorkorderAddParts() noexcept;
+		afx_msg void OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+		afx_msg void OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+		afx_msg void OnBnClickedWorkorderAddPart() noexcept;
+		afx_msg void OnBnClickedWorkorderDeleteAddedPart()  noexcept;
+		afx_msg void OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+		afx_msg void OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+		afx_msg void OnBnClickedWorkorderChange() noexcept;
+
+	private:
+		bool InitStockPartList();
+		bool InitAddedPartList();
+		void CalculateTotalPrice() noexcept;
+		void SetChangeDeleteButtonState(BOOL bFlag = TRUE) noexcept;
+		void ClearPartInputFields() noexcept;
+	};
 }

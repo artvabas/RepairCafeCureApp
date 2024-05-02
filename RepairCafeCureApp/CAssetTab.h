@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.465.0
+* Version: 0.0.1.0 (alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 03-03-2024, (dd-mm-yyyy)
+* Updated: 29-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -51,71 +51,65 @@
 
 #include "CTabCtrlAssetWorkorder.h"
 
-namespace artvabas {
-	namespace rcc {
-		namespace ui {
-			namespace dialogs {
+namespace artvabas::rcc::ui::dialogs {
 
-				using namespace artvabas::rcc::ui::controls;
+	using namespace artvabas::rcc::ui::controls;
 
-				class CAssetTab : public CDialogEx
-				{
-					DECLARE_DYNAMIC(CAssetTab)
-
-				private:
-					bool m_bIsSelectedFromAssetList;
-					CTabCtrlAssetWorkorder* m_pTabControl;
-					AssetDetailsRecords* m_pAssetDetailsRecords;
-
-					CString m_strCustomerSurname;
-					CString m_strCustomerName;
-
-					unsigned int m_nAssetID;
-					unsigned int m_nAssetCustomerID;
-					unsigned int m_nAssetWorkorderID;
-					unsigned short m_sAssetDisposed;
-
-					CString m_strAssetCreateDate;
-					CString m_strDescription;
-					CString m_strModelNumber;
-					CString m_strBrand;
-					CString m_strHistoryLog;
-
-					CMFCButton m_btnUpdateAsset;
-					CMFCButton m_btnNewAsset;
-					CMFCButton m_btnCreateWorkorder;
-					CMFCButton m_btnClear;
-					CListCtrl m_ctrExistingAssetList;
-
-				public:
-					CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID,
-						CWnd* pParent = nullptr);
-					virtual ~CAssetTab();
-
-					void ClearForNewInput();
-
-				private:
-					void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true);
+	class CAssetTab : public CDialogEx
+	{
 #ifdef AFX_DESIGN_TIME
-					enum { IDD = IDD_ASSET_TAB };
+		enum { IDD = IDD_ASSET_TAB };
 #endif
+		DECLARE_DYNAMIC(CAssetTab)
 
-				private:
-					BOOL OnInitDialog() override;
-					void DoDataExchange(CDataExchange* pDX) override;
-					BOOL PreTranslateMessage(MSG* pMsg) override;
+	private:
+		bool m_bIsSelectedFromAssetList;
+		CTabCtrlAssetWorkorder* m_pTabControl;
+		AssetDetailsRecords* m_pAssetDetailsRecords;
 
-					DECLARE_MESSAGE_MAP()
-				private:
-					afx_msg void OnEnChangeAssetDetails();
-					afx_msg void OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult);
-					afx_msg void OnBnClickedAssetTabUpdate();
-					afx_msg void OnBnClickedAssetTabNew();
-					afx_msg void OnBnClickedAssetTabClear();
-				public:
-					afx_msg void OnBnClickedAssetTabCreateWorkorder();
-				};
-			}
-		}
-	}
+		unsigned int m_nAssetID;
+		unsigned int m_nAssetCustomerID;
+		unsigned int m_nAssetWorkorderID;
+		unsigned short m_sAssetDisposed;
+
+		CString m_strCustomerSurname;
+		CString m_strCustomerName;
+
+		CString m_strAssetCreateDate;
+		CString m_strDescription;
+		CString m_strModelNumber;
+		CString m_strBrand;
+		CString m_strHistoryLog;
+
+		CMFCButton m_btnUpdateAsset;
+		CMFCButton m_btnNewAsset;
+		CMFCButton m_btnCreateWorkorder;
+		CMFCButton m_btnClear;
+		CListCtrl m_ctrExistingAssetList;
+
+	public:
+		CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID,
+			CWnd* pParent = nullptr) noexcept;
+		virtual ~CAssetTab();
+
+	private:
+		BOOL OnInitDialog() override;
+		void DoDataExchange(CDataExchange* pDX) override;
+		BOOL PreTranslateMessage(MSG* pMsg) override;
+
+	private:
+		DECLARE_MESSAGE_MAP()
+		afx_msg void OnEnChangeAssetDetails() noexcept;
+		afx_msg void OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+		afx_msg void OnBnClickedAssetTabUpdate();
+		afx_msg void OnBnClickedAssetTabNew();
+		afx_msg void OnBnClickedAssetTabClear() noexcept;
+	public:
+		afx_msg void OnBnClickedAssetTabCreateWorkorder() noexcept;
+
+	public:
+		void ClearForNewInput() noexcept;
+	private:
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true) noexcept;
+	};
 }

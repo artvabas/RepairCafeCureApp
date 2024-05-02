@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.465.0
+* Version: 0.0.1.0 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 03-03-2024, (dd-mm-yyyy)
+* Updated: 30-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -47,13 +47,14 @@
 */
 
 #pragma once
-
-// CCustomerView form view
 namespace artvabas::rcc::ui {
 
-	class CCustomerView : public CFormView {
+	class CCustomerView : public CFormView
+	{
 		DECLARE_DYNCREATE(CCustomerView)
-
+#ifdef AFX_DESIGN_TIME
+		enum { IDD = IDD_CUSTOMER_FORM };
+#endif
 	private:
 		CListCtrl m_ctlExistingCustomersList;
 
@@ -79,45 +80,44 @@ namespace artvabas::rcc::ui {
 		CString m_strCustomerPhone;
 		CString m_strCustomerSurname;
 		CString m_strCustomerEmail;
+
 		unsigned m_nCustomerID;
 
 		bool m_bIsNewCustomer;
 		bool m_bIsDirtyCustomerDetails;
 
 	public:
-		CCustomerView();
+		CCustomerView() noexcept;
 		virtual ~CCustomerView();
 
 	private:
-#ifdef AFX_DESIGN_TIME
-		enum { IDD = IDD_CUSTOMER_FORM };
-#endif
+		BOOL PreTranslateMessage(MSG* pMsg) override;
+		void OnInitialUpdate() override;
+		void DoDataExchange(CDataExchange* pDX) override;
 #ifdef _DEBUG
-		void AssertValid() const override;
+			void AssertValid() const override;
 #ifndef _WIN32_WCE
 		void Dump(CDumpContext& dc) const override;
 #endif
 #endif
-		BOOL PreTranslateMessage(MSG* pMsg) override;
-		void OnInitialUpdate() override;
-		void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
-
+	private:
 		DECLARE_MESSAGE_MAP()
 		afx_msg void OnClickedCustomViewButtonSearch();
-		afx_msg void OnChangeCustomViewEditBoxSurnameSearch();
-		afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
-		afx_msg void OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pResult);
-		afx_msg void OnChangeCustViewCustomerDetails();
-		afx_msg void OnClickedCustViewButtonAddNewCustomer();
+		afx_msg void OnChangeCustomViewEditBoxSurnameSearch() noexcept;
+		afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement) noexcept;
+		afx_msg void OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+		afx_msg void OnChangeCustViewCustomerDetails() noexcept;
+		afx_msg void OnClickedCustViewButtonAddNewCustomer() noexcept;
 		afx_msg void OnClickedCustViewButtonCustomerAdd();
 		afx_msg void OnClickedCustViewButtonCustomerUpdate();
-		afx_msg void OnClickedCustViewButtonCustomerAssets();
+		afx_msg void OnClickedCustViewButtonCustomerAssets() noexcept;
 
-		void DisableCustomerSearchAndAddButtons();
-		void UpdateCustomerDetailsControls(BOOL bShow = TRUE);
-		void DisableCustomerDetailsButtons();
-		void EmptyCustomerDetailsControls();
-		void EmptyAndDisableExistingCustomersList();
-		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true);
+	private:
+		void DisableCustomerSearchAndAddButtons() noexcept;
+		void UpdateCustomerDetailsControls(BOOL bShow = TRUE) noexcept;
+		void DisableCustomerDetailsButtons() noexcept;
+		void EmptyCustomerDetailsControls() noexcept;
+		void EmptyAndDisableExistingCustomersList() noexcept;
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true) noexcept;
 	};
 }

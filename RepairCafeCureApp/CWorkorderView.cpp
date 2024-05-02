@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -36,33 +36,13 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.569.0
+* Version: 1.0.1.0
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 29-02-2024, (dd-mm-yyyy)
+* Updated: 30-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
 */
-
-/****************************************************************************************
-* REMARKS:
-* 
-* The controls in the view are enabled and disabled depending on the state of the form.
-* 
-* The states are:
-*	VIEW_WORKORDER_OPEN
-*		only Update button is enabled, depends on selected employee responsible.
-*
-* 	VIEW_WORKORDER_PROGRESS
-*		Update and Finished buttons are enabled or disabled, depends on selected employee responsible, new log edit control, 
-*		contacted customer check box and asset disposed check box.
-*
-*		Update is active when the contacted customer check box is unchecked and the asset disposed check box is unchecked,
-* 		and the new log edit control is not empty or the employee responsible combo box is changed.
-* 
-*		Finished is active when the contacted customer check box is checked.
-* 
-******************************************************************************************/
 
 #include "pch.h"
 #include "RepairCafeCureApp.h"
@@ -76,6 +56,7 @@
 using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::sql;
+using namespace artvabas::rcc::support;
 using namespace artvabas::database::tables::workorder;
 using namespace artvabas::database::tables::workorderparts;
 using namespace artvabas::database::tables::asset;
@@ -83,33 +64,36 @@ using namespace artvabas::database::tables::customer;
 
 IMPLEMENT_DYNCREATE(CWorkorderView, CFormView)
 
-CWorkorderView::CWorkorderView() : CFormView(IDD_WORKORDER_FORM),
-	m_unWorkorderId{ 0 },
-	m_strCustomerSurname{ _T("") },
-	m_strCustomerName{ _T("") },
-	m_strCustomerCellPhone{ _T("") },
-	m_strCustomerPhone{ _T("") },
-	m_strCustomerEmail{ _T("") },
-	m_strCustomerComments{ _T("") },
-	m_strAssetDescription{ _T("") },
-	m_strAssetModelNumber{ _T("") },
-	m_strAssetBrand{ _T("") },
-	m_strAssetHistoryLog{ _T("") },
-	m_strWorkorderCreatedDate{ _T("") },
-	m_strWorkorderCreatedBy{ _T("") },
-	m_strWorkorderDescription{ _T("") },
-	m_strWorkorderStatus{ _T("") },
-	m_strWorkorderClosedDate{ _T("") },
-	m_strWorkorderNewLog{ _T("") },
-	m_strWorkorderHistoryLog{ _T("") },
-	m_bWorkorderSelected{ false },
-	m_bResponsibleChanged{ false },
-	m_bPrintCombi{ false },
-	m_bPrintInvoice{ false },
-	m_strWorkorderTotalPartsPrice{ _T("") },
-	m_pDC{ NULL } { }
+CWorkorderView::CWorkorderView() noexcept
+	: CFormView(IDD_WORKORDER_FORM)
+	, m_pDC{ NULL }
+	, m_bWorkorderSelected{ false }
+	, m_bResponsibleChanged{ false }
+	, m_bPrintCombi{ false }
+	, m_bPrintInvoice{ false }
+	, m_unWorkorderId{ 0 }
+	, m_strCustomerSurname{ _T("") }
+	, m_strCustomerName{ _T("") }
+	, m_strCustomerCellPhone{ _T("") }
+	, m_strCustomerPhone{ _T("") }
+	, m_strCustomerEmail{ _T("") }
+	, m_strCustomerComments{ _T("") }
+	, m_strAssetDescription{ _T("") }
+	, m_strAssetModelNumber{ _T("") }
+	, m_strAssetBrand{ _T("") }
+	, m_strAssetHistoryLog{ _T("") }
+	, m_strWorkorderCreatedDate{ _T("") }
+	, m_strWorkorderCreatedBy{ _T("") }
+	, m_strWorkorderDescription{ _T("") }
+	, m_strWorkorderStatus{ _T("") }
+	, m_strWorkorderClosedDate{ _T("") }
+	, m_strWorkorderNewLog{ _T("") }
+	, m_strWorkorderHistoryLog{ _T("") }
+	, m_strWorkorderTotalPartsPrice{ _T("") }
+{}
 
-CWorkorderView::~CWorkorderView() {
+CWorkorderView::~CWorkorderView()
+{
 	//delete lpDevMode;
 	if (m_pDC) {
 		m_pDC->Detach();
@@ -117,7 +101,7 @@ CWorkorderView::~CWorkorderView() {
 		delete m_pDC;
 	}
 }
-/* Message handles */
+/* Message handles binders */
 #pragma warning ( push )
 #pragma warning ( disable : 26454 )
 BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
@@ -155,19 +139,9 @@ END_MESSAGE_MAP()
 
 /* Overrides methods */
 
-#ifdef _DEBUG
-void CWorkorderView::AssertValid() const { CFormView::AssertValid(); }
-#ifndef _WIN32_WCE
-void CWorkorderView::Dump(CDumpContext& dc) const {	CFormView::Dump(dc); }
-#endif
-#endif //_DEBUG
-
-/// <summary>
-/// DoDataExchange is called by the framework to exchange and validate dialog data.
-/// </summary>
-/// <param name="pDX"></param>
-/// <returns></returns>
-void CWorkorderView::DoDataExchange(CDataExchange* pDX) {
+// DoDataExchange is called by the framework to exchange and validate form data.
+void CWorkorderView::DoDataExchange(CDataExchange* pDX)
+{
 	CFormView::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_WORKORDERVIEW_CUSTOMER_SURNAME, m_strCustomerSurname);
 	DDX_Text(pDX, IDC_WORKORDERVIEW_CUSTOMER_NAME, m_strCustomerName);
@@ -197,12 +171,9 @@ void CWorkorderView::DoDataExchange(CDataExchange* pDX) {
 	DDX_Control(pDX, IDC_WORKORDERVIEW_CLOSE, m_btnWorkorderClose);
 }
 
-/// <summary>
-/// OnInitialUpdate is called by the framework after the view is created.
-/// Initialize the list controls and the employee responsible combo box.
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::OnInitialUpdate() {
+// OnInitialUpdate is called by the framework when the view is first activated.
+void CWorkorderView::OnInitialUpdate()
+{
 		CFormView::OnInitialUpdate();
 
 		m_lscWorkorderExisting.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -231,67 +202,75 @@ void CWorkorderView::OnInitialUpdate() {
 		InitWorkorderEmployeeResponsibleComboBox();
 }
 
-BOOL CWorkorderView::PreTranslateMessage(MSG* pMsg) {
+// PreTranslateMessage is called by the framework before the message is dispatched.
+// This method is used to handle the Enter key press event to virtal make mouse clicks on buttons
+// - pMsg: A pointer to the message structure.
+BOOL CWorkorderView::PreTranslateMessage(MSG* pMsg)
+{
 
-	if (pMsg->message == WM_KEYDOWN) {
-		if (pMsg->wParam == VK_RETURN) {
+	if ( pMsg->message == WM_KEYDOWN ) {
+		if ( pMsg->wParam == VK_RETURN ) {
 			if (m_btnWorkorderUpdate.IsWindowEnabled() && m_btnWorkorderFinished.IsWindowEnabled()) {
 				OnBnClickedWorkorderViewFinished();
 				return TRUE;
-			}
-			else if (m_btnWorkorderUpdate.IsWindowEnabled()) {
+			} else if ( m_btnWorkorderUpdate.IsWindowEnabled() ) {
 				OnBnClickedWorkorderViewUpdate();
 				return TRUE;
 			}
-
-			if (m_btnWorkorderClose.IsWindowEnabled()) {
+			if ( m_btnWorkorderClose.IsWindowEnabled() ) {
 				OnBnClickedWorkorderViewClose();
 				return TRUE;
 			}
 		}
 	}
-	
 	return CFormView::PreTranslateMessage(pMsg);
 }
 
-BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo) {
+// OnPreparePrinting is called by the framework before the print job is started.
+// - pInfo: A pointer to the print information structure.
+BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
+{
 	auto bRet{ DoPreparePrinting(pInfo) };
 
-	if(pInfo->m_bPreview) return bRet;
+	if( pInfo->m_bPreview ) return bRet;
 
-	// Controleer of de voorbereiding succesvol was
-	if (bRet) {
-
-		if (m_pDC == NULL) {
-			// Verkrijg de huidige printerinstellingen
+	if ( bRet ) {
+		if ( m_pDC == NULL ) {
 			auto hDC{ pInfo->m_pPD->GetPrinterDC() };
-			m_pDC = new CDC;
-			m_pDC->Attach(hDC);
+
+			try {
+				m_pDC = new CDC;
+				m_pDC->Attach(hDC);
+			}
+			catch (std::bad_alloc& e) {
+				AfxMessageBox(static_cast<CString>(e.what()));
+				exit(-1);
+			}
 		}
 
-		// Verkrijg de DEVMODE structuur via de CPrintInfo structuur
 		auto *pDevMode{ pInfo->m_pPD->GetDevMode() };
-
-		// Controleer of de DEVMODE pointer geldig is
-		if (pDevMode != NULL) {
-			if(m_bPrintCombi) {
-				// Zet de printer in landscape-modus
+		if ( pDevMode != NULL ) {
+			if( m_bPrintCombi ) {
 				pDevMode->dmPaperSize = DMPAPER_A4;
 				pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
-			} else if (m_bPrintInvoice)	{
-				// Zet de printer in portrait-modus
+			} else if ( m_bPrintInvoice )	{
 				pDevMode->dmPaperSize = DMPAPER_A4;
 				pDevMode->dmOrientation = DMORIENT_PORTRAIT;
 			}
-			// Pas de instellingen toe
 			::ResetDC(m_pDC->GetSafeHdc(), pDevMode);
 		}
 	}
 	return bRet;
 }
 
+// OnBeginPrinting is called by the framework when the print job is started.
+// - pDC: A pointer to the device context.
+// - pInfo: A pointer to the print information structure.
 void CWorkorderView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) {}
 
+// OnEndPrinting is called by the framework when the print job is finished.
+// - pDC: A pointer to the device context.
+// - pInfo: A pointer to the print information structure.
 void CWorkorderView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) {
 	if (m_pDC != NULL) {
 		m_pDC->Detach();
@@ -301,6 +280,9 @@ void CWorkorderView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) {
 	}
 }
 
+// OnPrint: Called by the framework to print the view.
+// - pDC: A pointer to the device context.
+// - pInfo: A pointer to the print information structure.
 void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo) {
 	BeginWaitCursor();
 	if (m_bPrintCombi) {
@@ -358,36 +340,41 @@ void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo) {
 		CPrintWorkorder printWorkorder{ &workorderData };
 		printWorkorder.PrintInvoice(pDC);
 		m_bPrintInvoice = false;
-	} else
-		//CFormView::OnPrint(pDC, pInfo);
-		pDC->TextOutW(100, 100, _T("Test"));
+	}
 	EndWaitCursor();
 }
+#ifdef _DEBUG
+// AssetValid: Asserts the validity of the view.
+void CWorkorderView::AssertValid() const { CFormView::AssertValid(); }
+#ifndef _WIN32_WCE
+// Dump: Dumps the view.
+// - dc: A reference to the dump context.
+void CWorkorderView::Dump(CDumpContext& dc) const { CFormView::Dump(dc); }
+#endif
+#endif //_DEBUG
 
 /* Message methods */
 
-void CWorkorderView::OnFilePrintPreview() {
-#ifndef SHARED_HANDLERS
+// OnFilePrintPeview is called by the framework when the user clicks on the print preview button.
+void CWorkorderView::OnFilePrintPreview() noexcept
+{
 	AFXPrintPreview(this);
-#endif
 }
 
-/// <summary>
-/// OnUpdateUIState is called by the framework when the view is activated.
-/// This method is used to enable and disable controls depending on the state of the view.
-/// </summary>
-/// <param name="nAction"></param>
-/// <param name="nUIElement"></param>
-/// <returns></returns>
-void CWorkorderView::OnUpdateUIState(UINT nAction, UINT nUIElement){
+// OnUpdateUIState is called by the framework when the view is activated.
+// This method is used to enable and disable controls depending on the state of the form.
+// - nAction: The action to be taken.
+// - nUIElement: The UI element to be updated.
+void CWorkorderView::OnUpdateUIState(UINT nAction, UINT nUIElement) noexcept
+{
 	auto *pChild{ GetWindow(GW_CHILD) };
 
 	switch (nAction) {
-		case 1:	// UIS_SET. 1 means - Employee name is selected in the caption bar.
+		case UIS_SET:	// 1 means - Employee name is selected in the caption bar.
 			// nUIElement = 0 means this method is called by the framework when the view is activated, controls are accessible.	
-			if (0 == nUIElement) {
+			if ( 0 == nUIElement ) {
 				// Go through all child controls of the view and activate all.
-				while (pChild) {
+				while ( pChild ) {
 					pChild->EnableWindow(TRUE);
 					pChild = pChild->GetWindow(GW_HWNDNEXT);
 				}
@@ -396,7 +383,7 @@ void CWorkorderView::OnUpdateUIState(UINT nAction, UINT nUIElement){
 			break;
 		default:
 			// This view is activated, but employee name is not selected in the caption bar.
-			while (pChild) {
+			while ( pChild ) {
 				pChild->EnableWindow(FALSE);
 				pChild = pChild->GetWindow(GW_HWNDNEXT);
 			}
@@ -404,18 +391,14 @@ void CWorkorderView::OnUpdateUIState(UINT nAction, UINT nUIElement){
 	}
 }
 
-/// <summary>
-/// OnNMDoubleClickWorkorderViewExisting is called by the framework when the user double clicks on an item in the existing workorders list control.
-/// This method is used to get the selected workorder's information from the database and display it in the view.
-/// It also call the GetAssetInfo and GetCustomerInfo methods to get the asset and customer information.
-/// And set the controls depending on the status of the workorder.
-/// </summary>
-/// <param name="pNMHDR"></param>
-/// <param name="pResult"></param>
-/// <returns></returns>
-void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult) {
+// OnNMDoubleClickWorkorderViewExisting is called by the framework when the user double clicks on the existing workorder list control.
+// This method is used to get the selected workorder information and set the form controls.
+// - pNMHDR: A pointer to the notification message header.
+// - pResult: A pointer to the result.
+void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult) noexcept
+{
 	auto pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-	if (pNMItemActivate->iItem != -1) {
+	if ( pNMItemActivate->iItem != -1 ) {
 		// Get the selected item's text.
 		m_unWorkorderId = _wtoi(m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 0));
 
@@ -442,7 +425,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 		// Set the employee responsible combo box on this form.
 		auto strValue = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 7);
 
-		if(!strValue.IsEmpty())
+		if( !strValue.IsEmpty() )
 			m_cbxWorkorderEmployeeResponsible.SelectString(0, strValue.Trim());
 		else
 			m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
@@ -450,7 +433,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 		auto *pMainFrame = reinterpret_cast<CMainFrame*>(GetParentFrame());
 		auto *ribbonBar = pMainFrame->GetRibbonBar();
 
-		switch (theApp.GetWorkorderViewType()) {
+		switch ( theApp.GetWorkorderViewType() ) {
 			case VIEW_WORKORDER_OPEN:
 				m_edtWorkorderNewLog.EnableWindow(FALSE);
 				m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
@@ -488,20 +471,17 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 
 		m_bWorkorderSelected = true;
 	}
-
 	*pResult = 0;
 }
 
-/// <summary>
-/// OnCbnSelectChangeWorkorderViewResponsible is called by the framework when the user selects or change an employee responsible from the combo box.
-/// This method is used to enable and disable controls depending on the state of the form.
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible() {
-	switch (theApp.GetWorkorderViewType()) {
+// OnCbnSelectChangeWorkorderViewResponsible is called by the framework when the user changes the employee responsible combo box.
+// This method is used to enable and disable controls depending on the state of the form.
+void CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible() noexcept
+{
+	switch ( theApp.GetWorkorderViewType() ) {
 		case VIEW_WORKORDER_OPEN:
 			// Is a employee responsible selected and is a workorder selected?
-			if (m_cbxWorkorderEmployeeResponsible.GetCurSel() && m_bWorkorderSelected) {
+			if ( m_cbxWorkorderEmployeeResponsible.GetCurSel() && m_bWorkorderSelected ) {
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, true);
@@ -514,14 +494,14 @@ void CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible() {
 		case VIEW_WORKORDER_PROGRESS:
 			// Is a employee responsible selected and is a workorder selected and is the 
 			// contacted customer check box not checked and is the asset disposed check box not checked?
-			if (m_cbxWorkorderEmployeeResponsible.GetCurSel() && m_bWorkorderSelected && 
-				(!m_chbWorkorderContactedCustomer.GetCheck()) && (!m_chbWorkorderAssetDisposed.GetCheck())) {
+			if ( m_cbxWorkorderEmployeeResponsible.GetCurSel() && m_bWorkorderSelected && 
+				(!m_chbWorkorderContactedCustomer.GetCheck()) && (!m_chbWorkorderAssetDisposed.GetCheck()) ) {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
 				m_btnWorkorderFinished.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, true);
-			} else if (m_chbWorkorderContactedCustomer.GetCheck()) { // But if the Workorder Contact Customer Checkbox is selected
+			} else if ( m_chbWorkorderContactedCustomer.GetCheck() ) { // But if the Workorder Contact Customer Checkbox is selected
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_btnWorkorderFinished.EnableWindow(TRUE);
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
@@ -538,20 +518,18 @@ void CWorkorderView::OnCbnSelectChangeWorkorderViewResponsible() {
 	m_bResponsibleChanged = true;
 }
 
-/// <summary>
-/// OnEnChangeWorkorderViewLog is called by the framework when the user changes the log edit control.
-/// This method is used to enable and disable controls depending on the state of the form.
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::OnEnChangeWorkorderViewLog() {
+// OnEnChangeWorkorderViewLog is called by the framework when the user changes the new log edit control.
+// This method is used to enable and disable controls depending on the state of the form.
+void CWorkorderView::OnEnChangeWorkorderViewLog() noexcept
+{
 	UpdateData(TRUE);
-	switch (theApp.GetWorkorderViewType()) {
+	switch ( theApp.GetWorkorderViewType() ) {
 		case VIEW_WORKORDER_OPEN:
 			// Is the new log not empty and is a workorder selected?
-			if (!m_strWorkorderNewLog.IsEmpty() && m_bWorkorderSelected) {
+			if ( !m_strWorkorderNewLog.IsEmpty() && m_bWorkorderSelected ) {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, false);
-			} else if (!m_bResponsibleChanged) {
+			} else if ( !m_bResponsibleChanged ) {
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
 			}
@@ -563,32 +541,25 @@ void CWorkorderView::OnEnChangeWorkorderViewLog() {
 	UpdateData(FALSE);
 }
 
-/// <summary>
-/// OnBnClickedWorkorderViewAssetDisposed is called by the framework when the user clicks on the asset disposed check box.
-/// This method is used to enable and disable controls depending on the state of the form.
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::OnBnClickedWorkorderViewAssetDisposed() {
+// OnBnClickedWorkorderViewAssetDisposed is called by the framework when the user clicks on the asset disposed check box.
+// This method is used to enable and disable controls depending on the state of the form.
+void CWorkorderView::OnBnClickedWorkorderViewAssetDisposed() noexcept
+{
 	SetControlsAfterChangeContactedOrDisposed();
 }
 
-/// <summary>
-/// OnBnClickedWorkorderViewParts is called by the framework when the user clicks on the parts button.
-/// This method is used to enable and disable controls depending on the state of the form.
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::OnBnClickedWorkorderVewCustomerContactedCustomer() {
+// OnBnClickedWorkorderVewCustomerContactedCustomer is called by the framework when the user clicks on the contacted customer check box.
+// This method is used to enable and disable controls depending on the state of the form.
+void CWorkorderView::OnBnClickedWorkorderVewCustomerContactedCustomer() noexcept
+{
 	SetControlsAfterChangeContactedOrDisposed();
 }
 
-/// <summary>
-/// OnBnClickedWorkorderViewParts is called by the framework when the user clicks on the update button.
-/// This method set the status of the workorder depend on the state of the form.
-/// And call the PerformWorkorderUpdate method, for processing the update.
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::OnBnClickedWorkorderViewUpdate() {
-	switch (theApp.GetWorkorderViewType()) {
+// OnBnClickedWorkorderViewUpdate is called by the framework when the user clicks on the update button.
+// This method set the status of the workorder depend on the state of the form.
+void CWorkorderView::OnBnClickedWorkorderViewUpdate() noexcept
+{
+	switch ( theApp.GetWorkorderViewType() ) {
 		case VIEW_WORKORDER_OPEN:
 		case VIEW_WORKORDER_PROGRESS:
 			m_strWorkorderStatus = _T("Progress");
@@ -601,22 +572,22 @@ void CWorkorderView::OnBnClickedWorkorderViewUpdate() {
 	PerformWorkorderUpdate();
 }
 
-/// <summary>
-/// OnBnClickedWorkorderViewFinished is called by the framework when the user clicks on the finished button.
-/// This method set the status of the workorder depend on the state of the form.
-/// And call the PerformWorkorderUpdate method, for processing the update.
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::OnBnClickedWorkorderViewFinished() {
+// OnBnClickedWorkorderViewFinished is called by the framework when the user clicks on the finished button.
+// This method set the status of the workorder to repaired.
+void CWorkorderView::OnBnClickedWorkorderViewFinished() noexcept
+{
 	m_strWorkorderStatus = _T("Repaired");
 	UpdateData(FALSE);
 	PerformWorkorderUpdate();
 }
 
+// OnBnClickedWorkorderViewClose is called by the framework when the user clicks on the close button.
+// This method set the status of the workorder to closed and show the contribution payment dialog.
+// If the asset is disposed, the workorder is updated and the contribution payment is added to the database.
 void CWorkorderView::OnBnClickedWorkorderViewClose() {
 	m_strWorkorderStatus = _T("Closed");
 	UpdateData(FALSE);
-	if(m_chbWorkorderAssetDisposed.GetCheck())
+	if( m_chbWorkorderAssetDisposed.GetCheck() )
 		PerformWorkorderUpdate();
 	else {
 		CContributionPaymentDialog::InvoiceData invoiceData;
@@ -627,7 +598,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 		invoiceData.strTotal = m_strWorkorderTotalPartsPrice;
 
 		CContributionPaymentDialog dlg{ invoiceData, contributionData };
-		if (dlg.DoModal() == IDOK && contributionData.dContribution > 0.0)
+		if ( dlg.DoModal() == IDOK && contributionData.dContribution > 0.0 )
 		{
 			CString strQuery{};
 			auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) }; //time.Format(_T("%d-%m-%y"));
@@ -650,8 +621,8 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 
 			CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			if (sql.CreateSQLConnection()) {
-				if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+			if ( sql.CreateSQLConnection() ) {
+				if ( !sql.ExecuteQuery(strQuery.GetBuffer()) )
 					theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
 				else
 					theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
@@ -666,35 +637,36 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 	}
 }
 
-/// <summary>
-/// OnBnClickedWorkorderViewParts is called by the framework when the user clicks on the parts button.
-/// This method opens the workorder parts dialog.	
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::OnBnClickedWorkorderViewParts() {
+// OnBnClickedWorkorderViewParts is called by the framework when the user clicks on the parts button.
+// This method opens the workorder parts dialog and if the user clicks on the OK button, the spare parts list is updated.
+void CWorkorderView::OnBnClickedWorkorderViewParts() noexcept
+{
 	CWorkorderPartsDialog dlg{ m_unWorkorderId };
 	if (dlg.DoModal() == IDOK) {
 		InitWorkorderSparePartsList();
 	}
 }
 
-void CWorkorderView::OnWorkorderExtraCombi() {
+// OnWorkorderExtraCombi is called by the framework when the user clicks on the combi button.
+// This method is used to print the combi workorder.
+void CWorkorderView::OnWorkorderExtraCombi() noexcept
+{
 	m_bPrintCombi = true;
 	this->SendMessage(WM_COMMAND, ID_FILE_PRINT_DIRECT);
 }
 
-void CWorkorderView::OnWorkorderExtraInvoice() {
+// OnWorkorderExtraInvoice is called by the framework when the user clicks on the invoice button.
+// This method is used to print the invoice workorder.
+void CWorkorderView::OnWorkorderExtraInvoice() noexcept
+{
 	m_bPrintInvoice = true;
 	this->SendMessage(WM_COMMAND, ID_FILE_PRINT_DIRECT);
 }
 
-
 /* Custom methods */
 
-/// <summary>
-/// InitWorkorderExistingList is used to fill the existing workorders list control with the found workorders from the database.
-/// </summary>
-/// <returns></returns>
+// InitWorkorderExistingList is used to initialize the workorder existing list control.
+// This method is used to get the workorder information from the database and set the list control.
 void CWorkorderView::InitWorkorderExistingList() {
 	m_lscWorkorderExisting.DeleteAllItems();
 
@@ -704,7 +676,7 @@ void CWorkorderView::InitWorkorderExistingList() {
 	CString strWorkorderStatus{};
 
 	// Set the workorder status depending on the view type.
-	switch (theApp.GetWorkorderViewType()) {
+	switch ( theApp.GetWorkorderViewType() ) {
 	case VIEW_WORKORDER_OPEN:
 		strWorkorderStatus = _T("Open");
 		break;
@@ -728,7 +700,7 @@ void CWorkorderView::InitWorkorderExistingList() {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
 		SQLCHAR szName[SQLCHARVSMAL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
@@ -740,16 +712,15 @@ void CWorkorderView::InitWorkorderExistingList() {
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
+		if ( retcode == SQL_SUCCESS ) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
-				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
-						if (cbName == SQL_NULL_DATA) {
+						if ( cbName == SQL_NULL_DATA ) {
 							return _T("");
 						}
 						return static_cast<CString>(szName);
@@ -792,12 +763,11 @@ void CWorkorderView::InitWorkorderExistingList() {
 					SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 11, CheckForNull(szNameLong, cbName));
 				}
-				else {
+				else 
 					break;
-				}
 			}
 		}
-		if (!sql.CheckReturnCodeForClosing(retcode))
+		if ( !sql.CheckReturnCodeForClosing(retcode) )
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 		else
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
@@ -807,10 +777,8 @@ void CWorkorderView::InitWorkorderExistingList() {
 	UpdateData(FALSE);
 }
 
-/// <summary>
-/// InitWorkorderEmployeeResponsibleComboBox is used to fill the employee responsible combo box with the found employees from the database.
-/// </summary>
-/// <returns></returns>
+// InitWorkorderEmployeeResponsibleComboBox is used to initialize the employee responsible combo box.
+// This method is used to get the employee names from the database and set the combo box.
 void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 	m_cbxWorkorderEmployeeResponsible.m_nFlags |= CBS_DROPDOWNLIST;
 	m_cbxWorkorderEmployeeResponsible.ResetContent();
@@ -823,10 +791,9 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
 		SQLCHAR szName[SQLCHARVSMAL]{};
-		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
 		SQLHSTMT hstmt{ sql.GetStatementHandle() };
@@ -835,16 +802,15 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
+		if ( retcode == SQL_SUCCESS ) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO )
 					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
-				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
-						if (cbName == SQL_NULL_DATA) {
+						if ( cbName == SQL_NULL_DATA ) {
 							return _T("");
 						}
 						return static_cast<CString>(szName);
@@ -854,12 +820,11 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 					SQLGetData(hstmt, 1, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_cbxWorkorderEmployeeResponsible.AddString(CheckForNull(szName, cbName));
 				}
-				else {
+				else 
 					break;
-				}
 			}
 		}
-		if (!sql.CheckReturnCodeForClosing(retcode)) 
+		if ( !sql.CheckReturnCodeForClosing(retcode) ) 
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 		else
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
@@ -869,6 +834,8 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 	m_cbxWorkorderEmployeeResponsible.SetCurSel(0);
 }
 
+// InitWorkorderSparePartsList is used to initialize the workorder spare parts list control.
+// This method is used to get the spare parts information from the database and set the list control.
 void CWorkorderView::InitWorkorderSparePartsList() {
 	m_lscWorkorderSpareParts.DeleteAllItems();
 
@@ -883,7 +850,7 @@ void CWorkorderView::InitWorkorderSparePartsList() {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
 		SQLCHAR szName[SQLCHARVSMAL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
@@ -895,21 +862,20 @@ void CWorkorderView::InitWorkorderSparePartsList() {
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
+		if ( retcode == SQL_SUCCESS ) {
 			auto dTotalPrice = 0.0;
-			while (TRUE) {
+			while ( TRUE ) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
 					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
-				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					CString strValue = _T("");
 					CString strConvert = _T("");
 					auto dConvertToMoney = 0.0;
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
-						if (cbName == SQL_NULL_DATA) {
+						if ( cbName == SQL_NULL_DATA ) {
 							return _T("");
 						}
 						return static_cast<CString>(szName);
@@ -935,13 +901,12 @@ void CWorkorderView::InitWorkorderSparePartsList() {
 					strConvert.Format(_T("% .2f"), dConvertToMoney);
 					m_lscWorkorderSpareParts.SetItemText(nIndex, 4, strConvert);
 				}
-				else {
+				else 
 					break;
-				}
 			}
 			m_strWorkorderTotalPartsPrice.Format(_T("% .2f"), dTotalPrice);
 		}
-		if (!sql.CheckReturnCodeForClosing(retcode))
+		if ( !sql.CheckReturnCodeForClosing(retcode) )
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 		else
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
@@ -951,28 +916,30 @@ void CWorkorderView::InitWorkorderSparePartsList() {
 	UpdateData(FALSE);
 }
 
-void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() {
+// SetControlsAfterChangeContactedOrDisposed 
+void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() noexcept
+{
 	UpdateData(TRUE);
-	switch (theApp.GetWorkorderViewType()) {
+	switch ( theApp.GetWorkorderViewType() ) {
 		case VIEW_WORKORDER_PROGRESS:
-			if (m_chbWorkorderContactedCustomer.GetCheck() && m_chbWorkorderAssetDisposed.GetCheck()
-				&& !m_strWorkorderNewLog.IsEmpty()) {
+			if  (m_chbWorkorderContactedCustomer.GetCheck() && m_chbWorkorderAssetDisposed.GetCheck()
+				&& !m_strWorkorderNewLog.IsEmpty() ) {
 				m_btnWorkorderClose.EnableWindow(TRUE);
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_btnWorkorderFinished.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::RED, false);
-			} else if (m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck()
-				&& !m_strWorkorderNewLog.IsEmpty())	{
+			} else if ( m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck()
+				&& !m_strWorkorderNewLog.IsEmpty() ) {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_btnWorkorderFinished.EnableWindow(TRUE);
 				m_btnWorkorderClose.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLUE, false);
 				SetCustomFocusButton(&m_btnWorkorderFinished, ColorButton::RED, false);
-			} else if (!m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck()
-				&& !m_strWorkorderNewLog.IsEmpty()) {
+			} else if ( !m_chbWorkorderContactedCustomer.GetCheck() && !m_chbWorkorderAssetDisposed.GetCheck()
+				&& !m_strWorkorderNewLog.IsEmpty() ) {
 				m_btnWorkorderClose.EnableWindow(FALSE);
 				m_btnWorkorderUpdate.EnableWindow(TRUE);///////////////////////////////////////////////////////////
 				m_btnWorkorderFinished.EnableWindow(FALSE);
@@ -989,17 +956,17 @@ void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() {
 			}
 			break;
 		case VIEW_WORKORDER_REPAIRED:
-			if (m_chbWorkorderContactedCustomer.GetCheck() && !m_strWorkorderNewLog.IsEmpty()) {
+			if ( m_chbWorkorderContactedCustomer.GetCheck() && !m_strWorkorderNewLog.IsEmpty() ) {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_btnWorkorderClose.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, false);
-			} else if (!m_chbWorkorderContactedCustomer.GetCheck() && !m_strWorkorderNewLog.IsEmpty()) {
+			} else if ( !m_chbWorkorderContactedCustomer.GetCheck() && !m_strWorkorderNewLog.IsEmpty() ) {
 				m_btnWorkorderUpdate.EnableWindow(TRUE);
 				m_btnWorkorderClose.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::RED, false);
-			} else if (m_chbWorkorderContactedCustomer.GetCheck() && m_strWorkorderNewLog.IsEmpty()) {
+			} else if ( m_chbWorkorderContactedCustomer.GetCheck() && m_strWorkorderNewLog.IsEmpty() ) {
 				m_btnWorkorderClose.EnableWindow(FALSE);
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
@@ -1015,11 +982,7 @@ void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() {
 	UpdateData(FALSE);
 }
 
-/// <summary>
-/// GetAssetInfo is used to get the asset information of the selected workorder from the database.
-/// </summary>
-/// <param name="nAssetId"> ID asset index number</param>
-/// <returns></returns>
+// GetAssetInfo is used to get the asset information of the selected workorder from the database.
 bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 	CString strBuildQuery{};
 
@@ -1027,7 +990,7 @@ bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
 		SQLCHAR szName[SQLCHARVSMAL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
@@ -1039,16 +1002,15 @@ bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
+		if ( retcode == SQL_SUCCESS ) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO )
 					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
-				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
-						if (cbName == SQL_NULL_DATA) {
+						if ( cbName == SQL_NULL_DATA ) {
 							return _T("");
 						}
 						return static_cast<CString>(szName);
@@ -1067,12 +1029,11 @@ bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_strAssetHistoryLog = CheckForNull(szNameLong, cbName);
 				}
-				else {
+				else 
 					break;
-				}
 			}
 		}
-		if (!sql.CheckReturnCodeForClosing(retcode)) {
+		if ( !sql.CheckReturnCodeForClosing(retcode) ) {
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 			sql.CloseConnection();
 			return false;
@@ -1085,11 +1046,7 @@ bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 	return true;
 }
 
-/// <summary>
-/// GetCustomerInfo is used to get the customer information of the selected workorder from the database.
-/// </summary>
-/// <param name="nCustomerId"> ID customer index number</param>
-/// <returns></returns>
+// GetCustomerInfo is used to get the customer information of the selected workorder from the database.
 bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 	CString strBuildQuery;
 
@@ -1100,7 +1057,7 @@ bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
 		SQLCHAR szName[SQLCHARVSMAL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
@@ -1112,20 +1069,19 @@ bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
-			while (TRUE) {
+		if ( retcode == SQL_SUCCESS ) {
+			while ( TRUE ) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO )
 					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
-				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
-						if (cbName == SQL_NULL_DATA) {
+						if ( cbName == SQL_NULL_DATA ) {
 							return _T("");
 						}
 						return static_cast<CString>(szName);
-						};
+					};
 
 					// Get data for columns 1, employee names
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_SURNAME, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
@@ -1146,9 +1102,8 @@ bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_COMMENT, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_strCustomerComments = CheckForNull(szNameLong, cbName);
 				}
-				else {
+				else
 					break;
-				}
 			}
 		}
 		if (!sql.CheckReturnCodeForClosing(retcode)) {
@@ -1164,41 +1119,36 @@ bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 	return true;
 }
 
-
-/// <summary>
-/// PerformWorkorderUpdate is used to update the selected workorder in the database.
-/// </summary>
-/// <returns></returns>
+// PerformWorkorderUpdate is used to update the workorder information in the database.
 void CWorkorderView::PerformWorkorderUpdate() {
 	UpdateData(TRUE);
 
 	auto time = CTime::GetCurrentTime();
-	//COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y");
-	auto strCurDate = COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")); //time.Format(_T("%d-%m-%y"));
+	auto strCurDate = COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"));
 	CString strEmployee;
 
 	auto nIndex = m_cbxWorkorderEmployeeResponsible.GetCurSel();
-	if (nIndex != CB_ERR && nIndex != 0) {
+	if ( nIndex != CB_ERR && nIndex != 0 ) {
 		auto nLength = m_cbxWorkorderEmployeeResponsible.GetLBTextLen(nIndex);
-		if (nLength != CB_ERR) {
+		if ( nLength != CB_ERR ) {
 			m_cbxWorkorderEmployeeResponsible.GetLBText(nIndex, strEmployee.GetBuffer(nLength));
 			strEmployee.ReleaseBuffer();
 		}
 	}
 
 	// If the employee responsible is changed, add a new log entry to the workorder history log.
-	if (m_bResponsibleChanged) {
+	if ( m_bResponsibleChanged ) {
 		m_strWorkorderHistoryLog += _T("\r\n[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Assigned to ") + strEmployee;
 		m_bResponsibleChanged = false;
 	}
 
 	// If the new log is not empty, add a new log entry to the workorder history log.
-	if (!m_strWorkorderNewLog.IsEmpty()) {
+	if ( !m_strWorkorderNewLog.IsEmpty() ) {
 		m_strWorkorderHistoryLog += _T("\r\n[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Comment: ") + m_strWorkorderNewLog;
 		m_strWorkorderNewLog.Empty();
 	}
 
-	if(m_strWorkorderStatus == _T("Closed") || m_strWorkorderStatus == _T("Repaired"))
+	if ( m_strWorkorderStatus == _T("Closed") || m_strWorkorderStatus == _T("Repaired") )
 		m_strWorkorderClosedDate = strCurDate;
 	else
 		m_strWorkorderClosedDate.Empty();
@@ -1207,7 +1157,7 @@ void CWorkorderView::PerformWorkorderUpdate() {
 
 	auto buildFieldValue = [](CString str) -> CString {
 		CString strResult;
-		if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
+		if ( str.IsEmpty() ) return  static_cast<LPCTSTR>(_T("NULL"));
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 		return strResult;
 	};
@@ -1226,9 +1176,9 @@ void CWorkorderView::PerformWorkorderUpdate() {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
-		if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+		if ( !sql.ExecuteQuery(strQuery.GetBuffer()) )
 			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
 		else
 			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
@@ -1239,7 +1189,7 @@ void CWorkorderView::PerformWorkorderUpdate() {
 	strQuery.ReleaseBuffer();
 
 	// Do we want to print invoice when order is set to repaired?
-	if (m_strWorkorderStatus == _T("Closed")) {
+	if ( m_strWorkorderStatus == _T("Closed") ) {
 		if (_tstof(m_strWorkorderTotalPartsPrice) != 0.0f)
 			// TODO: Insert invoice data to database, HERE? or in the invoice dialog?
 			OnWorkorderExtraInvoice();
@@ -1247,11 +1197,9 @@ void CWorkorderView::PerformWorkorderUpdate() {
 	ResetAllControls();
 }
 
-/// <summary>
-/// ResetAllControls is used to reset all controls to their default state.
-/// </summary>
-/// <returns></returns>
-void CWorkorderView::ResetAllControls() { 
+// ResetAllControls is used to reset all controls in the form.
+void CWorkorderView::ResetAllControls() noexcept
+{ 
 	m_unWorkorderId = 0;
 	m_strWorkorderCreatedDate.Empty();
 	m_strWorkorderCreatedBy.Empty();
@@ -1292,9 +1240,11 @@ void CWorkorderView::ResetAllControls() {
 	InitWorkorderExistingList();
 }
 
-void CWorkorderView::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) {
+// SetCustomFocusButton is used to set the focus on a button and change the color of the text.
+void CWorkorderView::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) noexcept
+{
 	auto color = RGB(255, 0, 0);
-	switch (Color) {
+	switch ( Color ) {
 	case RED:
 		color = RGB(255, 0, 0);
 		break;

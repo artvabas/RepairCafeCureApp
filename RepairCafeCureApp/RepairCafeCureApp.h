@@ -34,9 +34,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 0.0.1.0 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 10-11-2023, (dd-mm-yyyy)
+* Updated: 02-15-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -48,24 +48,25 @@
 	#error "include 'pch.h' before including this file for PCH"
 #endif
 
-#include "resource.h"       // main symbols
+#include "resource.h" // main symbols
 #include "CDatabaseConnection.h"
 #include "CSplashScreen.h"
 
+using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::database;
 
+// The available views
 enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER };
+// The workorder status views
 enum WorkorderViewType { VIEW_WORKORDER_OPEN, VIEW_WORKORDER_PROGRESS, VIEW_WORKORDER_REPAIRED };
-
 
 class CRepairCafeCureApp : public CWinAppEx
 {
-// Members 
 public:
 	CSplashScreen m_SplashScreen;
-
 private:
 		CDatabaseConnection* m_dbConnection;
+
 		CView* m_pCustomerView;
 		CView* m_pAssetView;
 		CView* m_pWorkorderView;
@@ -76,35 +77,26 @@ public:
 	CRepairCafeCureApp() noexcept;
 	virtual ~CRepairCafeCureApp();
 
-	// inline methods for getting the database connection
-	inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
-	CView* SwitchView(ViewType vtView);
-
-	void SetStatusBarText(UINT nStrID);
-	CString GetSelectedEmployeeName();
-	void IsIdle();
-
-	inline WorkorderViewType GetWorkorderViewType() const{ return m_enuWorkorderViewType; }
-
-	ViewType GetActiveViewType();
-
-// Overrides
 private:
 	BOOL InitInstance() override;
 	int ExitInstance() override;
-	void PreLoadState() override;
-	//void LoadCustomState() override;
-	//void SaveCustomState() override;
 
-// Merage handlers
-	DECLARE_MESSAGE_MAP()
 private:
+	DECLARE_MESSAGE_MAP()
 	afx_msg void OnAppAbout();
 	afx_msg void OnCustomerView();
 	afx_msg void OnAssetView();
 	afx_msg void OnWorkorderViewOpen();
 	afx_msg void OnWorkorderViewProgress();
 	afx_msg void OnWorkorderViewRepaired();
-};
 
+public:
+	inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
+	inline WorkorderViewType GetWorkorderViewType() const { return m_enuWorkorderViewType; }
+	CView* SwitchView(ViewType vtView);
+	void SetStatusBarText(UINT nStrID);
+	CString GetSelectedEmployeeName();
+	ViewType GetActiveViewType();
+	void IsIdle();
+};
 extern CRepairCafeCureApp theApp;

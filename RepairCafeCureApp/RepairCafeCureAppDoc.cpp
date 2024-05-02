@@ -1,149 +1,65 @@
-// This MFC Samples source code demonstrates using MFC Microsoft Office Fluent User Interface
-// (the "Fluent UI") and is provided only as referential material to supplement the
-// Microsoft Foundation Classes Reference and related electronic documentation
-// included with the MFC C++ library software.
-// License terms to copy, use or distribute the Fluent UI are available separately.
-// To learn more about our Fluent UI licensing program, please visit
-// https://go.microsoft.com/fwlink/?LinkId=238214.
-//
-// Copyright (C) Microsoft Corporation
-// All rights reserved.
+/*
+Copyright(C) 2023/24  artvabas
 
-// RepairCafeCureAppDoc.cpp : implementation of the CRepairCafeCureAppDoc class
-//
+This program is free software : you can redistribute it and /or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.If not, see < https://www.gnu.org/licenses/>
+
+To see the license for this source code, please visit :
+< https ://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit :
+< https ://artvabas.com>
+	< https ://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at :
+< https ://artvabas.com/contact>
+
+	*/
+
+	/*
+	* This file is part of RepairCafeCureApp.
+	* File: RepairCafeCureAppDoc.h, implemants the Document class of this MFC application
+	*
+	* This class is used to print a workorder in a combi or invoice format.
+	*
+	* Target: Windows 10/11 64bit
+	* Version: 0.0.1.0 (Alpha)
+	* Created: 18-10-2023, (dd-mm-yyyy)
+	* Updated: 2-05-2024, (dd-mm-yyyy)
+	* Creator: artvabasDev / artvabas
+	*
+	* License: GPLv3
+	*/
 #include "pch.h"
-//#include "framework.h"
-// SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
-// and search filter handlers and allows sharing of document code with that project.
-#ifndef SHARED_HANDLERS
 #include "RepairCafeCureApp.h"
-#endif
-
 #include "RepairCafeCureAppDoc.h"
-#include <propkey.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
-// CRepairCafeCureAppDoc
-
 IMPLEMENT_DYNCREATE(CRepairCafeCureAppDoc, CDocument)
+
+CRepairCafeCureAppDoc::CRepairCafeCureAppDoc() noexcept
+{}
+
+CRepairCafeCureAppDoc::~CRepairCafeCureAppDoc()
+{}
 
 BEGIN_MESSAGE_MAP(CRepairCafeCureAppDoc, CDocument)
 END_MESSAGE_MAP()
 
-
-// CRepairCafeCureAppDoc construction/destruction
-
-CRepairCafeCureAppDoc::CRepairCafeCureAppDoc() noexcept
-{
-	// TODO: add one-time construction code here
-}
-
-CRepairCafeCureAppDoc::~CRepairCafeCureAppDoc()
-{
-}
-/*
-BOOL CRepairCafeCureAppDoc::OnNewDocument()
-{
-	if (!CDocument::OnNewDocument())
-		return FALSE;
-
-	// TODO: add reinitialization code here
-	// (SDI documents will reuse this document)
-
-	return TRUE;
-}
-
-
-
-
-// CRepairCafeCureAppDoc serialization
-
-void CRepairCafeCureAppDoc::Serialize(CArchive& ar)
-{
-	if (ar.IsStoring())
-	{
-		// TODO: add storing code here
-	}
-	else
-	{
-		// TODO: add loading code here
-	}
-}
-*/
-
-/*
-#ifdef SHARED_HANDLERS
-
-// Support for thumbnails
-void CRepairCafeCureAppDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
-{
-	// Modify this code to draw the document's data
-	dc.FillSolidRect(lprcBounds, RGB(255, 255, 255));
-
-	CString strText = _T("TODO: implement thumbnail drawing here");
-	LOGFONT lf;
-
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
-	pDefaultGUIFont->GetLogFont(&lf);
-	lf.lfHeight = 36;
-
-	CFont fontDraw;
-	fontDraw.CreateFontIndirect(&lf);
-
-	CFont* pOldFont = dc.SelectObject(&fontDraw);
-	dc.DrawText(strText, lprcBounds, DT_CENTER | DT_WORDBREAK);
-	dc.SelectObject(pOldFont);
-}
-
-// Support for Search Handlers
-void CRepairCafeCureAppDoc::InitializeSearchContent()
-{
-	CString strSearchContent;
-	// Set search contents from document's data.
-	// The content parts should be separated by ";"
-
-	// For example:  strSearchContent = _T("point;rectangle;circle;ole object;");
-	SetSearchContent(strSearchContent);
-}
-
-void CRepairCafeCureAppDoc::SetSearchContent(const CString& value)
-{
-	if (value.IsEmpty())
-	{
-		RemoveChunk(PKEY_Search_Contents.fmtid, PKEY_Search_Contents.pid);
-	}
-	else
-	{
-		CMFCFilterChunkValueImpl *pChunk = nullptr;
-		ATLTRY(pChunk = new CMFCFilterChunkValueImpl);
-		if (pChunk != nullptr)
-		{
-			pChunk->SetTextValue(PKEY_Search_Contents, value, CHUNK_TEXT);
-			SetChunkValue(pChunk);
-		}
-	}
-}
-
-#endif // SHARED_HANDLERS
-*/
-
-// CRepairCafeCureAppDoc diagnostics
-
 #ifdef _DEBUG
-void CRepairCafeCureAppDoc::AssertValid() const
-{
-	CDocument::AssertValid();
-}
-
-void CRepairCafeCureAppDoc::Dump(CDumpContext& dc) const
-{
-	CDocument::Dump(dc);
-}
+void CRepairCafeCureAppDoc::AssertValid() const { CDocument::AssertValid(); }
+void CRepairCafeCureAppDoc::Dump(CDumpContext& dc) const { CDocument::Dump(dc); }
 #endif //_DEBUG
-
-
-// CRepairCafeCureAppDoc commands

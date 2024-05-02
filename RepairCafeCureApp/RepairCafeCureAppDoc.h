@@ -1,57 +1,62 @@
-// This MFC Samples source code demonstrates using MFC Microsoft Office Fluent User Interface
-// (the "Fluent UI") and is provided only as referential material to supplement the
-// Microsoft Foundation Classes Reference and related electronic documentation
-// included with the MFC C++ library software.
-// License terms to copy, use or distribute the Fluent UI are available separately.
-// To learn more about our Fluent UI licensing program, please visit
-// https://go.microsoft.com/fwlink/?LinkId=238214.
-//
-// Copyright (C) Microsoft Corporation
-// All rights reserved.
+/*
+Copyright(C) 2023/24  artvabas
 
-// RepairCafeCureAppDoc.h : interface of the CRepairCafeCureAppDoc class
-//
+This program is free software : you can redistribute it and /or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.If not, see < https://www.gnu.org/licenses/>
+
+To see the license for this source code, please visit :
+< https ://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit :
+< https ://artvabas.com>
+	< https ://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at :
+< https ://artvabas.com/contact>
+
+	*/
+
+	/*
+	* This file is part of RepairCafeCureApp.
+	* File: RepairCafeCureAppDoc.h, defines the Document class of this MFC application
+	*
+	* This class is used to print a workorder in a combi or invoice format.
+	*
+	* Target: Windows 10/11 64bit
+	* Version: 0.0.1.0 (Alpha)
+	* Created: 18-10-2023, (dd-mm-yyyy)
+	* Updated: 2-05-2024, (dd-mm-yyyy)
+	* Creator: artvabasDev / artvabas
+	*
+	* License: GPLv3
+	*/
 
 #pragma once
-
-
 class CRepairCafeCureAppDoc : public CDocument
 {
-protected: // create from serialization only
-	CRepairCafeCureAppDoc() noexcept;
 	DECLARE_DYNCREATE(CRepairCafeCureAppDoc)
 
-// Attributes
-public:
-// Operations
-public:
-
-// Overrides
-public:
-	//virtual BOOL OnNewDocument();
-	//virtual void Serialize(CArchive& ar);
-//#ifdef SHARED_HANDLERS
-	//virtual void InitializeSearchContent();
-	//virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
-//#endif // SHARED_HANDLERS
-
-// Implementation
+protected: // create from serialization only
+	CRepairCafeCureAppDoc() noexcept;
 public:
 	virtual ~CRepairCafeCureAppDoc();
+
+private:
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+	void AssertValid() const override;
+	void Dump(CDumpContext& dc) const override;
 #endif
 
-protected:
-
-// Generated message map functions
-protected:
+private:
 	DECLARE_MESSAGE_MAP()
-
-//#ifdef SHARED_HANDLERS
-	// Helper function that sets search content for a Search Handler
-	//void SetSearchContent(const CString& value);
-//#endif // SHARED_HANDLERS
 };

@@ -1,16 +1,62 @@
 #include "pch.h"
+/*
+Copyright(C) 2023/24  artvabas
+
+This program is free software : you can redistribute it and /or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.If not, see < https://www.gnu.org/licenses/>
+
+To see the license for this source code, please visit :
+< https ://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit :
+< https ://artvabas.com>
+	< https ://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at :
+< https ://artvabas.com/contact>
+
+	*/
+
+	/*
+	* This file is part of RepairCafeCureApp.
+	* File: CPrintWorkorder.h, implements the class CPrintWorkorder.
+	*
+	* This class is used to print a workorder in a combi or invoice format.
+	*
+	* Target: Windows 10/11 64bit
+	* Version: 0.0.1.0 (Alpha)
+	* Created: 18-10-2023, (dd-mm-yyyy)
+	* Updated: 2-05-2024, (dd-mm-yyyy)
+	* Creator: artvabasDev / artvabas
+	*
+	* License: GPLv3
+	*/
 #include "CPrintWorkorder.h"
 
+using namespace artvabas::rcc::support;
+
 CPrintWorkorder::CPrintWorkorder(WorkorderData* workData) noexcept
-	
 {
 	m_pStructWorkorderData = workData;
 }
 
 CPrintWorkorder::~CPrintWorkorder()
-{
-}
+{}
 
+// Print workorder and customer receipt (combi format)
+// The combi format is a A4 paper that is divided into two A5 papers.
+// The left half is the customer receipt and the right half is the workorder.
+// - pDC: A pointer to the printer device context.
 void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 {
 	typedef unsigned int pixel;
@@ -140,14 +186,14 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 			CString strTextLine2a = _T("Employee: ");// +theApp.GetSelectedEmployeeName();
 			CString strTextLine2b = _T("Mobile: ");// 06 - 3456789");
 			CString strTextLine3 = _T("Phone: ");// 070 - 5647864");
-			CString strTextLine4 = _T("Email: ");// zuurtje@zuiker.com");
+			CString strTextLine4 = _T("Email: ");// zuurtje@suiker.com");
 
 			// Set font color
 			pDC->SetBkColor(RGB(255, 255, 255));
 			pDC->SetTextColor(RGB(0, 0, 0));
 
 			// Print details text
-			// Line 1 Date and Custemer
+			// Line 1 Date and Customer
 			pDC->TextOut(nPosX, nPosY, strTextLine1a);
 			pDC->TextOut(nPosX + ulMiddle, nPosY, strTextLine1b);
 			//Line 2 Employee and mobile
@@ -164,7 +210,7 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 			CSize textSizeCustomer = pDC->GetTextExtent(strTextLine1b);
 			CSize TextSizeEmployee = pDC->GetTextExtent(strTextLine2a);
 
-			// Print detals value text
+			// Print details value text
 			pDC->TextOut(nPosX + TextSizeEmployee.cx, nPosY, strWorkorderCreationDate);
 			pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY, strCustomerSurname + _T(" ") + strCustomerName);
 			pDC->TextOut(nPosX + TextSizeEmployee.cx, nPosY + HeaderTextLineDown(++nLineDown), strEmployee);
@@ -216,23 +262,23 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Noch de organisatie van het NME Repair, noch de reparateurs zijn aansprakelijk voor schade"));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("als gevolg van verstrekte reparatieadviezen of instructies, voor schade aan de ter reparatie"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("aangeboden voorwerpen, voor gevolgdchade of voor andere schade die het gevolg is van"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("aangeboden voorwerpen, voor gevolgschade of voor andere schade die het gevolg is van"));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("activiteiten van het NME Repair."));
 
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Voor het gebruik van nieuwe materialen zoals; snoeren, stekkers, zekeringen, onderdelen, etc,"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("dient appart te worden betaald."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("dient apart te worden betaald."));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("Bezoekers die defecte voorwerpen aanbieden ter reparatie, doen dat op eigen risico."));
 
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De reparateurs van het NME Repair behouden zich het recht voor om voorwerpen te weigeren en/of"));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("niet te repareren."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De reparateurs van het NME Repair zijn niet verplicht om gedomonteerde voorwerpen die niet"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De reparateurs van het NME Repair zijn niet verplicht om gedemonteerde voorwerpen die niet"));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("gerepareerd kunnen worden, weer te monteren."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De bezoekers van het MNE Repair zijn zelfs verantwoorderdelijk voor ht netjes afvoeren van"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De bezoekers van het MNE Repair zijn zelfs verantwoordelijk voor het netjes afvoeren van"));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("kapotte voorwerpen die niet konden worden gerepareerd."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Een vrijwilge bijdrage wordt op prijs gesteld."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Een vrijwillige bijdrage wordt op prijs gesteld."));
 
 	/***** print right half (A5) on A4 - Workorder  ****/
 
@@ -295,6 +341,9 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 
 }
 
+// Print workorder invoice
+// The invoice format is a A4 paper that is used to print the workorder invoice.
+// - pDC: A pointer to the printer device context.
 void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 {
 	typedef unsigned int pixel;
@@ -446,14 +495,14 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 	CString strTextLine2a = _T("Employee: ");// +theApp.GetSelectedEmployeeName();
 	CString strTextLine2b = _T("Mobile: ");// 06 - 3456789");
 	CString strTextLine3 = _T("Phone: ");// 070 - 5647864");
-	CString strTextLine4 = _T("Email: ");// zuurtje@zuiker.com");
+	CString strTextLine4 = _T("Email: ");// zuurtje@suiker.com");
 
 	// Set font color
 	pDC->SetBkColor(RGB(255, 255, 255));
 	pDC->SetTextColor(RGB(0, 0, 0));
 
 	// Print details text
-	// Line 1 Date and Custemer
+	// Line 1 Date and Customer
 	pDC->TextOut(nPosX, nPosY, strTextLine1a);
 	pDC->TextOut(nPosX + ulMiddle, nPosY, strTextLine1b);
 	//Line 2 Employee and mobile
@@ -470,7 +519,7 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 	CSize textSizeCustomer = pDC->GetTextExtent(strTextLine1b);
 	CSize TextSizeEmployee = pDC->GetTextExtent(strTextLine2a);
 
-	// Print detals value text
+	// Print details value text
 	pDC->TextOut(nPosX + TextSizeEmployee.cx, nPosY, m_pStructWorkorderData->strWorkorderCreatedDate);
 	pDC->TextOut(nPosX + ulMiddle + textSizeCustomer.cx, nPosY, m_pStructWorkorderData->strCustomerSurname + _T(" ") + 
 		m_pStructWorkorderData->strCustomerName);

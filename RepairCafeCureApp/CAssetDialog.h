@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2024  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -35,9 +35,9 @@
 * which is the view of the CListCtrl created on the asset/workorder dialog (CAssetDialog)
 * 
 * Target: Windows 10/11 64bit
-* Version: 1.0.465.0
+* Version: 0.0.1.0 (Alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 03-03-2024, (dd-mm-yyyy)
+* Updated: 29-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -49,20 +49,18 @@ namespace artvabas::rcc::ui::dialogs {
 
 	using namespace artvabas::rcc::ui::controls;
 
-	class CAssetDialog : public CDialogEx {
+	class CAssetDialog : public CDialogEx 
+	{
 		DECLARE_DYNAMIC(CAssetDialog)
-
-	public:
-		CAssetDialog(CString strCustomerSurname, CString strCustomerName, unsigned int nCustomerID, CWnd* pParent = nullptr);
-		virtual ~CAssetDialog();
-
-	private:
-		CTabCtrlAssetWorkorder m_ctrTabAssetWorkorder;
-
-		// Dialog Data
 #ifdef AFX_DESIGN_TIME
 		enum { IDD = IDD_ASSET_DIALOG };
 #endif
+	private:
+		CTabCtrlAssetWorkorder m_ctrTabAssetWorkorder;
+
+	public:
+		CAssetDialog(CString strCustomerSurname, CString strCustomerName, unsigned int nCustomerID, CWnd* pParent = nullptr) noexcept;
+		virtual ~CAssetDialog();
 
 	private:
 		void DoDataExchange(CDataExchange* pDX) override;

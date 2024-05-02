@@ -73,6 +73,12 @@
     <Filter Include="Custom Resources">
       <UniqueIdentifier>{03da0651-de16-4e41-b2a2-d14c7bcf41fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\artvabas\rcc\support">
+      <UniqueIdentifier>{6c6c40da-6d80-42ec-abd2-eff8b345fe48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\rcc\support">
+      <UniqueIdentifier>{7053d189-26ab-45da-bc7e-348d543dd17c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RepairCafeCureApp.h">
@@ -126,20 +132,20 @@
     <ClInclude Include="CWorkorderPartsDialog.h">
       <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="CPrintWorkorder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="securitydata.h">
       <Filter>Header Files\artvabas\rcc\database\security\data</Filter>
     </ClInclude>
     <ClInclude Include="CContributionPaymentDialog.h">
       <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
     </ClInclude>
-    <ClInclude Include="CSplashScreen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DatabaseTables.h">
       <Filter>Header Files\artvabas\rcc\database</Filter>
+    </ClInclude>
+    <ClInclude Include="CPrintWorkorder.h">
+      <Filter>Header Files\artvabas\rcc\support</Filter>
+    </ClInclude>
+    <ClInclude Include="CSplashScreen.h">
+      <Filter>Header Files\artvabas\rcc\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -182,16 +188,16 @@
     <ClCompile Include="CWorkorderPartsDialog.cpp">
       <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
     </ClCompile>
-    <ClCompile Include="CPrintWorkorder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CContributionPaymentDialog.cpp">
       <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
     </ClCompile>
-    <ClCompile Include="CSplashScreen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CWorkorderView.cpp">
+      <Filter>Source Files\artvabas\rcc\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="CPrintWorkorder.cpp">
+      <Filter>Source Files\artvabas\rcc\support</Filter>
+    </ClCompile>
+    <ClCompile Include="CSplashScreen.cpp">
       <Filter>Source Files\artvabas\rcc\ui</Filter>
     </ClCompile>
   </ItemGroup>

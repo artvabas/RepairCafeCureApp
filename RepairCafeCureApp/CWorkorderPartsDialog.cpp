@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -33,9 +33,9 @@
 * This class is the dialog of the adding parts to workorder dialog (CWorkorderPartsDialog)
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 0.0.1.0
 * Created: 15-11-2023, (dd-mm-yyyy)
-* Updated: 02-12-2023, (dd-mm-yyyy)
+* Updated: 30-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -54,7 +54,7 @@ using namespace artvabas::database::tables::workorderparts;
 
 IMPLEMENT_DYNAMIC(CWorkorderPartsDialog, CDialogEx)
 
-CWorkorderPartsDialog::CWorkorderPartsDialog(const unsigned int& unWorkorderID, CWnd* pParent /*=nullptr*/)
+CWorkorderPartsDialog::CWorkorderPartsDialog(const unsigned int& unWorkorderID, CWnd* pParent) noexcept
 	: CDialogEx(IDD_WORKORDER_PARTS, pParent)
 	, m_unWorkorderID(unWorkorderID)
 	, m_strWorkorderPartDescription(_T(""))
@@ -62,18 +62,28 @@ CWorkorderPartsDialog::CWorkorderPartsDialog(const unsigned int& unWorkorderID, 
 	, m_strWorkorderPartUnitPrice(_T(""))
 	, m_strWorkorderPartTotalPrice(_T(""))
 	, m_bIsAddedPartListSelected(false)
-{
-
-}
+{}
 
 CWorkorderPartsDialog::~CWorkorderPartsDialog()
-{
-}
+{}
 
-/// <summary>
-/// Data exchange for the controls of this dialog.
-/// </summary>
-/// <param name="pDX"></param>
+/* Massage handle bindings */
+BEGIN_MESSAGE_MAP(CWorkorderPartsDialog, CDialogEx)
+	ON_EN_CHANGE(IDC_WORKORDER_DESCRIPTION_PART, &CWorkorderPartsDialog::OnEnChangeWorkorderAddParts)
+	ON_EN_CHANGE(IDC_WORKORDER_AMOUNT_PART, &CWorkorderPartsDialog::OnEnChangeWorkorderAddParts)
+	ON_EN_CHANGE(IDC_WORKORDER_UNIT_PRICE_PART, &CWorkorderPartsDialog::OnEnChangeWorkorderAddParts)
+	ON_NOTIFY(NM_DBLCLK, IDC_WORKORDER_STOCK_PARTS, &CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList)
+	ON_NOTIFY(NM_CLICK, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList)
+	ON_BN_CLICKED(IDC_WORKORDER_ADD_PART, &CWorkorderPartsDialog::OnBnClickedWorkorderAddPart)
+	ON_BN_CLICKED(IDC_WORKORDER_DELETE_ADDED_PART, &CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts)
+	ON_NOTIFY(NM_KILLFOCUS, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts)
+	ON_BN_CLICKED(IDC_WORKORDER_CHANGE, &CWorkorderPartsDialog::OnBnClickedWorkorderChange)
+END_MESSAGE_MAP()
+
+/* Override methods */
+
+// DoDataExchange, for data exchange and validation control variables
 void CWorkorderPartsDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -88,48 +98,23 @@ void CWorkorderPartsDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_WORKORDER_CHANGE, m_btnWorkorderPartChange);
 }
 
-/// <summary>
-/// Windows/framework message map for the controls of this dialog.
-/// </summary>
-/// <returns></returns>
-BEGIN_MESSAGE_MAP(CWorkorderPartsDialog, CDialogEx)
-	ON_EN_CHANGE(IDC_WORKORDER_DESCRIPTION_PART, &CWorkorderPartsDialog::OnEnChangeWorkorderAddParts)
-	ON_EN_CHANGE(IDC_WORKORDER_AMOUNT_PART, &CWorkorderPartsDialog::OnEnChangeWorkorderAddParts)
-	ON_EN_CHANGE(IDC_WORKORDER_UNIT_PRICE_PART, &CWorkorderPartsDialog::OnEnChangeWorkorderAddParts)
-	ON_NOTIFY(NM_DBLCLK, IDC_WORKORDER_STOCK_PARTS, &CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList)
-	ON_NOTIFY(NM_CLICK, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList)
-	ON_BN_CLICKED(IDC_WORKORDER_ADD_PART, &CWorkorderPartsDialog::OnBnClickedWorkorderAddPart)
-	ON_BN_CLICKED(IDC_WORKORDER_DELETE_ADDED_PART, &CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart)
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts)
-	ON_NOTIFY(NM_KILLFOCUS, IDC_WORKORDER_ADDED_PARTS, &CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts)
-	ON_BN_CLICKED(IDC_WORKORDER_CHANGE, &CWorkorderPartsDialog::OnBnClickedWorkorderChange)
-END_MESSAGE_MAP()
-
-/// <summary>
-/// Initialization of the dialog.
-/// In this function the list controls are initialized at the beginning of the dialog.
-/// </summary>
-/// <returns></returns>
+// OnInitDialog, for initializing dialog
 BOOL CWorkorderPartsDialog::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
-	if (InitStockPartList() && InitAddedPartList())
+	if ( InitStockPartList() && InitAddedPartList() )
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	else
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 
-
 	return TRUE;
 }
 
-/// <summary>
-/// This function is called when the user clicks on the OK button.
-/// It deletes the old workorder parts in database and inserts the new parts.
-/// </summary>
-/// <returns></returns>
+// OnOK, for saving the added parts to the database
+// and deleting the old parts from the database, to keep it clean
 void CWorkorderPartsDialog::OnOK()
 {
 	CString strQuery;
@@ -140,47 +125,43 @@ void CWorkorderPartsDialog::OnOK()
 
 	CSqlNativeAVB sql(theApp.GetDatabaseConnection()->ConnectionString());
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
-		if (sql.ExecuteQuery(strQuery.GetBuffer())) {
+		if ( sql.ExecuteQuery(strQuery.GetBuffer()) ) {
 			strQuery.ReleaseBuffer();
 
-			if (m_lscWorkorderAddedPartList.GetItemCount() > 0)
-			{
-				for (int i = 0; i < m_lscWorkorderAddedPartList.GetItemCount(); i++)
-				{
+			if ( m_lscWorkorderAddedPartList.GetItemCount() > 0 ) {
+				for (int i = 0; i < m_lscWorkorderAddedPartList.GetItemCount(); i++) {
+
 					CString strDescription = m_lscWorkorderAddedPartList.GetItemText(i, 1);
+
 					unsigned int uiAmount = _ttoi(m_lscWorkorderAddedPartList.GetItemText(i, 2));
+
 					double dUnitPrice = _ttof(m_lscWorkorderAddedPartList.GetItemText(i, 3));
 					double dTotalPrice = _ttof(m_lscWorkorderAddedPartList.GetItemText(i, 4));
 
 					// Build the fields value for the query.
 					auto buildFieldValue = [](CString str) -> CString
-						{
-							CString strResult;
-							if (str.IsEmpty())
-								return  _T("NULL");
-							strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-							return strResult;
-						};
+					{
+						CString strResult;
+						if (str.IsEmpty())
+							return  _T("NULL");
+						strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+						return strResult;
+					};
 
 					strQuery.Format(_T("INSERT INTO [WORKORDER_PARTS] ([WORKORDER_PARTS_WORKORDER_ID], [WORKORDER_PARTS_DESCRIPTION], [WORKORDER_PARTS_AMOUNT], [WORKORDER_PARTS_UNIT_PRICE], [WORKORDER_PARTS_TOTAL_PRICE]) VALUES (%d, %s, %d, %f, %f)"),
 						m_unWorkorderID, static_cast<LPCTSTR>(buildFieldValue(strDescription)), uiAmount, dUnitPrice, dTotalPrice);
 
-					if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-					{
+					if ( !sql.ExecuteQuery(strQuery.GetBuffer()) )
 						theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-					}
 					else
-					{
 						theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-					}
+
 					strQuery.ReleaseBuffer();
 				}
 			}
-		}
-		else
-		{
+		} else {
 			theApp.SetStatusBarText(IDS_STATUSBAR_DELETE_FAIL);
 			strQuery.ReleaseBuffer();
 		}
@@ -190,37 +171,31 @@ void CWorkorderPartsDialog::OnOK()
 	CDialogEx::OnOK();
 }
 
-/// <summary>
-/// This function is called when the user changes the input of the part description, amount or unit price.
-/// It checks if the input is valid and enables the add and Change button.
-/// </summary>
-/// <returns></returns>
-void CWorkorderPartsDialog::OnEnChangeWorkorderAddParts()
+/* Massage handle methods */
+
+// OnEnChangeWorkorderAddParts, for changing the sate of the input fields
+// All input fields must have values before the buttons are active
+void CWorkorderPartsDialog::OnEnChangeWorkorderAddParts() noexcept
 {
 	UpdateData(TRUE);
 
-	if (m_strWorkorderPartDescription.IsEmpty() || m_strWorkorderPartAmount.IsEmpty() || m_strWorkorderPartUnitPrice.IsEmpty())
-	{
+	if ( m_strWorkorderPartDescription.IsEmpty() || m_strWorkorderPartAmount.IsEmpty() || m_strWorkorderPartUnitPrice.IsEmpty() ) {
 		m_btnWorkorderPartAdd.EnableWindow(FALSE);
 		m_btnWorkorderPartChange.EnableWindow(FALSE);
-	}
-	else
-	{
+	} else {
 		if(!m_bIsAddedPartListSelected) m_btnWorkorderPartAdd.EnableWindow(TRUE);
 		if(m_bIsAddedPartListSelected) m_btnWorkorderPartChange.EnableWindow(TRUE);
 	}
 }
 
-/// <summary>
-/// This function is called when the user double clicks on the stock part list.
-/// It fills the input fields with the selected part.
-/// </summary>
-void CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR, LRESULT* pResult)
+// OnNMDoubleClickWorkorderStockPartsList, for getting selected stock parts data
+// - pNMHDR: Pointer to the NMHDR structure
+// - pResult: Pointer to the result
+void CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR, LRESULT* pResult) noexcept
 {
 	auto nIndex = m_lscWorkorderStockPartList.GetNextItem(-1, LVNI_SELECTED);
 
-	if (nIndex != -1)
-	{
+	if  ( nIndex != -1 ) {
 		m_strWorkorderPartDescription = m_lscWorkorderStockPartList.GetItemText(nIndex, 1);
 		m_strWorkorderPartUnitPrice = m_lscWorkorderStockPartList.GetItemText(nIndex, 3);
 		m_strWorkorderPartAmount = _T("1");
@@ -230,34 +205,27 @@ void CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR
 	*pResult = 0;
 }
 
-/// <summary>
-/// This function is called when the user clicks on the added part list.
-/// It fills the input fields with the selected part.
-/// </summary>
-/// <param name="pNMHDR"></param>
-/// <param name="pResult"></param>
-void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRESULT* pResult)
+// OnNMClickWorkorderAddedPartsList, for getting selected parts data from the added part list
+// Is trigged when the user clicks on the added part list
+// - pNMHDR: Pointer to the NMHDR structure
+// - pResult: Pointer to the result
+void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRESULT* pResult) noexcept
 {
 	auto nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
 
-	if (nIndex != -1)
-	{
+	if ( nIndex != -1 ) {
 		m_strWorkorderPartDescription = m_lscWorkorderAddedPartList.GetItemText(nIndex, 1);
 		m_strWorkorderPartAmount = m_lscWorkorderAddedPartList.GetItemText(nIndex, 2);
 		m_strWorkorderPartUnitPrice = m_lscWorkorderAddedPartList.GetItemText(nIndex, 3);
 		UpdateData(FALSE);
-
 		m_bIsAddedPartListSelected = true;
 	}
 	*pResult = 0;
 }
 
-/// <summary>
-/// This function is called when the user clicks on the add button.
-/// It adds the part to the added part list.
-/// And call the method to calculate the total price.
-/// </summary>
-void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart()
+// OnBnClickedWorkorderAddPart, calculate the total price of the given parts
+// and add it to the added part list. Is trigged when the user clicks on the add button
+void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart() noexcept
 {
 	
 	CString strWorkorderID;
@@ -290,50 +258,37 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart()
 	CalculateTotalPrice();
 }
 
-/// <summary>
-/// Thuis method is called when user changes the selection of the added part list.
-/// It enables the change and delete button.
-/// </summary>
-/// <param name="pNMHDR"></param>
-/// <param name="pResult"></param>
-void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
+// OnLvnItemChangedWorkorderAddedParts, for changing the state of the change and delete button
+// Is trigged when the state of the added part list is changed
+// - pNMHDR: Pointer to the NMHDR structure
+// - pResult: Pointer to the result
+void CWorkorderPartsDialog::OnLvnItemChangedWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult) noexcept
 {
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	
-	if ((pNMLV->uChanged & LVIF_STATE) && (pNMLV->uNewState & LVIS_SELECTED))
-	{
+	if ( (pNMLV->uChanged & LVIF_STATE) && (pNMLV->uNewState & LVIS_SELECTED) ) {
 		SetChangeDeleteButtonState();
-	}
-	else
-	{
+	} else {
 		SetChangeDeleteButtonState(FALSE);
 	}
 	*pResult = 0;
 }
 
-/// <summary>
-/// This method is called whe the added part list loses the focus.
-/// It disables the change and delete button.
-/// </summary>
-/// <param name="pNMHDR"></param>
-/// <param name="pResult"></param>
-/// <returns></returns>
-void CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult)
+// OnNMKillFocusWorkorderAddedParts, for changing the state of the change and delete button
+// Is trigged when the focus is lost from the added part list
+// - pNMHDR: Pointer to the NMHDR structure
+// - pResult: Pointer to the result
+void CWorkorderPartsDialog::OnNMKillFocusWorkorderAddedParts(NMHDR* pNMHDR, LRESULT* pResult) noexcept
 {	
-	if (m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED) == -1)
-	{
+	if ( m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED) == -1 ) {
 		SetChangeDeleteButtonState(FALSE);
 	}
 	*pResult = 0;
 }
 
-/// <summary>
-/// This method is called when the user clicks on the change button.
-/// It changes the selected part in the added part list.
-/// and calculates the subtotal price of the part.
-/// And call the method to calculate the total price.
-/// </summary>
-void CWorkorderPartsDialog::OnBnClickedWorkorderChange()
+// OnBnClickedWorkorderChange, for changing the selected part in the added part list
+// Is trigged when the user clicks on the change button
+void CWorkorderPartsDialog::OnBnClickedWorkorderChange() noexcept
 {
 	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
 	m_lscWorkorderAddedPartList.SetItemText(nIndex, 1, m_strWorkorderPartDescription);
@@ -359,12 +314,9 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderChange()
 	CalculateTotalPrice();
 }
 
-/// <summary>
-/// This method is called when the user clicks on the delete button.
-/// It deletes the selected part from the added part list.
-/// And call the method to calculate the total price.
-/// </summary>
-void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart()
+// OnBnClickedWorkorderDeleteAddedPart, for deleting the selected part from the added part list
+// Is trigged when the user clicks on the delete button
+void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart() noexcept
 {
 	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
 	m_lscWorkorderAddedPartList.DeleteItem(nIndex);
@@ -374,11 +326,10 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart()
 	CalculateTotalPrice();
 }
 
-/// <summary>
-/// This method initializes the stock part list.
-/// It queries all parts from the database and fills the list control with the found parts.
-/// </summary>
-/// <returns>Boolean true if successful otherwise false</returns>
+ /* Member methods */
+
+// InitStockPartList, for initializing the stock part list
+// It queries all parts from the database and fills the list control with the found parts
 bool CWorkorderPartsDialog::InitStockPartList()
 {
 	m_lscWorkorderStockPartList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -398,7 +349,7 @@ bool CWorkorderPartsDialog::InitStockPartList()
 	strBuildQuery.Format(_T("SELECT * FROM SPAREPARTSTOCK"));
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
 		SQLCHAR szName[SQLCHARVSMAL]{};
 		SQLLEN cbName{};
@@ -409,20 +360,20 @@ bool CWorkorderPartsDialog::InitStockPartList()
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
+		if ( retcode == SQL_SUCCESS ) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO ) {
 					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
 				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
-						if (cbName == SQL_NULL_DATA) {
-							return _T("");
-						}
-						return static_cast<CString>(szName);
-						};
+					if (cbName == SQL_NULL_DATA) {
+						return _T("");
+					}
+					return static_cast<CString>(szName);
+					};
 
 					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					nIndex = m_lscWorkorderStockPartList.InsertItem(row++, CheckForNull(szName, cbName));
@@ -438,19 +389,16 @@ bool CWorkorderPartsDialog::InitStockPartList()
 					auto dPrice = _ttof(strValue);
 					strValue.Format(_T("%.2f"), dPrice);
 					m_lscWorkorderStockPartList.SetItemText(nIndex, 3, strValue);
-				}
-				else {
+				} else {
 					break;
 				}
 			}
 		}
-		if (!sql.CheckReturnCodeForClosing(retcode))
-		{
+		if ( !sql.CheckReturnCodeForClosing(retcode) ) {
 			sql.CloseConnection();
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 			return false;
-		}
-		else
+		}else
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
 	sql.CloseConnection();
@@ -458,11 +406,8 @@ bool CWorkorderPartsDialog::InitStockPartList()
 	return true;
 }
 
-/// <summary>
-/// This method initializes the added part list.
-/// It queries all parts from the database and fills the list control with the found parts.
-/// </summary>
-/// <returns>Boolean true if successful otherwise false</returns>
+// InitAddedPartList, for initializing the added part list
+// It queries all parts from the database and fills the list control with the found parts
 bool CWorkorderPartsDialog::InitAddedPartList()
 {
 	m_lscWorkorderAddedPartList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
@@ -483,7 +428,7 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 	strBuildQuery.Format(_T("SELECT * FROM WORKORDER_PARTS WHERE WORKORDER_PARTS_WORKORDER_ID = %d"), m_unWorkorderID);
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if (sql.CreateSQLConnection()) {
+	if ( sql.CreateSQLConnection() ) {
 
 		SQLCHAR szName[SQLCHARVSMAL]{};
 		SQLLEN cbName{};
@@ -494,23 +439,23 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
-		if (retcode == SQL_SUCCESS) {
+		if ( retcode == SQL_SUCCESS)  {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO ) {
 					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
 				}
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					CString strValue{};
 					double dConvertToMoney{ 0.0 };
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
-						if (cbName == SQL_NULL_DATA) {
-							return _T("");
-						}
-						return static_cast<CString>(szName);
-						};
+					if (cbName == SQL_NULL_DATA) {
+						return _T("");
+					}
+					return static_cast<CString>(szName);
+					};
 
 					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					nIndex = m_lscWorkorderAddedPartList.InsertItem(row++, CheckForNull(szName, cbName));
@@ -530,19 +475,16 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 					dConvertToMoney = _ttof(static_cast<CString>(szName));
 					strValue.Format(_T("%.2f"), dConvertToMoney);
 					m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, strValue);
-				}
-				else {
+				} else {
 					break;
 				}
 			}
 		}
-		if (!sql.CheckReturnCodeForClosing(retcode))
-		{
+		if ( !sql.CheckReturnCodeForClosing(retcode) ) {
 			sql.CloseConnection();
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 			return false;
-		}
-		else
+		} else
 			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
 	}
 	sql.CloseConnection();
@@ -554,17 +496,13 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 	return true;
 }
 
-/// <summary>
-/// This method calculates the total price of the added parts.
-/// </summary>
-void CWorkorderPartsDialog::CalculateTotalPrice()
+// CalculateTotalPrice, for calculating the total price of the added parts
+void CWorkorderPartsDialog::CalculateTotalPrice() noexcept
 {
 	double dTotalPrice(0.0);
 	CString strValue = _T("");
 
-	for (int i = 0; i < m_lscWorkorderAddedPartList.GetItemCount(); i++)
-	{
-	
+	for ( auto i = 0; i < m_lscWorkorderAddedPartList.GetItemCount(); i++ ) {
 		strValue = m_lscWorkorderAddedPartList.GetItemText(i, 4);
 		dTotalPrice += _ttof(strValue);
 	}
@@ -573,19 +511,15 @@ void CWorkorderPartsDialog::CalculateTotalPrice()
 	UpdateData(FALSE);
 }
 
-/// <summary>
-/// This method sets the state of the change and delete button.
-/// </summary>
-void CWorkorderPartsDialog::SetChangeDeleteButtonState(BOOL bFlag)
+// SetChangeDeleteButtonState, for changing the state of the change and delete button
+void CWorkorderPartsDialog::SetChangeDeleteButtonState(BOOL bFlag) noexcept
 {
 	m_btnWorkorderPartChange.EnableWindow(bFlag);
 	m_btnWorkorderPartDelete.EnableWindow(bFlag);
 }
 
-/// <summary>
-/// This method clears the input fields of the part.
-/// </summary>
-void CWorkorderPartsDialog::ClearPartInputFields()
+// ClearPartInputFields, for clearing the input fields
+void CWorkorderPartsDialog::ClearPartInputFields() noexcept
 {
 	m_strWorkorderPartAmount = _T("");
 	m_strWorkorderPartDescription = _T("");

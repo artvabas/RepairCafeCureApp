@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -36,7 +36,7 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.569.0
+* Version: 0.0.0.0 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
 * Updated: 29-02-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -45,15 +45,24 @@
 */
 
 #pragma once
-
 namespace artvabas::rcc::ui
 {
 	class CWorkorderView : public CFormView
 	{
 		DECLARE_DYNCREATE(CWorkorderView)
-
+#ifdef AFX_DESIGN_TIME
+		enum { IDD = IDD_WORKORDER_FORM };
+#endif
 	private:
+		CDC* m_pDC;
+
+		bool m_bWorkorderSelected;
+		bool m_bResponsibleChanged;
+		bool m_bPrintCombi;
+		bool m_bPrintInvoice;
+
 		unsigned m_unWorkorderId;
+
 		CString m_strCustomerSurname;
 		CString m_strCustomerName;
 		CString m_strCustomerCellPhone;
@@ -88,28 +97,11 @@ namespace artvabas::rcc::ui
 		CListCtrl m_lscWorkorderExisting;
 		CListCtrl m_lscWorkorderSpareParts;
 
-		bool m_bWorkorderSelected;
-		bool m_bResponsibleChanged;
-		bool m_bPrintCombi;
-		bool m_bPrintInvoice;
-
-		CDC* m_pDC;
-
 	public:
-		CWorkorderView();
+		CWorkorderView() noexcept;
 		virtual ~CWorkorderView();
 
-		/* Overrides */
 	private:
-#ifdef AFX_DESIGN_TIME
-		enum { IDD = IDD_WORKORDER_FORM };
-#endif
-#ifdef _DEBUG
-		void AssertValid() const override;
-#ifndef _WIN32_WCE
-		void Dump(CDumpContext& dc) const override;
-#endif
-#endif
 		void DoDataExchange(CDataExchange* pDX) override;
 		void OnInitialUpdate() override;
 		BOOL PreTranslateMessage(MSG* pMsg) override;
@@ -117,32 +109,37 @@ namespace artvabas::rcc::ui
 		void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
 		void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
 		void OnPrint(CDC* pDC, CPrintInfo* pInfo) override;
-
-		/* Massagers */
+#ifdef _DEBUG
+		void AssertValid() const override;
+#ifndef _WIN32_WCE
+		void Dump(CDumpContext& dc) const override;
+#endif
+#endif
+	private:
 		DECLARE_MESSAGE_MAP()
-		afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement);
-		afx_msg void OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult);
-		afx_msg void OnCbnSelectChangeWorkorderViewResponsible();
-		afx_msg void OnEnChangeWorkorderViewLog();
-		afx_msg void OnBnClickedWorkorderViewUpdate();
-		afx_msg void OnBnClickedWorkorderVewCustomerContactedCustomer();
-		afx_msg void OnBnClickedWorkorderViewFinished();
+		afx_msg void OnUpdateUIState(UINT nAction, UINT nUIElement) noexcept;
+		afx_msg void OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+		afx_msg void OnCbnSelectChangeWorkorderViewResponsible() noexcept;
+		afx_msg void OnEnChangeWorkorderViewLog() noexcept;
+		afx_msg void OnBnClickedWorkorderViewUpdate() noexcept;
+		afx_msg void OnBnClickedWorkorderVewCustomerContactedCustomer() noexcept;
+		afx_msg void OnBnClickedWorkorderViewFinished() noexcept;
 		afx_msg void OnBnClickedWorkorderViewClose();
-		afx_msg void OnBnClickedWorkorderViewAssetDisposed();
-		afx_msg void OnBnClickedWorkorderViewParts();
-		afx_msg void OnFilePrintPreview();
-		afx_msg void OnWorkorderExtraCombi();
-		afx_msg void OnWorkorderExtraInvoice();
+		afx_msg void OnBnClickedWorkorderViewAssetDisposed() noexcept;
+		afx_msg void OnBnClickedWorkorderViewParts() noexcept;
+		afx_msg void OnFilePrintPreview() noexcept;
+		afx_msg void OnWorkorderExtraCombi() noexcept;
+		afx_msg void OnWorkorderExtraInvoice() noexcept;
 
-		/* Custom */
+	private:
 		void InitWorkorderExistingList();
 		void InitWorkorderEmployeeResponsibleComboBox();
 		void InitWorkorderSparePartsList();
-		void SetControlsAfterChangeContactedOrDisposed();
+		void SetControlsAfterChangeContactedOrDisposed() noexcept;
 		bool GetAssetInfo(const unsigned int& nAssetId);
 		bool GetCustomerInfo(const unsigned int& nCustomerId);
 		void PerformWorkorderUpdate();
-		void ResetAllControls();
-		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus);
+		void ResetAllControls() noexcept;
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) noexcept;
 	};
 }

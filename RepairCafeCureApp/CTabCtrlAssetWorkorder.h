@@ -29,6 +29,7 @@
 /*
 * This file is part of RepairCafeCureApp.
 * File: CTabCtrlAssetWorkorder.h, defines the CTabCtrlAssetWorkorder class
+* This class is the CTabCtrl derived class what interact with the tab-control in the CAssetDialog class
 *
 * This class is a tab control with two tabs.
 * The first tab is the asset details tab, the second tab is the workorder tab.
@@ -37,12 +38,12 @@
 * With this class, the user can switch between the asset details form and the workorder form.
 * The asset details form is used to add a new asset to the database or to select an existing asset from the database.
 * The workorder form is used to add a new workorder to the database.
-* THis class is also responsible for the communication between the two forms.
+* This class is also responsible for the communication between the two forms/tabs.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 0.0.1.0 (Alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 10-11-2023, (dd-mm-yyyy)
+* Updated: 28-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -50,56 +51,44 @@
 */
 #pragma once
 
-namespace artvabas {
+namespace artvabas::rcc::ui::controls {
 
-	namespace rcc {
+	// Struct for shared data between the two tabs (Asset Details and Workorder)
+	struct AssetDetailsRecords
+	{
+		unsigned int m_nAssetID;
+		unsigned int m_nAssetCustomerID;
 
-		namespace ui {
+		CString m_strCustomerSurname;
+		CString m_strCustomerName;
+		CString m_strDescription;
+		CString m_strModelNumber;
+		CString m_strBrand;
+	};
 
-			namespace controls {
+	class CTabCtrlAssetWorkorder : public CTabCtrl
+	{
+		DECLARE_DYNAMIC(CTabCtrlAssetWorkorder)
 
-				// Struct for shared data between the two forms
-				struct AssetDetailsRecords
-				{
-					CString m_strCustomerSurname;
-					CString m_strCustomerName;
+		public:
+			AssetDetailsRecords m_assetDetailsRecords;
+		private:
+			CDialog* m_tabPages[2];
+			int m_tabCurrent;
+			int m_nNumberOfTabs;
 
-					unsigned int m_nAssetID;
-					unsigned int m_nAssetCustomerID;
-					CString m_strDescription;
-					CString m_strModelNumber;
-					CString m_strBrand;
-				};
+		public:
+			CTabCtrlAssetWorkorder(CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID);
+			virtual ~CTabCtrlAssetWorkorder();
 
-				class CTabCtrlAssetWorkorder : public CTabCtrl
-				{
-					DECLARE_DYNAMIC(CTabCtrlAssetWorkorder)
+		private:
+			DECLARE_MESSAGE_MAP()
+			afx_msg void OnLButtonDown(UINT nFlags, CPoint point) noexcept;
 
-				private:
-					CDialog* m_tabPages[2];
-					int m_tabCurrent;
-					int m_nNumberOfTabs;
-				public:
-					AssetDetailsRecords m_assetDetailsRecords;
-
-				public:
-					CTabCtrlAssetWorkorder(CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID);
-					virtual ~CTabCtrlAssetWorkorder();
-
-					void Init();
-					void ChangeTabView(bool bClearForNewInput = false);
-
-				private:
-					void SetRectangle();
-
-					DECLARE_MESSAGE_MAP()
-				private:
-					afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-
-				};
-			}
-		}
-	}
+		public:
+			void Init() noexcept;
+			void ChangeTabView(bool bClearForNewInput = false) noexcept;
+		private:
+			void SetRectangle() noexcept;
+		};
 }
-
-

@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2023  artvabas
+	Copyright (C) 2023/24  artvabas
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.569.0
+* Version: 0.0.1.0 (Alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 29-02-2024, (dd-mm-yyyy)
+* Updated: 02-05-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -49,15 +49,9 @@
 
 #pragma once
 
-class CMainFrame : public CFrameWndEx {
+class CMainFrame : public CFrameWndEx
+{
 	DECLARE_DYNCREATE(CMainFrame)
-
-protected: // create from serialization only
-	CMainFrame() noexcept;
-public:
-	virtual ~CMainFrame();
-
-// Members
 public:
 	CMFCRibbonStatusBar  m_wndStatusBar;
 private:
@@ -67,14 +61,17 @@ private:
 	CMFCToolBarImages m_PanelImages;
 	CMFCCaptionBar    m_wndCaptionBar;
 
-// Overrides
+protected:
+	CMainFrame() noexcept;
+public:
+	virtual ~CMainFrame();
+
 	BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 #ifdef _DEBUG
 	void AssertValid() const override;
 	void Dump(CDumpContext& dc) const override;
 #endif
-
-// Message Handlers
+private:
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCaptionBar();
@@ -89,7 +86,6 @@ private:
 public:
 	afx_msg void OnCaptionBarComboBoxEmployeeNameChange();
 
-// General methods
 private:
 	BOOL CreateCaptionBar();
 public:

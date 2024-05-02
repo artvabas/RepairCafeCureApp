@@ -25,18 +25,20 @@
 		<https://artvabas.com/contact>
 
 */
-
+/***************************************************
+ At bottom of this file the CAbout class is defined
+****************************************************/
 /*
 * This file is part of RepairCafeCureApp.
-* File: RepairCafeCureApp.cpp, defines class CRepairCafeCureApp
+* File: RepairCafeCureApp.h, defines class CRepairCafeCureApp
 *
 * This class is the main application class. It is used to create the database connection and
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 0.0.1.0 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 10-11-2023, (dd-mm-yyyy)
+* Updated: 02-15-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -47,12 +49,12 @@
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include <afxpriv.h>
-#include "RepairCafeCureApp.h"
+
 #include "MainFrm.h"
-
+#include "RepairCafeCureApp.h"
 #include "RepairCafeCureAppDoc.h"
-#include "CAssetView.h"
 
+#include "CAssetView.h"
 #include "CCustomerView.h"
 #include "CWorkorderView.h"
 
@@ -60,43 +62,29 @@
 #define new DEBUG_NEW
 #endif
 
-using namespace artvabas::rcc::ui;
-
-/* Globals */
 CRepairCafeCureApp theApp; // The one and only CRepairCafeCureApp object
 
+// TimerCallback is used for deciding if the computer where this application is running on
+// is not used for period of time, if so it will lock the application
 static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
 	static auto isIdle = false;
+
 	LASTINPUTINFO lii{ 0 };
 	lii.cbSize = sizeof(LASTINPUTINFO);
 	GetLastInputInfo(&lii);
+
 	auto dwTimeNow = GetTickCount64();
 	auto dwTimeIdle = dwTimeNow - lii.dwTime;
-	if (dwTimeIdle > 1000 * 60 * 1 && !isIdle) {
+
+	if ( dwTimeIdle > 1000 * 60 * 1 && !isIdle ) {
 		theApp.IsIdle();
 		isIdle = true;
 		auto result = MessageBoxW(NULL, _T("Automatically Locked the app!"), _T("Idle"), MB_OK);
-		if (result == IDOK) {
+		if ( result == IDOK ) {
 			isIdle = false;
 		}
 	} 
 }
-
-
-/* Messages Maps */
-BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
-	ON_COMMAND(ID_APP_ABOUT, &CRepairCafeCureApp::OnAppAbout)
-	// Standard file based document commands
-	//ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
-	//ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
-	// Standard print setup command
-	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
-	ON_COMMAND(ID_CUSTOMER_VIEW, &CRepairCafeCureApp::OnCustomerView)
-	ON_COMMAND(ID_APP_VIEW, &CRepairCafeCureApp::OnAssetView)
-	ON_COMMAND(ID_WORKORDER_VIEW_OPEN, &CRepairCafeCureApp::OnWorkorderViewOpen)
-	ON_COMMAND(ID_WORKORDER_VIEW_PROGRESS, &CRepairCafeCureApp::OnWorkorderViewProgress)
-	ON_COMMAND(ID_WORKORDER_VIEW_REPAIRED, &CRepairCafeCureApp::OnWorkorderViewRepaired)
-END_MESSAGE_MAP()
 
 CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	: m_pAssetView(NULL)
@@ -111,7 +99,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 
 CRepairCafeCureApp::~CRepairCafeCureApp()
 {
-	if (NULL != m_dbConnection)
+	if ( NULL != m_dbConnection )
 	{
 		delete m_dbConnection;
 		m_dbConnection = NULL;
@@ -120,22 +108,25 @@ CRepairCafeCureApp::~CRepairCafeCureApp()
 	KillTimer(NULL, 1);
 }
 
-/* Overrides */
-// CRepairCafeCureApp initialization
+/* Message handles bindings */
+BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
+	ON_COMMAND(ID_APP_ABOUT, &CRepairCafeCureApp::OnAppAbout)
+	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
+	ON_COMMAND(ID_CUSTOMER_VIEW, &CRepairCafeCureApp::OnCustomerView)
+	ON_COMMAND(ID_APP_VIEW, &CRepairCafeCureApp::OnAssetView)
+	ON_COMMAND(ID_WORKORDER_VIEW_OPEN, &CRepairCafeCureApp::OnWorkorderViewOpen)
+	ON_COMMAND(ID_WORKORDER_VIEW_PROGRESS, &CRepairCafeCureApp::OnWorkorderViewProgress)
+	ON_COMMAND(ID_WORKORDER_VIEW_REPAIRED, &CRepairCafeCureApp::OnWorkorderViewRepaired)
+END_MESSAGE_MAP()
+
+/* Overrides  methods */
+
+// InitInstance, create document template, views and show the the application window
 BOOL CRepairCafeCureApp::InitInstance()
 {
 	CWinAppEx::InitInstance();
 
 	m_SplashScreen.Create(IDD_SPLASHSCREEN);
-
-	// Initialize OLE libraries
-	if (!AfxOleInit())
-	{
-		AfxMessageBox(IDP_OLE_INIT_FAILED);
-		return FALSE;
-	}
-
-	//EnableTaskbarInteraction(FALSE);
 
 	SetRegistryKey(_T("artvabas\\Repair cafe cure"));
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
@@ -166,16 +157,10 @@ BOOL CRepairCafeCureApp::InitInstance()
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
 
-	// Enable DDE Execute open
-	//EnableShellOpen();
-	//RegisterShellFileTypes(TRUE);
-
 	// Dispatch commands specified on the command line.  Will return FALSE if
 	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
-
-	/*************************************************************/
 
 	// Get a pointer to the current view
 	CView* pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
@@ -218,138 +203,84 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pAssetView->SendMessage(WM_INITIALUPDATE, 0, 0);
 	m_pWorkorderView->SendMessage(WM_INITIALUPDATE, 0, 0);
 
-	/*************************************************************/
-
 	// The one and only window has been initialized, so show and update it
 	m_pMainWnd->ShowWindow(SW_SHOW);
-	m_pMainWnd->UpdateWindow();
-	// call DragAcceptFiles only if there's a suffix
-	//  In an SDI app, this should occur after ProcessShellCommand
-	// Enable drag/drop open
-	//m_pMainWnd->DragAcceptFiles();
+	
 	return TRUE;
 }
 
 // CRepairCafeCureApp exit instance 
 int CRepairCafeCureApp::ExitInstance()
 {
-	//TODO: handle additional resources you may have added ******************************
+	//TODO: handle additional resources you may have added
 	AfxOleTerm(FALSE);
 	
 	return CWinAppEx::ExitInstance();
 }
 
-// CRepairCafeCureApp customization load/save methods
-void CRepairCafeCureApp::PreLoadState()
-{
-	BOOL bNameValid;
-	CString strName;
-	bNameValid = strName.LoadString(IDS_EDIT_MENU);
-	ASSERT(bNameValid);
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
-}
+/*Messages handlers methods*/
 
-/*
-// CRepairCafeCureApp customization load/save methods
-void CRepairCafeCureApp::LoadCustomState()
-{
-}
-
-// CRepairCafeCureApp customization load/save methods
-void CRepairCafeCureApp::SaveCustomState()
-{
-}
-*/
-
-/*Messages Handlers*/
-
-/// <summary>
-/// This method is called when the user clicks on the Customer menu item.
-/// It switches the view to the Customer view.
-/// </summary>
+// OnCustomerView is called when user select the customer button on the ribbon
+// Change the view
 void CRepairCafeCureApp::OnCustomerView()
 {
 	SwitchView(VIEW_CUSTOMER);
 
 	// Get a pointer to the main frame window.
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	if (pMainFrm != NULL)
-	{
-		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+	if ( pMainFrm != NULL )
+		// Set controls state of view, depending in selected employee
 		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
-	}
 }
 
-/// <summary>
-/// This method is called when the user clicks on the App menu item.
-/// It switches the view to the App view.
-/// </summary>
+// OnAssetView is called when user select the Asset button on the ribbon
+// Change the view
 void CRepairCafeCureApp::OnAssetView()
 {
 	SwitchView(VIEW_ASSET);
 }
 
-/// <summary>
-/// This method is called when the user clicks on the Workorder menu item.
-/// It switches the view to the Workorder view, with the ability to open a new workorder.
-/// </summary>
+// OnWorkorderViewOpen is called when user select the workorder-open button on the ribbon
+// set type of view and change the view 
 void CRepairCafeCureApp::OnWorkorderViewOpen()
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_OPEN;
 	SwitchView(VIEW_WORKORDER);
 
-	// Get a pointer to the main frame window.
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	if (pMainFrm != NULL)
-	{
-		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+	if ( pMainFrm != NULL )
 		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
-	}
 }
 
-/// <summary>
-/// This method is called when the user clicks on the Workorder menu item.
-/// It switches the view to the Workorder view, with the ability to show the progress of the workorder.
-/// </summary>
-/// <returns>void</returns>
+// OnWorkorderViewProgress is called when user select the workorder-progress button on the ribbon
+// set type of view and change the view 
 void CRepairCafeCureApp::OnWorkorderViewProgress()
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_PROGRESS;
-
 	SwitchView(VIEW_WORKORDER);
 
-	// Get a pointer to the main frame window.
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	if (pMainFrm != NULL)
-	{
-		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+	if ( pMainFrm != NULL )
 		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
-	}
 }
 
+// OnWorkorderViewProgress is called when user select the workorder-repaired button on the ribbon
+// set type of view and change the view 
 void CRepairCafeCureApp::OnWorkorderViewRepaired()
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_REPAIRED;
-
 	SwitchView(VIEW_WORKORDER);
 
-	// Get a pointer to the main frame window.
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	if (pMainFrm != NULL)
-	{
-		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+	if ( pMainFrm != NULL )
 		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
-	}
 }
 
 
-/*Custom methods*/
+/* Member methods */
 
-/// <summary>
-/// This method is used to switch between the views.
-/// </summary>
-/// <param name="vtView">The view to switch to.</param>
-/// <returns>CView* The new view.</returns>
+// SwitchView is used for switching the views of this application
+// vtView - enum with the view type yo switch to
 CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 {
 	CView* pActiveView = ((CFrameWnd*)m_pMainWnd)->GetActiveView();
@@ -357,13 +288,11 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	CMFCRibbonBar* ribbonBar = pMainFrm->GetRibbonBar();
-	//CMainFrame* pMainFrame = (CMainFrame*)m_pMainWnd->GetParentFrame();
-	//CMFCRibbonBar* ribbonBar = pMainFrame->GetRibbonBar();
+	
 	ribbonBar->HideAllContextCategories();
 	ribbonBar->ForceRecalcLayout();
 
-	switch (vtView)
-	{
+	switch ( vtView ) {
 		case VIEW_CUSTOMER:
 			pNewView = m_pCustomerView;
 			break;
@@ -386,6 +315,7 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 	::SetWindowLong(pNewView->m_hWnd, GWL_ID, temp);
 #endif
 
+	// Swap the views and attach the view
 	pActiveView->ShowWindow(SW_HIDE);
 	pNewView->ShowWindow(SW_SHOW);
 	((CFrameWnd*)m_pMainWnd)->SetActiveView(pNewView);
@@ -394,12 +324,8 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 	return pNewView;// pActiveView;
 }
 
-/// <summary>
-/// This method is used to set the tatus bar text.
-/// and can be call from throughout the application.
-/// </summary>
-/// <param name="nStrID">The string ID to set, from string table.</param>
-/// <returns>void</returns>
+// SetStatusBarText is used to set the status bar text
+// - nstrID, the ID from string table
 void CRepairCafeCureApp::SetStatusBarText(UINT nStrID)
 {
 	BOOL bNameValid;
@@ -408,51 +334,45 @@ void CRepairCafeCureApp::SetStatusBarText(UINT nStrID)
 	ASSERT(bNameValid);
 
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-	pMainFrame->m_wndStatusBar.SetInformation(strName);
+	if ( pMainFrame != NULL ) pMainFrame->m_wndStatusBar.SetInformation(strName);
 }
 
-/// <summary>
-/// This method is used to get the selected employee name, who is using the application.
-/// </summary>
-/// <returns>CString The selected employee name.</returns>
+// GetSelectedEmployeeName is used to get teh selected employee,
+// who unlock this application.
 CString CRepairCafeCureApp::GetSelectedEmployeeName()
 {
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-
-	if (pMainFrame != NULL) return pMainFrame->GetSelectedEmployee();
+	if ( pMainFrame != NULL ) return pMainFrame->GetSelectedEmployee();
 	else return CString("");
 }
 
+// IsIdle is called by the timer trigger,
+// Unselect employee and update current view controls
 void CRepairCafeCureApp::IsIdle()
 {
-	// Get a pointer to the main frame window.
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
-	if (pMainFrm != NULL)
-	{
-		// Update the Customer view controls, depending on the current selection of the employee name combo box on the caption bar.
+	if ( pMainFrm != NULL ) {
 		pMainFrm->EmployeeIdle();
 		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
 	}
 }
 
-
-/// <summary>
-/// This method is used to get the active view type.
-/// </summary>
-/// <returns></returns>
+// GetActiveViewType is used to get the selected workorder view type
 ViewType CRepairCafeCureApp::GetActiveViewType()
 {
-	ViewType vtView = VIEW_CUSTOMER;
+	ViewType vtView{};
 	CView* pActiveView = ((CFrameWnd*)m_pMainWnd)->GetActiveView();
 
-	if(pActiveView == m_pAssetView) vtView = VIEW_ASSET;
-	else if (pActiveView == m_pCustomerView) vtView = VIEW_CUSTOMER;
-	else if (pActiveView == m_pWorkorderView) vtView = VIEW_WORKORDER;
-	
-	return vtView;
-}
+	if (pActiveView != NULL) {
+		if (pActiveView == m_pAssetView) vtView = VIEW_ASSET;
+		else if (pActiveView == m_pCustomerView) vtView = VIEW_CUSTOMER;
+		else if (pActiveView == m_pWorkorderView) vtView = VIEW_WORKORDER;
 
-//**************************************************************************************************************
+		return vtView;
+	}
+	
+	return ViewType::VIEW_CUSTOMER;
+}
 
 /*
 * This class is part of RepairCafeCureApp.
@@ -461,9 +381,9 @@ ViewType CRepairCafeCureApp::GetActiveViewType()
 * This class is used to show the about dialog.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.230.0
+* Version: 0.0.1.0 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 23-10-2023, (dd-mm-yyyy)
+* Updated: 02-05-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -472,25 +392,22 @@ ViewType CRepairCafeCureApp::GetActiveViewType()
 
 class CAboutDlg : public CDialogEx
 {
-public:
-	CAboutDlg() noexcept;
-
-// Dialog Data
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_ABOUTBOX };
 #endif
+public:
+	CAboutDlg() noexcept;
 
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+private:
+	void DoDataExchange(CDataExchange* pDX) override;
 
-// Implementation
-protected:
+private:
 	DECLARE_MESSAGE_MAP()
 };
 
-CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
-{
-}
+CAboutDlg::CAboutDlg() noexcept 
+	: CDialogEx(IDD_ABOUTBOX)
+{}
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -500,10 +417,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-/// <summary>
-/// This method is called when the user clicks on the About menu item.
-/// It shows the about dialog.
-/// </summary>
+// OnAppAbout is called when user click on the info button on the ribbon
 void CRepairCafeCureApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
