@@ -62,6 +62,7 @@
 #define new DEBUG_NEW
 #endif
 
+// test line
 CRepairCafeCureApp theApp; // The one and only CRepairCafeCureApp object
 
 // TimerCallback is used for deciding if the computer where this application is running on
