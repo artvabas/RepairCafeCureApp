@@ -119,5 +119,6 @@ namespace artvabas::rcc::ui {
 		void EmptyCustomerDetailsControls() noexcept;
 		void EmptyAndDisableExistingCustomersList() noexcept;
 		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true) noexcept;
+		void BuildLogMessage(const CString& strMessage) noexcept;
 	};
 }
