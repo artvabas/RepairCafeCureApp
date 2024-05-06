@@ -291,10 +291,10 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 					m_ctlExistingCustomersList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_COMMENT, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_ctlExistingCustomersList.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
+					m_ctlExistingCustomersList.SetItemText(nIndex, 6, CheckForNull(szNameLong, cbName));
 
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_GENERAL_LOG, SQL_C_CHAR, szNameLong, SQLCHARVSMAL, &cbName);
-					m_ctlExistingCustomersList.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
+					m_ctlExistingCustomersList.SetItemText(nIndex, 7, CheckForNull(szNameLong, cbName));
 				}
 				else 
 					break;
@@ -555,6 +555,10 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 
 	CString strQuery{};
 
+	//CDateT dt;
+
+	BuildLogMessage(m_strCustomerLog);
+
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString {
 		CString strResult;
@@ -673,4 +677,8 @@ void CCustomerView::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color,
 	pButton->SetTextColor(color);
 	pButton->RedrawWindow();
 	if (bFocus) pButton->SetFocus();
+}
+
+void CCustomerView::BuildLogMessage(const CString& strMessage) noexcept
+{
 }

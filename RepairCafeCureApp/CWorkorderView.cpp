@@ -410,7 +410,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 		m_strWorkorderDescription = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 6);
 		m_strWorkorderStatus = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 8);
 		m_strWorkorderNewLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 9);
-		m_strWorkorderHistoryLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 10);
+		m_strWorkorderHistoryLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 11);
 
 		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
@@ -471,6 +471,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 
 		m_bWorkorderSelected = true;
 	}
+	UpdateData(FALSE);
 	*pResult = 0;
 }
 
@@ -986,7 +987,7 @@ void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() noexcept
 bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 	CString strBuildQuery{};
 
-	strBuildQuery.Format(_T("SELECT ASSET_DESCRIPTION, ASSET_MODEL_NUMBER, ASSET_BRAND, ASSET_HISTORY_LOG FROM ASSET WHERE ASSET_ID = %d"), nAssetId);
+	strBuildQuery.Format(_T("SELECT * FROM ASSET WHERE ASSET_ID = %d"), nAssetId);
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
@@ -1053,7 +1054,7 @@ bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();
 
-	strBuildQuery.Format(_T("SELECT CUSTOMER_SURNAME, CUSTOMER_NAME, CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL, CUSTOMER_COMMENT FROM CUSTOMER WHERE CUSTOMER_ID = %d"), nCustomerId);
+	strBuildQuery.Format(_T("SELECT * FROM CUSTOMER WHERE CUSTOMER_ID = %d"), nCustomerId);
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
@@ -1084,8 +1085,8 @@ bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 					};
 
 					// Get data for columns 1, employee names
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_SURNAME, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_strCustomerSurname = CheckForNull(szNameLong, cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_SURNAME, SQL_C_CHAR, szName, SQLCHARVMAX, &cbName);
+					m_strCustomerSurname = CheckForNull(szName, cbName);
 
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_NAME, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_strCustomerName = CheckForNull(szName, cbName);
