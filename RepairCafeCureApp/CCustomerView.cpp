@@ -293,7 +293,7 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_COMMENT, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_ctlExistingCustomersList.SetItemText(nIndex, 6, CheckForNull(szNameLong, cbName));
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_GENERAL_LOG, SQL_C_CHAR, szNameLong, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_GENERAL_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_ctlExistingCustomersList.SetItemText(nIndex, 7, CheckForNull(szNameLong, cbName));
 				}
 				else 
@@ -502,6 +502,11 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 	SetCustomFocusButton(&m_btnAddCustomer, ColorButton::BLACK, false);
 
 	CString strQuery{};
+	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) };
+
+	if ( !m_strCustomerLog.IsEmpty() )
+		m_strCustomerLog = _T("\r\n");
+	m_strCustomerLog += _T("[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Customer Created.");
 
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString {
@@ -512,7 +517,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 	};
 
 	strQuery.Format(_T("INSERT INTO [CUSTOMER] ([CUSTOMER_SURNAME], [CUSTOMER_NAME], [CUSTOMER_CELL_PHONE], [CUSTOMER_PHONE], ")
-		_T("[CUSTOMER_EMAIL], [CUSTOMER_COMMENT], [CUSTOMER_GENERAL_LOG]) VALUES(% s, % s, % s, % s, % s, % s, % s)"),
+		_T("[CUSTOMER_EMAIL], [CUSTOMER_COMMENT], [CUSTOMER_GENERAL_LOG]) VALUES(%s, %s, %s, %s, %s, %s, %s)"),
 		buildFieldValue(m_strCustomerSurname),
 		buildFieldValue(m_strCustomerName),
 		buildFieldValue(m_strCustomerCellPhone),
@@ -545,6 +550,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 	sql.CloseConnection();
 	strQuery.ReleaseBuffer();
 	theApp.EndWaitCursor();
+	UpdateData(FALSE);
 }
 
 // OnClickedCustViewButtonCustomerUpdate: Is used to update an existing customer in the database.
@@ -554,8 +560,11 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	SetCustomFocusButton(&m_btnUpdateCustomer, ColorButton::BLACK, false);
 
 	CString strQuery{};
+	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%d/%m/%Y")) };
 
-	//CDateT dt;
+	if (!m_strCustomerLog.IsEmpty())
+		m_strCustomerLog += _T("\r\n");
+	m_strCustomerLog += _T("[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Customer details Updated.");
 
 	BuildLogMessage(m_strCustomerLog);
 
@@ -568,7 +577,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	};
 	
 	strQuery.Format(_T("UPDATE [CUSTOMER] SET [CUSTOMER_SURNAME] = %s, [CUSTOMER_NAME] = %s, [CUSTOMER_CELL_PHONE] = %s, [CUSTOMER_PHONE] = %s, ")
-		_T("[CUSTOMER_EMAIL] = % s, [CUSTOMER_COMMENT] = % s, [CUSTOMER_GENERAL_LOG] = % s WHERE[CUSTOMER_ID] = % d"),
+		_T("[CUSTOMER_EMAIL] = %s, [CUSTOMER_COMMENT] = %s, [CUSTOMER_GENERAL_LOG] = %s WHERE[CUSTOMER_ID] = %d"),
 				buildFieldValue(m_strCustomerSurname),
 				buildFieldValue(m_strCustomerName),
 				buildFieldValue(m_strCustomerCellPhone),
@@ -597,6 +606,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	sql.CloseConnection();
 	strQuery.ReleaseBuffer();
 	theApp.EndWaitCursor();
+	UpdateData(FALSE);
 }
 
 // OnClickedCustViewButtonCustomerAssets: Is used to open the asset dialog.

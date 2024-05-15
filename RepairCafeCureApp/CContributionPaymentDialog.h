@@ -35,9 +35,9 @@
 * The dialog calculates the return amount and enables the OK button if the amount paid is sufficient.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 29-04-2024, (dd-mm-yyyy)
+* Updated: 15-05-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -76,9 +76,17 @@ namespace artvabas::rcc::ui::dialogs {
 		CString m_strContributionPaymentContribution;
 		CString m_strContributionPaymentReturn;
 
-		CButton m_btnContributionPaymentOK;
+		CEdit m_ctrContributionPaymentPaid;
+		CButton m_ctrContributionPaymentPin;
+
+		CMFCButton m_btnContributionPaymentOK;
+		CMFCButton m_btnContributionPaymentCalculate;
+		CMFCButton m_btnContributionPaymentClear;
+
 		InvoiceData* m_stuInvoiceData;
 		ContributionData* m_stuContributionData;
+
+		bool m_bIsZeroInvoice;
 		BOOL m_blPinTransaction;
 
 	public:
@@ -86,21 +94,21 @@ namespace artvabas::rcc::ui::dialogs {
 		virtual ~CContributionPaymentDialog();
 
 	private:
+		BOOL PreTranslateMessage(MSG* pMsg) override;
 		void DoDataExchange(CDataExchange* pDX) override; 
 		BOOL OnInitDialog() override;
 
 	private:
 		DECLARE_MESSAGE_MAP()
 		afx_msg void OnEnChangeContributionPayment() noexcept;
+		afx_msg void OnClickedContributionPaymentPin();
 		afx_msg void OnBnClickedContributionPaymentCalculate() noexcept;
 		afx_msg void OnBnClickedContributionPaymentClear() noexcept;
 		afx_msg void OnBnClickedOk() noexcept;
 
 	private:
+		void SetOKButtonState() noexcept;
 		void Calculate(const double& dPaid, const double& dInvoice, const double& dContribution) noexcept;
-		inline void SetOKButtonState() noexcept {
-			m_strContributionPaymentPaid.IsEmpty() ?
-				m_btnContributionPaymentOK.EnableWindow(FALSE) : m_btnContributionPaymentOK.EnableWindow(TRUE);
-		}
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true) noexcept;
 	};
 }
