@@ -23,7 +23,6 @@
 #define IDS_STATUSBAR_SELECT_FAIL       115
 #define IDB_MAIN                        116
 #define IDS_STATUSBAR_PRINTING          116
-#define IDS_STATUS_SELECT_OK            117
 #define IDS_STATUSBAR_PRINTING_OK       117
 #define IDS_STATUSBAR_SELECT_OK         118
 #define IDB_BUTTONS                     119
@@ -143,12 +142,8 @@
 #define IDC_CONTRIBUTION_PAYMENT_CONTRIBUTE 1080
 #define IDC_CONTRIBUTION_PAYMENT_RETURN 1081
 #define IDC_CONTRIBUTION_PAYMENT_PIN    1082
-#define IDC_BUTTON1                     1083
 #define IDC_CONTRIBUTION_PAYMENT_CLEAR  1083
-#define IDC_BUTTON2                     1084
 #define IDC_CONTRIBUTION_PAYMENT_CALCULATE 1084
-#define IDC_MFCBUTTON1                  1085
-#define IDC_STATIC_SPHS1                1086
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_APP_VIEW                     32775
@@ -166,7 +161,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        335
 #define _APS_NEXT_COMMAND_VALUE         32789
-#define _APS_NEXT_CONTROL_VALUE         1087
+#define _APS_NEXT_CONTROL_VALUE         1088
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

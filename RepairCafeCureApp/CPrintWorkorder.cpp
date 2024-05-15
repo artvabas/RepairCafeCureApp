@@ -139,7 +139,7 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 	const int nLogPixelsY = pDC->GetDeviceCaps(LOGPIXELSY);	// get device resolution along Y
 
 	CImage imgLogo;
-	imgLogo.Load(_T("logo.bmp"));
+	auto b = imgLogo.Load(_T("logo.bmp"));
 	CFont* pFont = nullptr;
 	unsigned long middleDocBody = 0UL;
 

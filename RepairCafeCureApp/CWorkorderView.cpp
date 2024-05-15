@@ -36,7 +36,7 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.1.0
+* Version: 0.0.1.0 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
 * Updated: 30-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -355,7 +355,7 @@ void CWorkorderView::Dump(CDumpContext& dc) const { CFormView::Dump(dc); }
 
 /* Message methods */
 
-// OnFilePrintPeview is called by the framework when the user clicks on the print preview button.
+// OnFilePrintPreview is called by the framework when the user clicks on the print preview button.
 void CWorkorderView::OnFilePrintPreview() noexcept
 {
 	AFXPrintPreview(this);
