@@ -67,6 +67,7 @@ CMainFrame::CMainFrame() noexcept
 
 CMainFrame::~CMainFrame()
 {
+	m_wndRibbonBar.HideAllContextCategories();
 	if ( m_pCmbCaptionBarEmployeeName != nullptr ) {
 		delete m_pCmbCaptionBarEmployeeName;
 		m_pCmbCaptionBarEmployeeName = nullptr;
@@ -183,7 +184,7 @@ void CMainFrame::OnFilePrintPreview()
 	if ( IsPrintPreview() ) PostMessage(WM_COMMAND, AFX_ID_PREVIEW_CLOSE);
 }
 
-// OnCaptionBarComboBoxEmployeeNameChange is called when the user selects an employee name from the combobox
+// OnCaptionBarComboBoxEmployeeNameChange is called when the user selects an employee name from the combo box
 void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
 {
 	if ( m_pCmbCaptionBarEmployeeName == nullptr ) return;
@@ -208,7 +209,7 @@ void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
 /* Member methods*/
 
 // CreateCaptionBar is called to create the caption bar
-// It is used to create the caption bar and the combobox for the employee names
+// It is used to create the caption bar and the combo box for the employee names
 BOOL CMainFrame::CreateCaptionBar()
 {
 	if ( !m_wndCaptionBar.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS, this, ID_VIEW_CAPTION_BAR, -1, TRUE) ) {
@@ -231,7 +232,7 @@ BOOL CMainFrame::CreateCaptionBar()
 	ASSERT(bNameValid);
 	m_wndCaptionBar.SetImageToolTip(strTemp, strTemp2);
 
-	// Combobox for employee names
+	// Combo box for employee names
 	m_pCmbCaptionBarEmployeeName->Create(WS_CHILD | WS_VISIBLE | EBS_READONLY | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar,
 		IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME);
 
@@ -283,7 +284,7 @@ BOOL CMainFrame::CreateCaptionBar()
 	return TRUE;
 }
 
-// GetSelectedEmployee is called to get the selected employee name from the combobox
+// GetSelectedEmployee is called to get the selected employee name from the combo box
 CString CMainFrame::GetSelectedEmployee() {
 	CString strEmployee;
 	auto nIndex = m_pCmbCaptionBarEmployeeName->GetCurSel();

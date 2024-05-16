@@ -313,7 +313,13 @@ void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult) 
 // After update the update asset button is disabled and the create workorder button is enabled.
 void CAssetTab::OnBnClickedAssetTabUpdate()
 {
+	UpdateData(TRUE);
 	CString strQuery;
+
+	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) };
+	if (!m_strHistoryLog.IsEmpty())
+		m_strHistoryLog = _T("\r\n");
+	m_strHistoryLog += _T("[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Asset details are updated.");
 
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) ->CString{
@@ -371,16 +377,19 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 	strQuery.ReleaseBuffer();
 	sql.CloseConnection();
 	theApp.EndWaitCursor();
+	UpdateData(FALSE);
 } 
 // OnBnClickedAssetTabNew is called when the user clicks on the new asset button.
 // a new asset is created in the database.
 // After creation the new asset button is disabled and the create workorder button is enabled.
 void CAssetTab::OnBnClickedAssetTabNew(){
-	// Creation date is the current date.
-	auto time = CTime().GetCurrentTime();
-	auto strDate = time.Format(_T("%m/%d/%Y"));
+	UpdateData(TRUE);
 
 	CString strQuery;
+	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) };
+	if (!m_strHistoryLog.IsEmpty())
+		m_strHistoryLog = _T("\r\n");
+	m_strHistoryLog += _T("[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Asset Created.");
 
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString{
@@ -393,7 +402,7 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_WORKORDER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], ")
 		_T("[ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES(% d, NULL, % s, % s, % s, % s, 0, NULL)"),
 		m_nAssetCustomerID,
-		buildFieldValue(strDate),
+		buildFieldValue(strCurDate),
 		buildFieldValue(m_strDescription),
 		buildFieldValue(m_strModelNumber),
 		buildFieldValue(m_strBrand));
@@ -428,6 +437,7 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 	sql.CloseConnection();
 	theApp.EndWaitCursor();
 	m_bIsSelectedFromAssetList = true;
+	UpdateData(FALSE);
 }
 
 // OnBnClickedAssetTabCreateWorkorder is called when the user clicks on the create workorder button.

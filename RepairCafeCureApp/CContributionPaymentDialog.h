@@ -58,9 +58,9 @@ namespace artvabas::rcc::ui::dialogs {
 	/* Data structures for value transfer between classes */
 	public:
 		struct InvoiceData {
-			unsigned int unCustomerID{};
-			unsigned int unAssetID{};
-			unsigned int unWorkOrderID{};
+			unsigned int unCustomerID;
+			unsigned int unAssetID;
+			unsigned int unWorkOrderID;
 			CString strTotal;
 		};
 
