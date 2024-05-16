@@ -168,6 +168,8 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 {
 	UpdateData(TRUE);
 	CString strQuery;
+	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) };
+	CString strWorkorderLog{ _T("[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Workorder Created.") };
 
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString {
@@ -179,12 +181,13 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 
 	strQuery.Format(_T("INSERT INTO [WORKORDER] ([WORKORDER_ASSET_ID], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID], ")
 		_T("[WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_STATUS], ")
-		_T("[WORKORDER_LOG], [WORKORDER_HISTORY]) VALUES(% d, % d, NULL, % s, % s, % s, NULL, % s, NULL, NULL)"),
+		_T("[WORKORDER_LOG], [WORKORDER_HISTORY]) VALUES(%d, %d, NULL, %s, %s, %s, NULL, %s, NULL, %s)"),
 		m_uiAssetID, m_uiCustomerID,
 		buildFieldValue(COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"))),
 		buildFieldValue(theApp.GetSelectedEmployeeName()),
 		buildFieldValue(m_strWorkorderDescription),
-		buildFieldValue(_T("Open")));
+		buildFieldValue(_T("Open")),
+		buildFieldValue(strWorkorderLog));
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();

@@ -203,7 +203,7 @@ void CWorkorderView::OnInitialUpdate()
 }
 
 // PreTranslateMessage is called by the framework before the message is dispatched.
-// This method is used to handle the Enter key press event to virtal make mouse clicks on buttons
+// This method is used to handle the Enter key press event to virtual make mouse clicks on buttons
 // - pMsg: A pointer to the message structure.
 BOOL CWorkorderView::PreTranslateMessage(MSG* pMsg)
 {
@@ -409,7 +409,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 		m_strWorkorderCreatedBy = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 5);
 		m_strWorkorderDescription = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 6);
 		m_strWorkorderStatus = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 8);
-		m_strWorkorderNewLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 9);
+		m_strWorkorderNewLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 10);
 		m_strWorkorderHistoryLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 11);
 
 		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
@@ -455,7 +455,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				ribbonBar->SetActiveCategory(ribbonBar->GetCategory(1));
 				break;
 			case VIEW_WORKORDER_REPAIRED:
-				m_edtWorkorderNewLog.EnableWindow(TRUE);
+				m_edtWorkorderNewLog.EnableWindow(FALSE);
 				m_btnWorkorderParts.EnableWindow(FALSE);
 				m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
 				m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
@@ -565,6 +565,9 @@ void CWorkorderView::OnBnClickedWorkorderViewUpdate() noexcept
 		case VIEW_WORKORDER_PROGRESS:
 			m_strWorkorderStatus = _T("Progress");
 			break;
+		case VIEW_WORKORDER_REPAIRED:
+			m_strWorkorderStatus = _T("Repaired");
+			break;
 		default:
 			m_strWorkorderStatus = _T("Open");
 			break;
@@ -591,8 +594,8 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 	if( m_chbWorkorderAssetDisposed.GetCheck() )
 		PerformWorkorderUpdate();
 	else {
-		CContributionPaymentDialog::InvoiceData invoiceData;
-		CContributionPaymentDialog::ContributionData contributionData;
+		CContributionPaymentDialog::InvoiceData invoiceData{};
+		CContributionPaymentDialog::ContributionData contributionData{};
 
 		invoiceData.unCustomerID = _wtoi(m_lscWorkorderExisting.GetItemText(m_lscWorkorderExisting.GetSelectionMark(), 2));
 		invoiceData.unWorkOrderID= m_unWorkorderId;
@@ -612,7 +615,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 			};
 
 			strQuery.Format(_T("INSERT INTO [CONTRIBUTION] ([CONTRIBUTION_CUSTOMER_ID], [CONTRIBUITION_WORKORDER_ID], ")
-				_T("[CONTRIBUTION_CREATEDATE], [CONTRIBUTION_AMOUNT]) VALUES(% d, % d, % s, % f)"),
+				_T("[CONTRIBUTION_CREATEDATE], [CONTRIBUTION_AMOUNT]) VALUES(%d, %d, %s, %f)"),
 				invoiceData.unCustomerID, 
 				invoiceData.unWorkOrderID, 
 				buildFieldValue(strCurDate), 
@@ -972,11 +975,13 @@ void CWorkorderView::SetControlsAfterChangeContactedOrDisposed() noexcept
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
+				m_edtWorkorderNewLog.EnableWindow(TRUE);
 			} else {
 				m_btnWorkorderClose.EnableWindow(TRUE);
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				SetCustomFocusButton(&m_btnWorkorderUpdate, ColorButton::BLACK, false);
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::RED, false);
+				m_edtWorkorderNewLog.EnableWindow(FALSE);
 			}
 			break;
 	}
@@ -1149,7 +1154,7 @@ void CWorkorderView::PerformWorkorderUpdate() {
 		m_strWorkorderNewLog.Empty();
 	}
 
-	if ( m_strWorkorderStatus == _T("Closed") || m_strWorkorderStatus == _T("Repaired") )
+	if ( m_strWorkorderStatus == _T("Closed") /* || m_strWorkorderStatus == _T("Repaired")*/)
 		m_strWorkorderClosedDate = strCurDate;
 	else
 		m_strWorkorderClosedDate.Empty();
@@ -1158,13 +1163,13 @@ void CWorkorderView::PerformWorkorderUpdate() {
 
 	auto buildFieldValue = [](CString str) -> CString {
 		CString strResult;
-		if ( str.IsEmpty() ) return  static_cast<LPCTSTR>(_T("NULL"));
+		if (str.IsEmpty()) return static_cast<LPCTSTR>(_T("NULL"));
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 		return strResult;
 	};
 
 	strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_RESPONSIBLE = %s, WORKORDER_STATUS = %s, WORKORDER_LOG = %s, ")
-		_T("WORKORDER_CLOSED_DATE = % s, WORKORDER_HISTORY = % s WHERE WORKORDER_ID = % d"),
+		_T("WORKORDER_CLOSED_DATE = %s, WORKORDER_HISTORY = %s WHERE WORKORDER_ID = %d"),
 		buildFieldValue(strEmployee),
 		buildFieldValue(m_strWorkorderStatus),
 		buildFieldValue(m_strWorkorderNewLog),

@@ -76,7 +76,7 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 	auto dwTimeNow = GetTickCount64();
 	auto dwTimeIdle = dwTimeNow - lii.dwTime;
 
-	if ( dwTimeIdle > 1000 * 60 * 1 && !isIdle ) {
+	if (dwTimeIdle > static_cast<unsigned long long>(1000 * 60) * 1 && !isIdle) {
 		theApp.IsIdle();
 		isIdle = true;
 		auto result = MessageBoxW(NULL, _T("Automatically Locked the app!"), _T("Idle"), MB_OK);
@@ -99,13 +99,13 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 
 CRepairCafeCureApp::~CRepairCafeCureApp()
 {
+	KillTimer(NULL, 1);
+	m_SplashScreen.DestroyWindow();
 	if ( NULL != m_dbConnection )
 	{
 		delete m_dbConnection;
 		m_dbConnection = NULL;
 	}
-	m_SplashScreen.DestroyWindow();
-	KillTimer(NULL, 1);
 }
 
 /* Message handles bindings */
@@ -125,6 +125,15 @@ END_MESSAGE_MAP()
 BOOL CRepairCafeCureApp::InitInstance()
 {
 	CWinAppEx::InitInstance();
+
+	// Initialize OLE libraries
+	if (!AfxOleInit())
+	{
+		AfxMessageBox(IDP_OLE_INIT_FAILED);
+		return FALSE;
+	}
+
+	EnableTaskbarInteraction(FALSE);
 
 	m_SplashScreen.Create(IDD_SPLASHSCREEN);
 
@@ -158,7 +167,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	ParseCommandLine(cmdInfo);
 
 	// Dispatch commands specified on the command line.  Will return FALSE if
-	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
+	// app was launched with /RegServer, /Register, /Un-regserver or /Unregister.
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;
 
@@ -213,7 +222,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 int CRepairCafeCureApp::ExitInstance()
 {
 	//TODO: handle additional resources you may have added
-	AfxOleTerm(FALSE);
+	//AfxOleTerm(FALSE);
 	
 	return CWinAppEx::ExitInstance();
 }
@@ -325,7 +334,7 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 }
 
 // SetStatusBarText is used to set the status bar text
-// - nstrID, the ID from string table
+// - nStrID, the ID from string table
 void CRepairCafeCureApp::SetStatusBarText(UINT nStrID)
 {
 	BOOL bNameValid;
