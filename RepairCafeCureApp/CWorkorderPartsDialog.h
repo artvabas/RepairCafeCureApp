@@ -64,15 +64,16 @@ namespace artvabas::rcc::ui::dialogs {
 		CString m_strWorkorderPartUnitPrice;
 		CString m_strWorkorderPartTotalPrice;
 
-		CButton m_btnWorkorderPartAdd;
-		CButton m_btnWorkorderPartDelete;
-		CButton m_btnWorkorderPartChange;
+		CMFCButton m_btnWorkorderPartAdd;
+		CMFCButton m_btnWorkorderPartDelete;
+		CMFCButton m_btnWorkorderPartChange;
 
 	public:
 		CWorkorderPartsDialog(const unsigned int& nWorkorderID, CWnd* pParent = nullptr) noexcept;
 		virtual ~CWorkorderPartsDialog();
 
 	private:
+		BOOL PreTranslateMessage(MSG* pMsg) override;
 		void DoDataExchange(CDataExchange* pDX) override;
 		BOOL OnInitDialog() override;
 		void OnOK() override;
@@ -94,5 +95,6 @@ namespace artvabas::rcc::ui::dialogs {
 		void CalculateTotalPrice() noexcept;
 		void SetChangeDeleteButtonState(BOOL bFlag = TRUE) noexcept;
 		void ClearPartInputFields() noexcept;
+		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) noexcept;
 	};
 }

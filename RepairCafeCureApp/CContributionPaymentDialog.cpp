@@ -99,6 +99,8 @@ BOOL CContributionPaymentDialog::PreTranslateMessage(MSG* pMsg)
 				}
 				return TRUE;
 			}
+		} else {
+			return CDialogEx::PreTranslateMessage(pMsg);
 		}
 	}
 	return FALSE;
