@@ -461,6 +461,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_btnWorkorderClose.EnableWindow(TRUE);
+				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::RED, true);
 				m_cbxWorkorderEmployeeResponsible.EnableWindow(FALSE);
 				m_bResponsibleChanged = false;
 				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);

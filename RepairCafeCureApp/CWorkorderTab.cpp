@@ -140,6 +140,8 @@ BOOL CWorkorderTab::PreTranslateMessage(MSG* pMsg) {
 					OnBnClickedWoTabCreate();
 					return TRUE;
 				}
+			} else {
+				return CDialogEx::PreTranslateMessage(pMsg);
 			}
 		}
 	}

@@ -83,6 +83,26 @@ END_MESSAGE_MAP()
 
 /* Override methods */
 
+BOOL CWorkorderPartsDialog::PreTranslateMessage(MSG* pMsg)
+{
+	if (pMsg->message == WM_KEYDOWN) {
+		if (pMsg->wParam == VK_RETURN) {
+			if  (m_btnWorkorderPartAdd.IsWindowEnabled() ) {
+				OnBnClickedWorkorderAddPart();
+				return TRUE;
+			}
+			if (m_btnWorkorderPartChange.IsWindowEnabled()) {
+				OnBnClickedWorkorderChange();
+				return TRUE;
+			}
+		}
+		else {
+			return CDialogEx::PreTranslateMessage(pMsg);
+		}
+	}
+	return FALSE;
+}
+
 // DoDataExchange, for data exchange and validation control variables
 void CWorkorderPartsDialog::DoDataExchange(CDataExchange* pDX)
 {
@@ -105,8 +125,12 @@ BOOL CWorkorderPartsDialog::OnInitDialog()
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
-	if ( InitStockPartList() && InitAddedPartList() )
+	if (InitStockPartList() && InitAddedPartList()) {
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
+		CEdit* pEdit = (CEdit*)GetDlgItem(IDC_WORKORDER_DESCRIPTION_PART);
+		pEdit->SetFocus();
+		return FALSE;
+	}
 	else
 		theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
 
@@ -182,9 +206,17 @@ void CWorkorderPartsDialog::OnEnChangeWorkorderAddParts() noexcept
 	if ( m_strWorkorderPartDescription.IsEmpty() || m_strWorkorderPartAmount.IsEmpty() || m_strWorkorderPartUnitPrice.IsEmpty() ) {
 		m_btnWorkorderPartAdd.EnableWindow(FALSE);
 		m_btnWorkorderPartChange.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnWorkorderPartAdd, BLACK, false);
+		SetCustomFocusButton(&m_btnWorkorderPartChange, BLACK, false);
 	} else {
-		if(!m_bIsAddedPartListSelected) m_btnWorkorderPartAdd.EnableWindow(TRUE);
-		if(m_bIsAddedPartListSelected) m_btnWorkorderPartChange.EnableWindow(TRUE);
+		if (!m_bIsAddedPartListSelected) {
+			m_btnWorkorderPartAdd.EnableWindow(TRUE);
+			SetCustomFocusButton(&m_btnWorkorderPartAdd, RED, false);
+		}
+		if (m_bIsAddedPartListSelected) {
+			m_btnWorkorderPartChange.EnableWindow(TRUE);
+			SetCustomFocusButton(&m_btnWorkorderPartChange, RED, false);
+		}
 	}
 }
 
@@ -200,7 +232,13 @@ void CWorkorderPartsDialog::OnNMDoubleClickWorkorderStockPartsList(NMHDR* pNMHDR
 		m_strWorkorderPartUnitPrice = m_lscWorkorderStockPartList.GetItemText(nIndex, 3);
 		m_strWorkorderPartAmount = _T("1");
 		UpdateData(FALSE);
-		OnEnChangeWorkorderAddParts();
+	
+		m_bIsAddedPartListSelected = false;
+		SetChangeDeleteButtonState(FALSE);
+		m_btnWorkorderPartAdd.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnWorkorderPartAdd, RED, true);
+		m_btnWorkorderPartChange.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnWorkorderPartChange, BLACK, false);
 	}
 	*pResult = 0;
 }
@@ -217,8 +255,13 @@ void CWorkorderPartsDialog::OnNMClickWorkorderAddedPartsList(NMHDR* pNMHDR, LRES
 		m_strWorkorderPartDescription = m_lscWorkorderAddedPartList.GetItemText(nIndex, 1);
 		m_strWorkorderPartAmount = m_lscWorkorderAddedPartList.GetItemText(nIndex, 2);
 		m_strWorkorderPartUnitPrice = m_lscWorkorderAddedPartList.GetItemText(nIndex, 3);
+		m_btnWorkorderPartDelete.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnWorkorderPartDelete, BLUE, false);
 		UpdateData(FALSE);
 		m_bIsAddedPartListSelected = true;
+	} else {
+		m_btnWorkorderPartDelete.EnableWindow(FALSE);
+		SetCustomFocusButton(&m_btnWorkorderPartDelete, BLACK, false);
 	}
 	*pResult = 0;
 }
@@ -254,6 +297,9 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderAddPart() noexcept
 	m_bIsAddedPartListSelected = false;
 
 	OnEnChangeWorkorderAddParts();
+
+	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_WORKORDER_DESCRIPTION_PART);
+	pEdit->SetFocus();
 
 	CalculateTotalPrice();
 }
@@ -311,6 +357,9 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderChange() noexcept
 
 	OnEnChangeWorkorderAddParts();
 
+	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_WORKORDER_DESCRIPTION_PART);
+	pEdit->SetFocus();
+
 	CalculateTotalPrice();
 }
 
@@ -322,6 +371,9 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart() noexcept
 	m_lscWorkorderAddedPartList.DeleteItem(nIndex);
 
 	ClearPartInputFields();
+
+	CEdit* pEdit = (CEdit*)GetDlgItem(IDC_WORKORDER_DESCRIPTION_PART);
+	pEdit->SetFocus();
 
 	CalculateTotalPrice();
 }
@@ -514,7 +566,7 @@ void CWorkorderPartsDialog::CalculateTotalPrice() noexcept
 // SetChangeDeleteButtonState, for changing the state of the change and delete button
 void CWorkorderPartsDialog::SetChangeDeleteButtonState(BOOL bFlag) noexcept
 {
-	m_btnWorkorderPartChange.EnableWindow(bFlag);
+	//m_btnWorkorderPartChange.EnableWindow(bFlag);
 	m_btnWorkorderPartDelete.EnableWindow(bFlag);
 }
 
@@ -524,5 +576,27 @@ void CWorkorderPartsDialog::ClearPartInputFields() noexcept
 	m_strWorkorderPartAmount = _T("");
 	m_strWorkorderPartDescription = _T("");
 	m_strWorkorderPartUnitPrice = _T("");
+
+	m_btnWorkorderPartDelete.EnableWindow(FALSE);
+	SetCustomFocusButton(&m_btnWorkorderPartDelete, BLACK, false);
 	UpdateData(FALSE);
+}
+
+void CWorkorderPartsDialog::SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) noexcept
+{
+	auto color = RGB(255, 0, 0);
+	switch (Color) {
+	case RED:
+		color = RGB(255, 0, 0);
+		break;
+	case BLUE:
+		color = RGB(0, 0, 255);
+		break;
+	case BLACK:
+		color = RGB(0, 0, 0);
+		break;
+	}
+	pButton->SetTextColor(color);
+	pButton->RedrawWindow();
+	if (bFocus) pButton->SetFocus();
 }

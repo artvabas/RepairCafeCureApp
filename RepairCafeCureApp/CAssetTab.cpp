@@ -231,6 +231,8 @@ BOOL CAssetTab::PreTranslateMessage(MSG* pMsg)
 					OnBnClickedAssetTabNew();
 					return TRUE;
 				}
+			} else {
+				return CDialogEx::PreTranslateMessage(pMsg);
 			}
 		}
 	}
