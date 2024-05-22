@@ -115,88 +115,7 @@ BOOL CAssetTab::OnInitDialog()
 	m_ctrExistingAssetList.InsertColumn(7, _T("Disposed"), LVCFMT_LEFT, 0);
 	m_ctrExistingAssetList.InsertColumn(8, _T("History Log"), LVCFMT_LEFT, 0);
 
-	int nIndex{};			// Index of the list control item.	
-	auto row{ 0 };			// Row of the list control item.
-	CString strBuildQuery{};
-
-	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
-	theApp.BeginWaitCursor();
-
-	strBuildQuery.Format(_T("SELECT ASSET.*, ASSET_CUSTOMER_ID AS Expr1 FROM ASSET WHERE(ASSET_CUSTOMER_ID = %d)"), m_nAssetCustomerID);
-
-	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
-
-	if (sql.CreateSQLConnection()) {
-
-		SQLCHAR szName[SQLCHARVSMAL] {};
-		SQLCHAR szNameLong[SQLCHARVMAX] {};
-		SQLLEN cbName {};
-		SQLRETURN retcode {};
-		SQLHSTMT hstmt { sql.GetStatementHandle() };
-		SQLWCHAR* strQuery { strBuildQuery.GetBuffer() };
-		strBuildQuery.ReleaseBuffer();
-
-		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
-
-		if ( retcode == SQL_SUCCESS ) {
-			while (TRUE) {
-				retcode = SQLFetch(hstmt);
-				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO ) {
-					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
-				}
-				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
-
-					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
-						if (cbName == SQL_NULL_DATA) {
-							return _T("");
-						}
-						return static_cast<CString>(szName);
-					};
-
-					SQLGetData(hstmt, ASSET.ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					nIndex = m_ctrExistingAssetList.InsertItem(row++, CheckForNull(szName, cbName));
-
-					SQLGetData(hstmt, ASSET.ASSET_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
-
-					SQLGetData(hstmt, ASSET.ASSET_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
-
-					SQLGetData(hstmt, ASSET.ASSET_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
-
-					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
-
-					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
-
-					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
-
-					SQLGetData(hstmt, ASSET.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
-
-					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 8, CheckForNull(szNameLong, cbName));
-
-				}
-				else {
-					break;
-				}
-			}
-		}
-		if ( !sql.CheckReturnCodeForClosing(retcode) ) {
-			sql.CloseConnection();
-			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
-			EndDialog(IDCANCEL);
-			return FALSE;
-		} else 
-			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
-	}
-	sql.CloseConnection();
-	theApp.EndWaitCursor();
-	return TRUE;
+	return LoadAssetDetailsList();
 }
 
 // Data exchange between the dialog controls and the variables.
@@ -346,8 +265,8 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 	};
 
 	strQuery.Format(_T("UPDATE [ASSET] SET [ASSET_CUSTOMER_ID] = %d, [ASSET_WORKORDER_ID] = %s, [ASSET_CREATE_DATE] = %s, ")
-		_T("[ASSET_DESCRIPTION] = % s, [ASSET_MODEL_NUMBER] = % s, [ASSET_BRAND] = % s, [ASSET_DISPOSED] = % s, ")
-		_T("[ASSET_HISTORY_LOG] = % s WHERE[ASSET_ID] = % d"),
+		_T("[ASSET_DESCRIPTION] = %s, [ASSET_MODEL_NUMBER] = %s, [ASSET_BRAND] = %s, [ASSET_DISPOSED] = %s, ")
+		_T("[ASSET_HISTORY_LOG] = %s WHERE[ASSET_ID] = %d"),
 		m_nAssetCustomerID,
 		buildFieldValue(intToCString(m_nAssetWorkorderID, true)),
 		buildFieldValue(m_strAssetCreateDate),
@@ -402,12 +321,13 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 	};
 
 	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_WORKORDER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], ")
-		_T("[ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES(% d, NULL, % s, % s, % s, % s, 0, NULL)"),
+		_T("[ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES(%d, NULL, %s, %s, %s, %s, 0, %s)"),
 		m_nAssetCustomerID,
 		buildFieldValue(strCurDate),
 		buildFieldValue(m_strDescription),
 		buildFieldValue(m_strModelNumber),
-		buildFieldValue(m_strBrand));
+		buildFieldValue(m_strBrand),
+		buildFieldValue(m_strHistoryLog));
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();
@@ -440,6 +360,7 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 	theApp.EndWaitCursor();
 	m_bIsSelectedFromAssetList = true;
 	UpdateData(FALSE);
+	LoadAssetDetailsList();
 }
 
 // OnBnClickedAssetTabCreateWorkorder is called when the user clicks on the create workorder button.
@@ -484,6 +405,94 @@ void CAssetTab::ClearForNewInput() noexcept
 	SetCustomFocusButton(&m_btnClear, BLACK, false);
 	UpdateData(FALSE);
 	OnEnChangeAssetDetails();
+}
+
+BOOL CAssetTab::LoadAssetDetailsList() noexcept
+{
+	int nIndex{};			// Index of the list control item.	
+	auto row{ 0 };			// Row of the list control item.
+	CString strBuildQuery{};
+
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
+	m_ctrExistingAssetList.DeleteAllItems();
+
+	strBuildQuery.Format(_T("SELECT ASSET.*, ASSET_CUSTOMER_ID AS Expr1 FROM ASSET WHERE(ASSET_CUSTOMER_ID = %d)"), m_nAssetCustomerID);
+
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
+
+	if (sql.CreateSQLConnection()) {
+
+		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szNameLong[SQLCHARVMAX]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+		strBuildQuery.ReleaseBuffer();
+
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
+
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				}
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+
+					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+						if (cbName == SQL_NULL_DATA) {
+							return _T("");
+						}
+						return static_cast<CString>(szName);
+						};
+
+					SQLGetData(hstmt, ASSET.ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					nIndex = m_ctrExistingAssetList.InsertItem(row++, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
+
+					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
+					m_ctrExistingAssetList.SetItemText(nIndex, 8, CheckForNull(szNameLong, cbName));
+
+				}
+				else {
+					break;
+				}
+			}
+		}
+		if (!sql.CheckReturnCodeForClosing(retcode)) {
+			sql.CloseConnection();
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+			EndDialog(IDCANCEL);
+			return FALSE;
+		}
+		else
+			theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
+	}
+	sql.CloseConnection();
+	theApp.EndWaitCursor();
+	return TRUE;
 }
 
 // SetCustomFocusButton sets the focus on the button and changes the text color.

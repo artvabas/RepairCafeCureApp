@@ -110,6 +110,7 @@ namespace artvabas::rcc::ui::dialogs {
 	public:
 		void ClearForNewInput() noexcept;
 	private:
+		BOOL LoadAssetDetailsList() noexcept;
 		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus = true) noexcept;
 	};
 }
