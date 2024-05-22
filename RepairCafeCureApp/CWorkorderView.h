@@ -36,7 +36,7 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.0.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
 * Updated: 29-02-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
