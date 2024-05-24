@@ -688,7 +688,7 @@ void CWorkorderView::OnBnClickedWorkorderViewParts() noexcept
 void CWorkorderView::OnWorkorderExtraCombi() noexcept
 {
 	m_bPrintCombi = true;
-	this->SendMessage(WM_COMMAND, ID_FILE_PRINT_DIRECT);
+	this->SendMessage(WM_COMMAND, ID_FILE_PRINT);
 }
 
 // OnWorkorderExtraInvoice is called by the framework when the user clicks on the invoice button.
