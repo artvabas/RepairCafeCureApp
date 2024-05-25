@@ -71,6 +71,7 @@ CWorkorderView::CWorkorderView() noexcept
 	, m_bResponsibleChanged{ false }
 	, m_bPrintCombi{ false }
 	, m_bPrintInvoice{ false }
+	, m_bPinTransaction{ false }
 	, m_unWorkorderId{ 0 }
 	, m_strCustomerSurname{ _T("") }
 	, m_strCustomerName{ _T("") }
@@ -187,8 +188,7 @@ void CWorkorderView::OnInitialUpdate()
 		m_lscWorkorderExisting.InsertColumn(7, _T("RESPOSIBLE"), LVCFMT_LEFT, 0);
 		m_lscWorkorderExisting.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
 		m_lscWorkorderExisting.InsertColumn(9, _T("CLOSED DATE"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(10, _T("LOG"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(11, _T("HISTORY"), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
 
 		m_lscWorkorderSpareParts.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 		m_lscWorkorderSpareParts.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 0);
@@ -323,6 +323,7 @@ void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo) {
 		workorderData.strWorkorderStatus = m_strWorkorderStatus;
 		workorderData.strWorkorderDescription = m_strWorkorderDescription;
 		workorderData.strWorkorderTotalPartsPrice = m_strWorkorderTotalPartsPrice;
+		workorderData.m_bIsPinTransfer = m_bPinTransaction;
 
 		auto nCount{ m_lscWorkorderSpareParts.GetItemCount() };
 		for (auto i{ 0 }; i < nCount; i++) {
@@ -409,8 +410,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 		m_strWorkorderCreatedBy = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 5);
 		m_strWorkorderDescription = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 6);
 		m_strWorkorderStatus = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 8);
-		m_strWorkorderNewLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 10);
-		m_strWorkorderHistoryLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 11);
+		m_strWorkorderHistoryLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 10);
 
 		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
@@ -598,6 +598,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 		CContributionPaymentDialog::InvoiceData invoiceData{};
 		CContributionPaymentDialog::ContributionData contributionData{};
 
+		invoiceData.unAssetID = _wtoi(m_lscWorkorderExisting.GetItemText(m_lscWorkorderExisting.GetSelectionMark(), 1));
 		invoiceData.unCustomerID = _wtoi(m_lscWorkorderExisting.GetItemText(m_lscWorkorderExisting.GetSelectionMark(), 2));
 		invoiceData.unWorkOrderID= m_unWorkorderId;
 		invoiceData.strTotal = m_strWorkorderTotalPartsPrice;
@@ -606,7 +607,8 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 		if ( dlg.DoModal() == IDOK && contributionData.dContribution > 0.0 )
 		{
 			CString strQuery{};
-			auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) }; //time.Format(_T("%d-%m-%y"));
+			m_bPinTransaction = contributionData.bPaymentWithPin;
+			auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) }; //time.Format(_T("%m/%d/%Y"));
 
 			auto buildFieldValue = [](CString str) -> CString {
 				CString strResult;
@@ -637,8 +639,8 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 			auto dTotal = _wtof(invoiceData.strTotal);
 
 			if ( dTotal > 0.0 ) {
-				strQuery.Format(_T("INSERT INTO [INVOICE] ([INVOICE_CUSTOM_ID], [INVOICE_ASSET_ID], [INVOICE_WORDORDER_ID] ")
-					_T("[INVOICE_CREATE_DATE], [INVOICE_PAYMENT_PIN], [INVOICE_TOTAL]) VALUES(%d, %d, %d, %s, %f)"),
+				strQuery.Format(_T("INSERT INTO [INVOICE] ([INVOICE_CUSTOMER_ID], [INVOICE_ASSET_ID], [INVOICE_WORKORDER_ID], ")
+					_T("[INVOICE_CREATE_DATE], [INVOICE_PAYMENT_PIN], [INVOICE_TOTAL]) VALUES(%d, %d, %d, %s, %d, %f)"),
 					invoiceData.unCustomerID,
 					invoiceData.unAssetID,
 					invoiceData.unWorkOrderID,
@@ -793,11 +795,8 @@ void CWorkorderView::InitWorkorderExistingList() {
 					SQLGetData(hstmt, WORKORDER.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 9, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_lscWorkorderExisting.SetItemText(nIndex, 10, CheckForNull(szNameLong, cbName));
-
 					SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_lscWorkorderExisting.SetItemText(nIndex, 11, CheckForNull(szNameLong, cbName));
+					m_lscWorkorderExisting.SetItemText(nIndex, 10, CheckForNull(szNameLong, cbName));
 				}
 				else 
 					break;
@@ -1200,11 +1199,10 @@ void CWorkorderView::PerformWorkorderUpdate() {
 		return strResult;
 	};
 
-	strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_RESPONSIBLE = %s, WORKORDER_STATUS = %s, WORKORDER_LOG = %s, ")
+	strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_RESPONSIBLE = %s, WORKORDER_STATUS = %s,")
 		_T("WORKORDER_CLOSED_DATE = %s, WORKORDER_HISTORY = %s WHERE WORKORDER_ID = %d"),
 		buildFieldValue(strEmployee),
 		buildFieldValue(m_strWorkorderStatus),
-		buildFieldValue(m_strWorkorderNewLog),
 		buildFieldValue(m_strWorkorderClosedDate),
 		buildFieldValue(m_strWorkorderHistoryLog),
 		m_unWorkorderId);
@@ -1229,7 +1227,6 @@ void CWorkorderView::PerformWorkorderUpdate() {
 	// Do we want to print invoice when order is set to repaired?
 	if ( m_strWorkorderStatus == _T("Closed") ) {
 		if (_tstof(m_strWorkorderTotalPartsPrice) != 0.0f)
-			// TODO: Insert invoice data to database, HERE? or in the invoice dialog?
 			OnWorkorderExtraInvoice();
 	}
 	ResetAllControls();

@@ -183,7 +183,7 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 
 	strQuery.Format(_T("INSERT INTO [WORKORDER] ([WORKORDER_ASSET_ID], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID], ")
 		_T("[WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_STATUS], ")
-		_T("[WORKORDER_LOG], [WORKORDER_HISTORY]) VALUES(%d, %d, NULL, %s, %s, %s, NULL, %s, NULL, %s)"),
+		_T("[WORKORDER_HISTORY]) VALUES(%d, %d, NULL, %s, %s, %s, NULL, %s, %s)"),
 		m_uiAssetID, m_uiCustomerID,
 		buildFieldValue(COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"))),
 		buildFieldValue(theApp.GetSelectedEmployeeName()),
@@ -322,11 +322,8 @@ void CWorkorderTab::InitWithAssetDetailsRecords()
 						SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVMAX, &cbName);
 						m_ctrWorkordersHistoryList.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, WORKORDER.WORKORDER_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-						m_ctrWorkordersHistoryList.SetItemText(nIndex, 9, CheckForNull(szNameLong, cbName));
-
 						SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-						m_ctrWorkordersHistoryList.SetItemText(nIndex, 10, CheckForNull(szNameLong, cbName));
+						m_ctrWorkordersHistoryList.SetItemText(nIndex, 9, CheckForNull(szNameLong, cbName));
 
 					}
 					else
@@ -403,10 +400,10 @@ void CWorkorderTab::PrintReceiptAndWorkorder()
 				}
 
 				// Get customer cell phone, phone and email
-				theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+				theApp.SetStatusBarText(IDS_STATUSBAR_LOADING); //SELECT CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL FROM CUSTOMER WHERE (CUSTOMER_ID = %d)
 
 				CString strBuildQuery {};
-				strBuildQuery.Format(_T("SELECT CUSTOMER_CELL_PHONE, CUSTOMER_PHONE, CUSTOMER_EMAIL FROM CUSTOMER WHERE (CUSTOMER_ID = %d)"),
+				strBuildQuery.Format(_T("SELECT CUSTOMER.*, CUSTOMER_ID AS Expr1 FROM CUSTOMER WHERE(CUSTOMER_ID = %d)"),
 					m_uiCustomerID);
 
 				SQLCHAR szName[SQLCHARVSMAL]{};

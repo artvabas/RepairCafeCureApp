@@ -560,7 +560,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	SetCustomFocusButton(&m_btnUpdateCustomer, ColorButton::BLACK, false);
 
 	CString strQuery{};
-	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%d/%m/%Y")) };
+	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) };
 
 	if (!m_strCustomerLog.IsEmpty())
 		m_strCustomerLog += _T("\r\n");

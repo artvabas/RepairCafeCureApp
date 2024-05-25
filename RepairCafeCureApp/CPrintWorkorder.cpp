@@ -34,9 +34,9 @@ To see the license for this source code, please visit :
 	* This class is used to print a workorder in a combi or invoice format.
 	*
 	* Target: Windows 10/11 64bit
-	* Version: 0.0.1.0 (Alpha)
+	* Version: 1.0.0.1 (Alpha)
 	* Created: 18-10-2023, (dd-mm-yyyy)
-	* Updated: 2-05-2024, (dd-mm-yyyy)
+	* Updated: 25-05-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* License: GPLv3
@@ -534,6 +534,12 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 	// Print body text (workorder)
 	pDC->TextOut(nPosX, nPosY, _T("Date Finished: ") + m_pStructWorkorderData->m_structWorkorderLog.strWorkorderRepairedDate);
 
+	if (m_pStructWorkorderData->m_bIsPinTransfer){
+		pDC->TextOut(nPosX + ulMiddle, nPosY, _T("PIN Transaction"));
+	} else {
+		pDC->TextOut(nPosX + ulMiddle, nPosY, _T("Cash Transaction"));
+	}
+
 	// calculate new start print position
 	nPosY += HeaderTextLineDown(2);
 
@@ -548,7 +554,7 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 	pDC->SetTextColor(RGB(255, 255, 255));
 	pDC->DrawText(_T("Werkzaamheden"), rctDescriptionHeader, DT_LEFT | DT_TABSTOP);
 
-	//nPosY += BodyTextLineDown(1);
+	nPosY += BodyTextLineDown(2);
 
 	CRect rctDescription(nPosX, nPosY, nPosX + static_cast<int>(imgLogo.GetWidth() * 6.8) - TotalTabInPixels(2), nPosY + BodyTextLineDown(20));
 	pDC->Draw3dRect(rctDescription, RGB(255, 255, 255), RGB(255, 255, 255));
@@ -607,6 +613,7 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 		}
 	}
 
+	nPosY += BodyTextLineDown(1);
 	pFont = &fontPlainBody;
 	pDC->SelectObject(pFont);
 
