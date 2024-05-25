@@ -33,9 +33,9 @@ To see the license for this source code, please visit :
 	* This class is used to print a workorder in a combi or invoice format.
 	*
 	* Target: Windows 10/11 64bit
-	* Version: 0.0.1.0 (Alpha)
+	* Version: 1.0.0.1 (Alpha)
 	* Created: 18-10-2023, (dd-mm-yyyy)
-	* Updated: 2-05-2024, (dd-mm-yyyy)
+	* Updated: 25-05-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* License: GPLv3
@@ -64,6 +64,7 @@ namespace artvabas::rcc::support
 			CString strWorkorderStatus;
 			CString strWorkorderDescription;
 			CString strWorkorderTotalPartsPrice;
+			bool m_bIsPinTransfer;
 
 			struct SparePart
 			{

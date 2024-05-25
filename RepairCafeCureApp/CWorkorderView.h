@@ -60,6 +60,7 @@ namespace artvabas::rcc::ui
 		bool m_bResponsibleChanged;
 		bool m_bPrintCombi;
 		bool m_bPrintInvoice;
+		bool m_bPinTransaction;
 
 		unsigned m_unWorkorderId;
 

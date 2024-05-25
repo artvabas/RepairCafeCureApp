@@ -307,7 +307,7 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 	UpdateData(TRUE);
 
 	CString strQuery;
-	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) };
+	auto strCurDate{ COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")) }; //.Format(_T("%d/%m/%Y")) };
 	if (!m_strHistoryLog.IsEmpty())
 		m_strHistoryLog = _T("\r\n");
 	m_strHistoryLog += _T("[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Asset Created.");
