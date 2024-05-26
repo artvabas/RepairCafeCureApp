@@ -38,7 +38,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 30-04-2024, (dd-mm-yyyy)
+* Updated: 26-05-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -604,7 +604,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 		invoiceData.strTotal = m_strWorkorderTotalPartsPrice;
 
 		CContributionPaymentDialog dlg{ invoiceData, contributionData };
-		if ( dlg.DoModal() == IDOK && contributionData.dContribution > 0.0 )
+		if ( dlg.DoModal() == IDOK )
 		{
 			CString strQuery{};
 			m_bPinTransaction = contributionData.bPaymentWithPin;
@@ -619,47 +619,34 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 
 			CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-			strQuery.Format(_T("INSERT INTO [CONTRIBUTION] ([CONTRIBUTION_CUSTOMER_ID], [CONTRIBUITION_WORKORDER_ID], ")
-				_T("[CONTRIBUTION_CREATEDATE], [CONTRIBUTION_AMOUNT]) VALUES(%d, %d, %s, %f)"),
-				invoiceData.unCustomerID, 
-				invoiceData.unWorkOrderID, 
-				buildFieldValue(strCurDate), 
-				contributionData.dContribution);
-			theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
-			if ( sql.CreateSQLConnection() ) {
-				if ( !sql.ExecuteQuery(strQuery.GetBuffer()) )
-					theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-				else
-					theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-			}
-			else
-				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-			strQuery.ReleaseBuffer();
+			if (sql.CreateSQLConnection() ) {
+				if (contributionData.dContribution > 0.0) {
+					strQuery.Format(_T("INSERT INTO [CONTRIBUTION] ([CONTRIBUTION_CUSTOMER_ID], [CONTRIBUITION_WORKORDER_ID], ")
+						_T("[CONTRIBUTION_CREATEDATE], [CONTRIBUTION_AMOUNT]) VALUES(%d, %d, %s, %f)"),
+						invoiceData.unCustomerID,
+						invoiceData.unWorkOrderID,
+						buildFieldValue(strCurDate),
+						contributionData.dContribution);
+					theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+				
+					if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+						theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+					else
+						theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+					strQuery.ReleaseBuffer();
+				}
 
-			auto dTotal = _wtof(invoiceData.strTotal);
+				auto dTotal = _wtof(invoiceData.strTotal);
 
-			if ( dTotal > 0.0 ) {
-				strQuery.Format(_T("INSERT INTO [INVOICE] ([INVOICE_CUSTOMER_ID], [INVOICE_ASSET_ID], [INVOICE_WORKORDER_ID], ")
-					_T("[INVOICE_CREATE_DATE], [INVOICE_PAYMENT_PIN], [INVOICE_TOTAL]) VALUES(%d, %d, %d, %s, %d, %f)"),
-					invoiceData.unCustomerID,
-					invoiceData.unAssetID,
-					invoiceData.unWorkOrderID,
-					buildFieldValue(strCurDate),
-					contributionData.bPaymentWithPin ? 1 : 0,
-					dTotal);
-				theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
-
-				if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-					theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
-				else
-					theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
-				strQuery.ReleaseBuffer();
-
-				auto nID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('INVOICE')"));
-
-				if (nID > 0) {
-					strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_INVOICE_ID = %d WHERE WORKORDER_ID = %d"),
-						nID, invoiceData.unWorkOrderID);
+				if (dTotal > 0.0) {
+					strQuery.Format(_T("INSERT INTO [INVOICE] ([INVOICE_CUSTOMER_ID], [INVOICE_ASSET_ID], [INVOICE_WORKORDER_ID], ")
+						_T("[INVOICE_CREATE_DATE], [INVOICE_PAYMENT_PIN], [INVOICE_TOTAL]) VALUES(%d, %d, %d, %s, %d, %f)"),
+						invoiceData.unCustomerID,
+						invoiceData.unAssetID,
+						invoiceData.unWorkOrderID,
+						buildFieldValue(strCurDate),
+						contributionData.bPaymentWithPin ? 1 : 0,
+						dTotal);
 					theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 					if (!sql.ExecuteQuery(strQuery.GetBuffer()))
@@ -667,6 +654,20 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 					else
 						theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
 					strQuery.ReleaseBuffer();
+
+					auto nID = sql.GetLastAddedID(_T("SELECT IDENT_CURRENT('INVOICE')"));
+
+					if (nID > 0) {
+						strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_INVOICE_ID = %d WHERE WORKORDER_ID = %d"),
+							nID, invoiceData.unWorkOrderID);
+						theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+
+						if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+							theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+						else
+							theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+						strQuery.ReleaseBuffer();
+					}
 				}
 			}
 			sql.CloseConnection();
@@ -1212,17 +1213,31 @@ void CWorkorderView::PerformWorkorderUpdate() {
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 
-	if ( sql.CreateSQLConnection() ) {
+	if (sql.CreateSQLConnection()) {
 
-		if ( !sql.ExecuteQuery(strQuery.GetBuffer()) )
+		if (!sql.ExecuteQuery(strQuery.GetBuffer()))
 			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
 		else
 			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+		strQuery.ReleaseBuffer();
+
+		if ( m_chbWorkorderAssetDisposed.GetCheck() ) {
+			auto nAssetID = _wtoi(m_lscWorkorderExisting.GetItemText(m_lscWorkorderExisting.GetSelectionMark(), 1));
+			strQuery.Format(_T("UPDATE ASSET SET ASSET_DISPOSED = %d WHERE ASSET_ID = %d"),
+				m_chbWorkorderAssetDisposed.GetCheck() ? 1 : 0,
+				nAssetID);
+
+			theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+			if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+			else
+				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+			strQuery.ReleaseBuffer();
+		}
 	}
-
+		
+	sql.CloseConnection();
 	theApp.EndWaitCursor();
-
-	strQuery.ReleaseBuffer();
 
 	// Do we want to print invoice when order is set to repaired?
 	if ( m_strWorkorderStatus == _T("Closed") ) {

@@ -36,7 +36,7 @@
 * Target: Windows 10/11 64bit
 * Version: 0.0.1.0 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 02-15-2024, (dd-mm-yyyy)
+* Updated: 26-05-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
