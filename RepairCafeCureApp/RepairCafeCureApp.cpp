@@ -79,7 +79,7 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 	if (dwTimeIdle > static_cast<unsigned long long>(1000 * 60) * 1 && !isIdle) {
 		theApp.IsIdle();
 		isIdle = true;
-		auto result = MessageBoxW(NULL, _T("Automatically Locked the app!"), _T("Idle"), MB_OK);
+		auto result = MessageBoxW(theApp.m_pMainWnd->m_hWnd, _T("Automatically Locked the app!"), _T("Repair Cafe Cure App is Idle"), MB_OK);
 		if ( result == IDOK ) {
 			isIdle = false;
 		}
@@ -213,6 +213,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pWorkorderView->SendMessage(WM_INITIALUPDATE, 0, 0);
 
 	// The one and only window has been initialized, so show and update it
+	m_pMainWnd->SetWindowTextW(_T("Repair Cafe Cure App - Customer"));
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	
 	return TRUE;
@@ -234,6 +235,7 @@ int CRepairCafeCureApp::ExitInstance()
 void CRepairCafeCureApp::OnCustomerView()
 {
 	SwitchView(VIEW_CUSTOMER);
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Customer"));
 
 	// Get a pointer to the main frame window.
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
@@ -247,6 +249,7 @@ void CRepairCafeCureApp::OnCustomerView()
 void CRepairCafeCureApp::OnAssetView()
 {
 	SwitchView(VIEW_ASSET);
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - History"));
 }
 
 // OnWorkorderViewOpen is called when user select the workorder-open button on the ribbon
@@ -255,6 +258,7 @@ void CRepairCafeCureApp::OnWorkorderViewOpen()
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_OPEN;
 	SwitchView(VIEW_WORKORDER);
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Open workorder"));
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	if ( pMainFrm != NULL )
@@ -267,6 +271,7 @@ void CRepairCafeCureApp::OnWorkorderViewProgress()
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_PROGRESS;
 	SwitchView(VIEW_WORKORDER);
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Workorder in progress"));
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	if ( pMainFrm != NULL )
@@ -279,6 +284,7 @@ void CRepairCafeCureApp::OnWorkorderViewRepaired()
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_REPAIRED;
 	SwitchView(VIEW_WORKORDER);
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Repaired workorder")); 
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	if ( pMainFrm != NULL )
@@ -390,9 +396,9 @@ ViewType CRepairCafeCureApp::GetActiveViewType()
 * This class is used to show the about dialog.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 02-05-2024, (dd-mm-yyyy)
+* Updated: 28-05-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
