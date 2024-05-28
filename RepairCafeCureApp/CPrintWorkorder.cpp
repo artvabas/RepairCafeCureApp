@@ -36,7 +36,7 @@ To see the license for this source code, please visit :
 	* Target: Windows 10/11 64bit
 	* Version: 1.0.0.1 (Alpha)
 	* Created: 18-10-2023, (dd-mm-yyyy)
-	* Updated: 25-05-2024, (dd-mm-yyyy)
+	* Updated: 28-05-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* License: GPLv3
@@ -61,17 +61,36 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 {
 	typedef unsigned int pixel;
 	const pixel pixMargin = 100; // 1 inch margin
+	const pixel pixFontHeightPlaint = 85;
 	const pixel pixFontHeightHeader = 110;
 	const pixel pixFontHeightBody = 70;
 
 	// Create fonts
 	CFont fontPlain;
 	VERIFY(fontPlain.CreateFont(
-		pixFontHeightHeader, 	  // nHeight
+		pixFontHeightPlaint, 	  // nHeight
 		0,                        // nWidth
 		0,                        // nEscapement
 		0,                        // nOrientation
 		FW_NORMAL,                // nWeight
+		FALSE,                    // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+		_T("Cascadia Mono")));    // lpszFacename
+
+	// Create fonts
+	CFont fontPlainBold;
+	VERIFY(fontPlainBold.CreateFont(
+		pixFontHeightPlaint, 	  // nHeight
+		0,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_BOLD,                // nWeight
 		FALSE,                    // bItalic
 		FALSE,                    // bUnderline
 		0,                        // cStrikeOut
@@ -189,6 +208,7 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 			CString strTextLine4 = _T("Email: ");// zuurtje@suiker.com");
 
 			// Set font color
+			pDC->SelectObject(font);
 			pDC->SetBkColor(RGB(255, 255, 255));
 			pDC->SetTextColor(RGB(0, 0, 0));
 
@@ -245,6 +265,7 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 	nPosY1 = rctHeaderLeft.BottomRight().y + HeaderTextLineDown(1);
 
 	// Print customer workorder details
+	pFont = &fontPlainBold;
 	auto nLinesDown = PrintDetails(pFont, m_pStructWorkorderData->strWorkorderCreatedDate, m_pStructWorkorderData->strCustomerSurname,
 		m_pStructWorkorderData->strCustomerName, m_pStructWorkorderData->strCustomerCellPhone, m_pStructWorkorderData->strCustomerPhone,
 		m_pStructWorkorderData->strCustomerEmail, m_pStructWorkorderData->strEmployeeResponsible, middleDocBody, nPosX1, nPosY1);
@@ -301,6 +322,7 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 	nPosY1 = rctHeaderRight.BottomRight().y + HeaderTextLineDown(1);
 
 	// Print customer workorder details
+	pFont = &fontPlainBold;
 	nLinesDown = PrintDetails(pFont, m_pStructWorkorderData->strWorkorderCreatedDate, m_pStructWorkorderData->strCustomerSurname,
 		m_pStructWorkorderData->strCustomerName, m_pStructWorkorderData->strCustomerCellPhone, m_pStructWorkorderData->strCustomerPhone,
 		m_pStructWorkorderData->strCustomerEmail, m_pStructWorkorderData->strEmployeeResponsible, middleDocBody, nPosX1, nPosY1);

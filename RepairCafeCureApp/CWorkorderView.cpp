@@ -663,9 +663,9 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 						theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
 						if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-							theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+							theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
 						else
-							theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+							theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
 						strQuery.ReleaseBuffer();
 					}
 				}
@@ -1216,9 +1216,9 @@ void CWorkorderView::PerformWorkorderUpdate() {
 	if (sql.CreateSQLConnection()) {
 
 		if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
 		else
-			theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
 		strQuery.ReleaseBuffer();
 
 		if ( m_chbWorkorderAssetDisposed.GetCheck() ) {
@@ -1229,9 +1229,9 @@ void CWorkorderView::PerformWorkorderUpdate() {
 
 			theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 			if (!sql.ExecuteQuery(strQuery.GetBuffer()))
-				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_FAIL);
+				theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
 			else
-				theApp.SetStatusBarText(IDS_STATUSBAR_INSERT_OK);
+				theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
 			strQuery.ReleaseBuffer();
 		}
 	}

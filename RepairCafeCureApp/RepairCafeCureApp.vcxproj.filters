@@ -273,6 +273,12 @@
     <Image Include="res\workorderextrasmall.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\LogoAVBIcon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\Cryptopp890\x64\Output\Release\cryptlib.lib">
