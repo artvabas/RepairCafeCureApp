@@ -121,7 +121,7 @@ BOOL CWorkorderTab::OnInitDialog() {
 	m_ctrWorkordersHistoryList.InsertColumn(6, _T("DESCRIPTION"), LVCFMT_LEFT, 0);
 	m_ctrWorkordersHistoryList.InsertColumn(7, _T("RESPOSIBLE"), LVCFMT_LEFT, 200);
 	m_ctrWorkordersHistoryList.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
-	m_ctrWorkordersHistoryList.InsertColumn(9, _T("LOG"), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(9, _T("CLOSE DATE"), LVCFMT_LEFT, 0);
 	m_ctrWorkordersHistoryList.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
 
 	return TRUE;
@@ -322,8 +322,11 @@ void CWorkorderTab::InitWithAssetDetailsRecords()
 						SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVMAX, &cbName);
 						m_ctrWorkordersHistoryList.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
 
+						SQLGetData(hstmt, WORKORDER.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_ctrWorkordersHistoryList.SetItemText(nIndex, 9, CheckForNull(szName, cbName));
+
 						SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-						m_ctrWorkordersHistoryList.SetItemText(nIndex, 9, CheckForNull(szNameLong, cbName));
+						m_ctrWorkordersHistoryList.SetItemText(nIndex, 10, CheckForNull(szNameLong, cbName));
 
 					}
 					else
