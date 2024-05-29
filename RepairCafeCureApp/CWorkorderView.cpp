@@ -1186,6 +1186,10 @@ void CWorkorderView::PerformWorkorderUpdate() {
 		m_strWorkorderNewLog.Empty();
 	}
 
+	// If the asset is disposed, add a new log entry to the workorder history log.
+	if (m_chbWorkorderAssetDisposed.GetCheck())
+		m_strWorkorderHistoryLog += _T("\r\n[") + strCurDate + _T(", ") + theApp.GetSelectedEmployeeName() + _T("] Asset disposed.");
+
 	if ( m_strWorkorderStatus == _T("Closed") /* || m_strWorkorderStatus == _T("Repaired")*/)
 		m_strWorkorderClosedDate = strCurDate;
 	else
