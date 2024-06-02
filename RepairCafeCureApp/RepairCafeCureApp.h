@@ -34,9 +34,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 26-05-2024, (dd-mm-yyyy)
+* Updated: 02-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -64,6 +64,7 @@ class CRepairCafeCureApp : public CWinAppEx
 {
 public:
 	CSplashScreen m_SplashScreen;
+	bool m_bIsIdle;
 private:
 		CDatabaseConnection* m_dbConnection;
 
