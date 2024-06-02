@@ -36,9 +36,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 26-05-2024, (dd-mm-yyyy)
+* Updated: 02-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -67,7 +67,6 @@ CRepairCafeCureApp theApp; // The one and only CRepairCafeCureApp object
 // TimerCallback is used for deciding if the computer where this application is running on
 // is not used for period of time, if so it will lock the application
 static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
-	static auto isIdle = false;
 
 	LASTINPUTINFO lii{ 0 };
 	lii.cbSize = sizeof(LASTINPUTINFO);
@@ -76,12 +75,12 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 	auto dwTimeNow = GetTickCount64();
 	auto dwTimeIdle = dwTimeNow - lii.dwTime;
 
-	if (dwTimeIdle > static_cast<unsigned long long>(1000 * 60) * 1 && !isIdle) {
+	if (dwTimeIdle > static_cast<unsigned long long>(1000 * 60) * 1 && !theApp.m_bIsIdle) {
 		theApp.IsIdle();
-		isIdle = true;
+		//isIdle = true;
 		auto result = MessageBoxW(theApp.m_pMainWnd->m_hWnd, _T("Automatically Locked the app!"), _T("Repair Cafe Cure App is Idle"), MB_OK);
 		if ( result == IDOK ) {
-			isIdle = false;
+			
 		}
 	} 
 }
@@ -92,8 +91,9 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_pWorkorderView(NULL)
 	, m_dbConnection(new CDatabaseConnection())
 	, m_enuWorkorderViewType(VIEW_WORKORDER_OPEN)
+	, m_bIsIdle(true)
 {
-	SetAppID(_T("RepairCafeCureApp.AppID.0.0.1.0"));
+	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.1"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
 }
 
@@ -137,7 +137,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 
 	m_SplashScreen.Create(IDD_SPLASHSCREEN);
 
-	SetRegistryKey(_T("artvabas\\Repair cafe cure"));
+	SetRegistryKey(_T("artvabas\\Repair cafe cure app"));
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
 
 	InitContextMenuManager();

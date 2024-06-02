@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 29-04-2024, (dd-mm-yyyy)
+* Updated: 02-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -69,7 +69,6 @@ namespace artvabas::rcc::ui::dialogs {
 
 		unsigned int m_nAssetID;
 		unsigned int m_nAssetCustomerID;
-		unsigned int m_nAssetWorkorderID;
 		unsigned short m_sAssetDisposed;
 
 		CString m_strCustomerSurname;

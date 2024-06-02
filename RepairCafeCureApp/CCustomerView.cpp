@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 30-04-2024, (dd-mm-yyyy)
+* Updated: 02-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -363,7 +363,7 @@ void CCustomerView::OnUpdateUIState(UINT nAction, UINT nUIElement) noexcept
 		case UIS_SET:	// 1 means - Employee name is selected in the caption bar.
 			// nUIElement = 0 means this method is called by the framework when the view is activated, controls are accessible.	
 			if( 0 == nUIElement) {
-				// Go through all child controls of the view and acitvate all.
+				// Go through all child controls of the view and activate all.
 				while (pChild) {
 					pChild->EnableWindow(TRUE);
 					pChild = pChild->GetWindow(GW_HWNDNEXT);
@@ -511,20 +511,20 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString {
 			CString strResult;
-			if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
+			if (str.IsEmpty()) return _T("NULL");
 			strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 			return strResult;
 	};
 
 	strQuery.Format(_T("INSERT INTO [CUSTOMER] ([CUSTOMER_SURNAME], [CUSTOMER_NAME], [CUSTOMER_CELL_PHONE], [CUSTOMER_PHONE], ")
 		_T("[CUSTOMER_EMAIL], [CUSTOMER_COMMENT], [CUSTOMER_GENERAL_LOG]) VALUES(%s, %s, %s, %s, %s, %s, %s)"),
-		buildFieldValue(m_strCustomerSurname),
-		buildFieldValue(m_strCustomerName),
-		buildFieldValue(m_strCustomerCellPhone),
-		buildFieldValue(m_strCustomerPhone),
-		buildFieldValue(m_strCustomerEmail),
-		buildFieldValue(m_strCustomerComment),
-		buildFieldValue(m_strCustomerLog));
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerSurname)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerName)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerCellPhone)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerPhone)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerEmail)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)));
 
 	theApp.BeginWaitCursor();
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
@@ -571,20 +571,20 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString {
 		CString strResult;
-		if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
-		strResult.Format(_T("N\'%s\'"),static_cast<LPCTSTR>(str));
+		if (str.IsEmpty()) return _T("NULL");
+		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 		return strResult;
 	};
 	
 	strQuery.Format(_T("UPDATE [CUSTOMER] SET [CUSTOMER_SURNAME] = %s, [CUSTOMER_NAME] = %s, [CUSTOMER_CELL_PHONE] = %s, [CUSTOMER_PHONE] = %s, ")
 		_T("[CUSTOMER_EMAIL] = %s, [CUSTOMER_COMMENT] = %s, [CUSTOMER_GENERAL_LOG] = %s WHERE[CUSTOMER_ID] = %d"),
-				buildFieldValue(m_strCustomerSurname),
-				buildFieldValue(m_strCustomerName),
-				buildFieldValue(m_strCustomerCellPhone),
-				buildFieldValue(m_strCustomerPhone),
-				buildFieldValue(m_strCustomerEmail),
-				buildFieldValue(m_strCustomerComment),
-				buildFieldValue(m_strCustomerLog),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerSurname)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerName)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerCellPhone)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerPhone)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerEmail)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)),
 				m_nCustomerID);
 
 	theApp.BeginWaitCursor();

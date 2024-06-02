@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 29-04-2024, (dd-mm-yyyy)
+* Updated: 02-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -68,7 +68,6 @@ CAssetTab::CAssetTab(CTabCtrlAssetWorkorder* pTabControl, CString& strCustomerSu
 	, m_strCustomerName{ strCustomerName }
 	, m_nAssetID{ 0 }
 	, m_nAssetCustomerID{ nCustomerID }
-	, m_nAssetWorkorderID{ 0 }
 	, m_strAssetCreateDate{ _T("") }
 	, m_strDescription{ _T("") }
 	, m_strModelNumber{ _T("") }
@@ -107,7 +106,6 @@ BOOL CAssetTab::OnInitDialog()
 	m_ctrExistingAssetList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	m_ctrExistingAssetList.InsertColumn(0, _T("Asset ID"), LVCFMT_LEFT, 0);
 	m_ctrExistingAssetList.InsertColumn(1, _T("Customer ID"), LVCFMT_LEFT, 0);
-	m_ctrExistingAssetList.InsertColumn(2, _T("Workorder ID"), LVCFMT_LEFT, 0);
 	m_ctrExistingAssetList.InsertColumn(3, _T("Creation Date"), LVCFMT_LEFT, 100);
 	m_ctrExistingAssetList.InsertColumn(4, _T("Description"), LVCFMT_LEFT, 200);
 	m_ctrExistingAssetList.InsertColumn(5, _T("Model Number"), LVCFMT_LEFT, 200);
@@ -209,13 +207,12 @@ void CAssetTab::OnDoubleClickAssetTabAssetList(NMHDR* pNMHDR, LRESULT* pResult) 
 	if ( pNMItemActivate->iItem != -1 ) {
 		m_nAssetID = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 0));
 		m_nAssetCustomerID = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 1));
-		m_nAssetWorkorderID = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 2));
-		m_strAssetCreateDate = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 3);
-		m_strDescription = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 4);
-		m_strModelNumber = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 5);
-		m_strBrand = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 6);
-		m_sAssetDisposed = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 7));
-		m_strHistoryLog = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 8);
+		m_strAssetCreateDate = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 2);
+		m_strDescription = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 3);
+		m_strModelNumber = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 4);
+		m_strBrand = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 5);
+		m_sAssetDisposed = _ttoi(m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 6));
+		m_strHistoryLog = m_ctrExistingAssetList.GetItemText(pNMItemActivate->iItem, 7);
 
 		m_bIsSelectedFromAssetList = true;
 
@@ -264,11 +261,10 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 		return strResult;
 	};
 
-	strQuery.Format(_T("UPDATE [ASSET] SET [ASSET_CUSTOMER_ID] = %d, [ASSET_WORKORDER_ID] = %s, [ASSET_CREATE_DATE] = %s, ")
+	strQuery.Format(_T("UPDATE [ASSET] SET [ASSET_CUSTOMER_ID] = %d, [ASSET_CREATE_DATE] = %s, ")
 		_T("[ASSET_DESCRIPTION] = %s, [ASSET_MODEL_NUMBER] = %s, [ASSET_BRAND] = %s, [ASSET_DISPOSED] = %s, ")
 		_T("[ASSET_HISTORY_LOG] = %s WHERE[ASSET_ID] = %d"),
 		m_nAssetCustomerID,
-		buildFieldValue(intToCString(m_nAssetWorkorderID, true)),
 		buildFieldValue(m_strAssetCreateDate),
 		buildFieldValue(m_strDescription),
 		buildFieldValue(m_strModelNumber),
@@ -395,7 +391,6 @@ void CAssetTab::OnBnClickedAssetTabClear() noexcept { ClearForNewInput(); }
 void CAssetTab::ClearForNewInput() noexcept
 {
 	m_nAssetID = 0;
-	m_nAssetWorkorderID = 0;
 	m_strDescription = _T("");
 	m_strModelNumber = _T("");
 	m_strBrand = _T("");
@@ -454,26 +449,23 @@ BOOL CAssetTab::LoadAssetDetailsList() noexcept
 					SQLGetData(hstmt, ASSET.ASSET_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
-
 					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_ctrExistingAssetList.SetItemText(nIndex, 8, CheckForNull(szNameLong, cbName));
+					m_ctrExistingAssetList.SetItemText(nIndex, 7, CheckForNull(szNameLong, cbName));
 
 				}
 				else {

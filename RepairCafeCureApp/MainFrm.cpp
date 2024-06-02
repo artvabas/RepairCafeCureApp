@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0
+* Version: 1.0.0.1
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 02-05-2024, (dd-mm-yyyy)
+* Updated: 02-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -194,11 +194,13 @@ void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
 	auto *pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
 
 	if ( m_pCmbCaptionBarEmployeeName->GetCurSel() != 0 ) {
+		theApp.m_bIsIdle = false;
 		pView->SendMessage(WM_UPDATEUISTATE, 1);
 		bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_UNLOCK);
 		ASSERT(bNameValid);
 		m_wndStatusBar.SetInformation(strTemp);
 	} else {
+		theApp.m_bIsIdle = true;
 		pView->SendMessage(WM_UPDATEUISTATE, 0);
 		bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_LOCK);
 		ASSERT(bNameValid);
