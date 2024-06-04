@@ -147,6 +147,9 @@
     <ClInclude Include="CSplashScreen.h">
       <Filter>Header Files\artvabas\rcc\ui</Filter>
     </ClInclude>
+    <ClInclude Include="CReportTaxView.h">
+      <Filter>Header Files\artvabas\rcc\ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -198,6 +201,9 @@
       <Filter>Source Files\artvabas\rcc\support</Filter>
     </ClCompile>
     <ClCompile Include="CSplashScreen.cpp">
+      <Filter>Source Files\artvabas\rcc\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="CReportTaxView.cpp">
       <Filter>Source Files\artvabas\rcc\ui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -273,10 +279,19 @@
     <Image Include="res\workorderextrasmall.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\bitmap1.bmp">
+    <Image Include="res\LogoAVBIcon.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\LogoAVBIcon.ico">
+    <Image Include="res\reportlarge.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\reportsmal.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\Contribution.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bitmap1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

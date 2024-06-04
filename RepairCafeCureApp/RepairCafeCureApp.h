@@ -36,7 +36,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 02-06-2024, (dd-mm-yyyy)
+* Updated: 04-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -56,7 +56,7 @@ using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::database;
 
 // The available views
-enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER };
+enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER, VIEW_REPORT_FINANCE_TAX };
 // The workorder status views
 enum WorkorderViewType { VIEW_WORKORDER_OPEN, VIEW_WORKORDER_PROGRESS, VIEW_WORKORDER_REPAIRED };
 
@@ -71,6 +71,7 @@ private:
 		CView* m_pCustomerView;
 		CView* m_pAssetView;
 		CView* m_pWorkorderView;
+		CView* m_pReportTaxView;
 
 		WorkorderViewType m_enuWorkorderViewType;
 
@@ -90,6 +91,8 @@ private:
 	afx_msg void OnWorkorderViewOpen();
 	afx_msg void OnWorkorderViewProgress();
 	afx_msg void OnWorkorderViewRepaired();
+	afx_msg void OnReportViewFinanceTax();
+	afx_msg void OnFilePrintSetup();
 
 public:
 	inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
@@ -99,5 +102,10 @@ public:
 	CString GetSelectedEmployeeName();
 	ViewType GetActiveViewType();
 	void IsIdle();
+	inline HANDLE GetDeviceMode() { return m_hDevMode ? m_hDevMode : DefineDeviceMode(); }
+
+private:
+	HANDLE DefineDeviceMode();
+
 };
 extern CRepairCafeCureApp theApp;

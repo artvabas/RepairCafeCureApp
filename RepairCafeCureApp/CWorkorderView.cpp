@@ -38,7 +38,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 26-05-2024, (dd-mm-yyyy)
+* Updated: 04-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -66,12 +66,13 @@ IMPLEMENT_DYNCREATE(CWorkorderView, CFormView)
 
 CWorkorderView::CWorkorderView() noexcept
 	: CFormView(IDD_WORKORDER_FORM)
-	, m_pDC{ NULL }
+	//, m_pDC{ NULL }
 	, m_bWorkorderSelected{ false }
 	, m_bResponsibleChanged{ false }
 	, m_bPrintCombi{ false }
 	, m_bPrintInvoice{ false }
 	, m_bPinTransaction{ false }
+	, m_ePrinterOrientation{ PrinterOrientation::LANDSCAPE }
 	, m_unWorkorderId{ 0 }
 	, m_strCustomerSurname{ _T("") }
 	, m_strCustomerName{ _T("") }
@@ -94,14 +95,7 @@ CWorkorderView::CWorkorderView() noexcept
 {}
 
 CWorkorderView::~CWorkorderView()
-{
-	//delete lpDevMode;
-	if (m_pDC) {
-		m_pDC->Detach();
-		m_pDC->DeleteDC();
-		delete m_pDC;
-	}
-}
+{}
 /* Message handles binders */
 #pragma warning ( push )
 #pragma warning ( disable : 26454 )
@@ -230,54 +224,24 @@ BOOL CWorkorderView::PreTranslateMessage(MSG* pMsg)
 // - pInfo: A pointer to the print information structure.
 BOOL CWorkorderView::OnPreparePrinting(CPrintInfo* pInfo)
 {
-	auto bRet{ DoPreparePrinting(pInfo) };
-
-	if( pInfo->m_bPreview ) return bRet;
-
-	if ( bRet ) {
-		if ( m_pDC == NULL ) {
-			auto hDC{ pInfo->m_pPD->GetPrinterDC() };
-
-			try {
-				m_pDC = new CDC;
-				m_pDC->Attach(hDC);
-			}
-			catch (std::bad_alloc& e) {
-				AfxMessageBox(static_cast<CString>(e.what()));
-				exit(-1);
-			}
-		}
-
-		auto *pDevMode{ pInfo->m_pPD->GetDevMode() };
-		if ( pDevMode != NULL ) {
-			if( m_bPrintCombi ) {
-				pDevMode->dmPaperSize = DMPAPER_A4;
-				pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
-			} else if ( m_bPrintInvoice )	{
-				pDevMode->dmPaperSize = DMPAPER_A4;
-				pDevMode->dmOrientation = DMORIENT_PORTRAIT;
-			}
-			::ResetDC(m_pDC->GetSafeHdc(), pDevMode);
-		}
-	}
-	return bRet;
+	return DoPreparePrinting(pInfo);
 }
 
 // OnBeginPrinting is called by the framework when the print job is started.
 // - pDC: A pointer to the device context.
 // - pInfo: A pointer to the print information structure.
-void CWorkorderView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) {}
+void CWorkorderView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) 
+{
+	SetPrinterOrientation(theApp.GetDeviceMode(), pDC);
+	CFormView::OnBeginPrinting(pDC, pInfo);
+}
 
 // OnEndPrinting is called by the framework when the print job is finished.
 // - pDC: A pointer to the device context.
 // - pInfo: A pointer to the print information structure.
-void CWorkorderView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) {
-	if (m_pDC != NULL) {
-		m_pDC->Detach();
-		m_pDC->DeleteDC();
-		delete m_pDC;
-		m_pDC = NULL;
-	}
+void CWorkorderView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
+{
+	CFormView::OnEndPrinting(pDC, pInfo);
 }
 
 // OnPrint: Called by the framework to print the view.
@@ -285,28 +249,7 @@ void CWorkorderView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) {
 // - pInfo: A pointer to the print information structure.
 void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo) {
 	BeginWaitCursor();
-	if (m_bPrintCombi) {
-		CPrintWorkorder::WorkorderData workorderData{};
-		workorderData.strWorkorderID.Format(_T("%d"), m_unWorkorderId);
-		workorderData.strCustomerSurname = m_strCustomerSurname;
-		workorderData.strCustomerName = m_strCustomerName;
-		workorderData.strCustomerCellPhone = m_strCustomerCellPhone;
-		workorderData.strCustomerPhone = m_strCustomerPhone;
-		workorderData.strCustomerEmail = m_strCustomerEmail;
-		workorderData.strCustomerComments = m_strCustomerComments;
-		workorderData.strAssetDescription = m_strAssetDescription;
-		workorderData.strAssetModelNumber = m_strAssetModelNumber;
-		workorderData.strAssetBrand = m_strAssetBrand;
-		workorderData.strWorkorderCreatedDate = m_strWorkorderCreatedDate;
-		m_cbxWorkorderEmployeeResponsible.GetWindowTextW(workorderData.strEmployeeResponsible);
-		workorderData.strWorkorderStatus = m_strWorkorderStatus;
-		workorderData.strWorkorderDescription = m_strWorkorderDescription;
-
-		CPrintWorkorder printWorkorder{ &workorderData };
-		printWorkorder.PrintCombi(pDC);
-		m_bPrintCombi = false;
-
-	} else if (m_bPrintInvoice)	{
+	if (m_bPrintInvoice)	{
 		CPrintWorkorder::WorkorderData workorderData{};
 		workorderData.strWorkorderID.Format(_T("%d"), m_unWorkorderId);
 		workorderData.strCustomerSurname = m_strCustomerSurname;
@@ -342,8 +285,31 @@ void CWorkorderView::OnPrint(CDC* pDC, CPrintInfo* pInfo) {
 		printWorkorder.PrintInvoice(pDC);
 		m_bPrintInvoice = false;
 	}
+	else if (m_bPrintCombi || m_bWorkorderSelected) {
+		CPrintWorkorder::WorkorderData workorderData{};
+		workorderData.strWorkorderID.Format(_T("%d"), m_unWorkorderId);
+		workorderData.strCustomerSurname = m_strCustomerSurname;
+		workorderData.strCustomerName = m_strCustomerName;
+		workorderData.strCustomerCellPhone = m_strCustomerCellPhone;
+		workorderData.strCustomerPhone = m_strCustomerPhone;
+		workorderData.strCustomerEmail = m_strCustomerEmail;
+		workorderData.strCustomerComments = m_strCustomerComments;
+		workorderData.strAssetDescription = m_strAssetDescription;
+		workorderData.strAssetModelNumber = m_strAssetModelNumber;
+		workorderData.strAssetBrand = m_strAssetBrand;
+		workorderData.strWorkorderCreatedDate = m_strWorkorderCreatedDate;
+		m_cbxWorkorderEmployeeResponsible.GetWindowTextW(workorderData.strEmployeeResponsible);
+		workorderData.strWorkorderStatus = m_strWorkorderStatus;
+		workorderData.strWorkorderDescription = m_strWorkorderDescription;
+
+		CPrintWorkorder printWorkorder{ &workorderData };
+		printWorkorder.PrintCombi(pDC);
+		m_bPrintCombi = false;
+	}
 	EndWaitCursor();
+	CFormView::OnPrint(pDC, pInfo);
 }
+
 #ifdef _DEBUG
 // AssetValid: Asserts the validity of the view.
 void CWorkorderView::AssertValid() const { CFormView::AssertValid(); }
@@ -471,6 +437,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 		}
 
 		m_bWorkorderSelected = true;
+		m_bPrintCombi = true;
 	}
 	UpdateData(FALSE);
 	*pResult = 0;
@@ -691,6 +658,7 @@ void CWorkorderView::OnBnClickedWorkorderViewParts() noexcept
 void CWorkorderView::OnWorkorderExtraCombi() noexcept
 {
 	m_bPrintCombi = true;
+	m_ePrinterOrientation = LANDSCAPE;
 	this->SendMessage(WM_COMMAND, ID_FILE_PRINT);
 }
 
@@ -699,10 +667,36 @@ void CWorkorderView::OnWorkorderExtraCombi() noexcept
 void CWorkorderView::OnWorkorderExtraInvoice() noexcept
 {
 	m_bPrintInvoice = true;
+	m_ePrinterOrientation = PORTRAIT;
 	this->SendMessage(WM_COMMAND, ID_FILE_PRINT_DIRECT);
 }
 
 /* Custom methods */
+
+// SetPrinterOrientation is used to set the printer orientation.
+bool CWorkorderView::SetPrinterOrientation(HANDLE h, CDC* dc)
+{
+	DEVMODE* devMode;
+	if (!h) return false;
+	devMode = (DEVMODE*)::GlobalLock(h);
+	if (!devMode) return false;
+
+	switch (m_ePrinterOrientation) {
+	case PORTRAIT:
+		devMode->dmOrientation = DMORIENT_PORTRAIT;  // portrait mode
+		devMode->dmFields |= DM_ORIENTATION;
+		break;
+
+	case LANDSCAPE:
+		devMode->dmOrientation = DMORIENT_LANDSCAPE; // landscape mode
+		devMode->dmFields |= DM_ORIENTATION;
+		break;
+	}
+
+	if (dc) dc->ResetDC(devMode);
+	::GlobalUnlock(h); 
+	return true;
+}
 
 // InitWorkorderExistingList is used to initialize the workorder existing list control.
 // This method is used to get the workorder information from the database and set the list control.

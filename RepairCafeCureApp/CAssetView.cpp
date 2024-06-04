@@ -302,7 +302,6 @@ void CAssetView::OnClickedHistorySearch()
 	}
 	sql.CloseConnection();
 	theApp.EndWaitCursor();
-
 }
 
 // OnClickedHistorySearchClear: Handle the clear button click event

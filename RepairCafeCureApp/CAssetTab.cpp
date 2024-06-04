@@ -316,8 +316,8 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 		return static_cast<LPCTSTR>(strResult);
 	};
 
-	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_WORKORDER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], ")
-		_T("[ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES(%d, NULL, %s, %s, %s, %s, 0, %s)"),
+	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], ")
+		_T("[ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES (%d, %s, %s, %s, %s, 0, %s)"),
 		m_nAssetCustomerID,
 		buildFieldValue(strCurDate),
 		buildFieldValue(m_strDescription),

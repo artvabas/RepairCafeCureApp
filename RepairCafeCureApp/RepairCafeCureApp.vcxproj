@@ -197,6 +197,7 @@
     <ClInclude Include="CCustomerView.h" />
     <ClInclude Include="CDatabaseConnection.h" />
     <ClInclude Include="CPrintWorkorder.h" />
+    <ClInclude Include="CReportTaxView.h" />
     <ClInclude Include="CSplashScreen.h" />
     <ClInclude Include="CSqlNativeAVB.h" />
     <ClInclude Include="CTabCtrlAssetWorkorder.h" />
@@ -221,6 +222,7 @@
     <ClCompile Include="CCustomerView.cpp" />
     <ClCompile Include="CDatabaseConnection.cpp" />
     <ClCompile Include="CPrintWorkorder.cpp" />
+    <ClCompile Include="CReportTaxView.cpp" />
     <ClCompile Include="CSplashScreen.cpp" />
     <ClCompile Include="CSqlNativeAVB.cpp" />
     <ClCompile Include="CTabCtrlAssetWorkorder.cpp" />
@@ -249,6 +251,7 @@
   <ItemGroup>
     <Image Include="res\bitmap1.bmp" />
     <Image Include="res\buttons.bmp" />
+    <Image Include="res\Contribution.bmp" />
     <Image Include="res\Customers.bmp" />
     <Image Include="res\filelarge.bmp" />
     <Image Include="res\filesmall.bmp" />
@@ -259,6 +262,8 @@
     <Image Include="res\RepairCafeCureAppDoc.ico" />
     <Image Include="res\repaircafelarge.bmp" />
     <Image Include="res\repaircafesmall.bmp" />
+    <Image Include="res\reportlarge.bmp" />
+    <Image Include="res\reportsmal.bmp" />
     <Image Include="res\Toolbar.bmp" />
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="res\workorderextralarge.bmp" />

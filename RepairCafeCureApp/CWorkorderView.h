@@ -38,7 +38,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 26-05-2024, (dd-mm-yyyy)
+* Updated: 04-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -54,13 +54,15 @@ namespace artvabas::rcc::ui
 		enum { IDD = IDD_WORKORDER_FORM };
 #endif
 	private:
-		CDC* m_pDC;
+		//CDC* m_pDC;
 
 		bool m_bWorkorderSelected;
 		bool m_bResponsibleChanged;
 		bool m_bPrintCombi;
 		bool m_bPrintInvoice;
 		bool m_bPinTransaction;
+
+		PrinterOrientation m_ePrinterOrientation;
 
 		unsigned m_unWorkorderId;
 
@@ -142,5 +144,7 @@ namespace artvabas::rcc::ui
 		void PerformWorkorderUpdate();
 		void ResetAllControls() noexcept;
 		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) noexcept;
+	public:
+		bool SetPrinterOrientation(HANDLE h, CDC* dc = NULL);
 	};
 }
