@@ -312,6 +312,9 @@ void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI) {
 		case VIEW_WORKORDER:
 			pCmdUI->Enable(TRUE);
 			break;
+		case VIEW_REPORT_FINANCE_TAX:
+			pCmdUI->Enable(TRUE);
+			break;
 	}
 }
 
@@ -319,8 +322,8 @@ void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI) {
 void CMainFrame::OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI) {
 	switch (theApp.GetWorkorderViewType()) {
 		case VIEW_WORKORDER_OPEN:
-			//pCmdUI->Enable(FALSE);
-			//break;
+			pCmdUI->Enable(FALSE);
+			break;
 		case VIEW_WORKORDER_PROGRESS:
 		case VIEW_WORKORDER_REPAIRED:
 			pCmdUI->Enable(TRUE);

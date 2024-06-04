@@ -56,5 +56,7 @@ To see the license for this source code, please visit :
 #include <vector>
 
 enum ColorButton { RED, BLUE, BLACK };
+enum PrinterOrientation { PORTRAIT, LANDSCAPE };
+
 
 #endif //PCH_H

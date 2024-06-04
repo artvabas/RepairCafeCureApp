@@ -38,7 +38,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 02-06-2024, (dd-mm-yyyy)
+* Updated: 04-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -57,6 +57,7 @@
 #include "CAssetView.h"
 #include "CCustomerView.h"
 #include "CWorkorderView.h"
+#include "CReportTaxView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -79,9 +80,6 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 		theApp.IsIdle();
 		//isIdle = true;
 		auto result = MessageBoxW(theApp.m_pMainWnd->m_hWnd, _T("Automatically Locked the app!"), _T("Repair Cafe Cure App is Idle"), MB_OK);
-		if ( result == IDOK ) {
-			
-		}
 	} 
 }
 
@@ -89,6 +87,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	: m_pAssetView(NULL)
 	, m_pCustomerView(NULL)
 	, m_pWorkorderView(NULL)
+	, m_pReportTaxView(NULL)
 	, m_dbConnection(new CDatabaseConnection())
 	, m_enuWorkorderViewType(VIEW_WORKORDER_OPEN)
 	, m_bIsIdle(true)
@@ -111,12 +110,13 @@ CRepairCafeCureApp::~CRepairCafeCureApp()
 /* Message handles bindings */
 BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CRepairCafeCureApp::OnAppAbout)
-	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
+	ON_COMMAND(ID_FILE_PRINT_SETUP, &CRepairCafeCureApp::OnFilePrintSetup)
 	ON_COMMAND(ID_CUSTOMER_VIEW, &CRepairCafeCureApp::OnCustomerView)
 	ON_COMMAND(ID_APP_VIEW, &CRepairCafeCureApp::OnAssetView)
 	ON_COMMAND(ID_WORKORDER_VIEW_OPEN, &CRepairCafeCureApp::OnWorkorderViewOpen)
 	ON_COMMAND(ID_WORKORDER_VIEW_PROGRESS, &CRepairCafeCureApp::OnWorkorderViewProgress)
 	ON_COMMAND(ID_WORKORDER_VIEW_REPAIRED, &CRepairCafeCureApp::OnWorkorderViewRepaired)
+	ON_COMMAND(ID_REPORT_VIEW_FINANCE_TAX, &CRepairCafeCureApp::OnReportViewFinanceTax)
 END_MESSAGE_MAP()
 
 /* Overrides  methods */
@@ -181,6 +181,9 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pWorkorderView = (CView*)new CWorkorderView;
 	if (NULL == m_pWorkorderView) return FALSE;
 
+	m_pReportTaxView = (CView*)new CReportTaxView;
+	if (NULL == m_pReportTaxView) return FALSE;
+
 	// Get the active document
 	CDocument* pDoc = pView->GetDocument();
 
@@ -198,6 +201,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	// Incrementing this value by one for additional views
 	UINT viewAssetID = AFX_IDW_PANE_FIRST + 1;
 	UINT viewWorkorderID = AFX_IDW_PANE_FIRST + 2;
+	UINT viewReportTaxID = AFX_IDW_PANE_FIRST + 3;
 	CRect rect(0, 0, 0, 0); // Gets resized later.
 
 	// Create the new view. The view persists for
@@ -205,12 +209,14 @@ BOOL CRepairCafeCureApp::InitInstance()
 	// deletes the view when the application is closed.
 	m_pAssetView->Create(NULL, _T("Asset"), WS_CHILD, rect, m_pMainWnd, viewAssetID, &newContext);
 	m_pWorkorderView->Create(NULL, _T("Workorder"), WS_CHILD, rect, m_pMainWnd, viewWorkorderID, &newContext);
+	m_pReportTaxView->Create(NULL, _T("Report Tax"), WS_CHILD, rect, m_pMainWnd, viewReportTaxID, &newContext);
 
 	// When a document template creates a view, the WM_INITIALUPDATE
 	// message is sent automatically. However, this code must
 	// explicitly send the message, as follows.
 	m_pAssetView->SendMessage(WM_INITIALUPDATE, 0, 0);
 	m_pWorkorderView->SendMessage(WM_INITIALUPDATE, 0, 0);
+	m_pReportTaxView->SendMessage(WM_INITIALUPDATE, 0, 0);
 
 	// The one and only window has been initialized, so show and update it
 	m_pMainWnd->SetWindowTextW(_T("Repair Cafe Cure App - Customer"));
@@ -291,6 +297,33 @@ void CRepairCafeCureApp::OnWorkorderViewRepaired()
 		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
 }
 
+void CRepairCafeCureApp::OnReportViewFinanceTax()
+{
+	SwitchView(VIEW_REPORT_FINANCE_TAX);
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Tax"));
+}
+
+// OnFilePrintSetup is called when user select the print setup button on the ribbon
+// Set the printer orientation for the selected view
+void CRepairCafeCureApp::OnFilePrintSetup()
+{
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+	if (pMainFrame) {
+		switch (GetActiveViewType()) {
+		case VIEW_WORKORDER: {
+				CWorkorderView* pView = (CWorkorderView*)pMainFrame->GetActiveView();
+				pView->SetPrinterOrientation(GetDeviceMode());
+			}
+			break;
+		case VIEW_REPORT_FINANCE_TAX: {
+				CReportTaxView* pView = (CReportTaxView*)pMainFrame->GetActiveView();
+				pView->SetPrinterOrientation(GetDeviceMode());
+			}
+			break;
+		}
+	}
+	CWinAppEx::OnFilePrintSetup();
+}
 
 /* Member methods */
 
@@ -315,8 +348,10 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 			pNewView = m_pWorkorderView;
 			break;
 		case VIEW_ASSET:
-		default:
 			pNewView = m_pAssetView;
+			break;
+		case VIEW_REPORT_FINANCE_TAX:
+			pNewView = m_pReportTaxView;
 			break;
 	}
 
@@ -372,6 +407,15 @@ void CRepairCafeCureApp::IsIdle()
 	}
 }
 
+// GetDeviceMode is used to get the device mode for printing
+// for the selected view.
+HANDLE CRepairCafeCureApp::DefineDeviceMode()
+{
+	PRINTDLG pd{};
+	pd.lStructSize = (DWORD)sizeof(PRINTDLG);
+	return GetPrinterDeviceDefaults(&pd) ? pd.hDevMode : 0;
+}
+
 // GetActiveViewType is used to get the selected workorder view type
 ViewType CRepairCafeCureApp::GetActiveViewType()
 {
@@ -382,6 +426,7 @@ ViewType CRepairCafeCureApp::GetActiveViewType()
 		if (pActiveView == m_pAssetView) vtView = VIEW_ASSET;
 		else if (pActiveView == m_pCustomerView) vtView = VIEW_CUSTOMER;
 		else if (pActiveView == m_pWorkorderView) vtView = VIEW_WORKORDER;
+		else if (pActiveView == m_pReportTaxView) vtView = VIEW_REPORT_FINANCE_TAX;
 
 		return vtView;
 	}
