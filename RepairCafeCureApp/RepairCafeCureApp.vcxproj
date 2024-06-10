@@ -198,6 +198,7 @@
     <ClInclude Include="CDatabaseConnection.h" />
     <ClInclude Include="CPrintWorkorder.h" />
     <ClInclude Include="CReportTaxView.h" />
+    <ClInclude Include="CReportWorkorderClosedView.h" />
     <ClInclude Include="CSplashScreen.h" />
     <ClInclude Include="CSqlNativeAVB.h" />
     <ClInclude Include="CTabCtrlAssetWorkorder.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="CDatabaseConnection.cpp" />
     <ClCompile Include="CPrintWorkorder.cpp" />
     <ClCompile Include="CReportTaxView.cpp" />
+    <ClCompile Include="CReportWorkorderClosedView.cpp" />
     <ClCompile Include="CSplashScreen.cpp" />
     <ClCompile Include="CSqlNativeAVB.cpp" />
     <ClCompile Include="CTabCtrlAssetWorkorder.cpp" />
@@ -255,6 +257,7 @@
     <Image Include="res\Customers.bmp" />
     <Image Include="res\filelarge.bmp" />
     <Image Include="res\filesmall.bmp" />
+    <Image Include="res\HistorySearch.bmp" />
     <Image Include="res\info.bmp" />
     <Image Include="res\LogoAVBIcon.ico" />
     <Image Include="res\main.bmp" />

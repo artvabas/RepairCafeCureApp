@@ -36,7 +36,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 04-06-2024, (dd-mm-yyyy)
+* Updated: 05-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -56,7 +56,7 @@ using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::database;
 
 // The available views
-enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER, VIEW_REPORT_FINANCE_TAX };
+enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER, VIEW_REPORT_FINANCE_TAX, VIEW_REPORT_WORKORDER_CLOSED };
 // The workorder status views
 enum WorkorderViewType { VIEW_WORKORDER_OPEN, VIEW_WORKORDER_PROGRESS, VIEW_WORKORDER_REPAIRED };
 
@@ -72,6 +72,7 @@ private:
 		CView* m_pAssetView;
 		CView* m_pWorkorderView;
 		CView* m_pReportTaxView;
+		CView* m_pReportWorkorderClosedView;
 
 		WorkorderViewType m_enuWorkorderViewType;
 
@@ -85,27 +86,27 @@ private:
 
 private:
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnAppAbout();
-	afx_msg void OnCustomerView();
-	afx_msg void OnAssetView();
-	afx_msg void OnWorkorderViewOpen();
-	afx_msg void OnWorkorderViewProgress();
-	afx_msg void OnWorkorderViewRepaired();
-	afx_msg void OnReportViewFinanceTax();
-	afx_msg void OnFilePrintSetup();
+	afx_msg void OnAppAbout() noexcept;
+	afx_msg void OnCustomerView() noexcept;
+	afx_msg void OnAssetView() noexcept;
+	afx_msg void OnWorkorderViewOpen() noexcept;
+	afx_msg void OnWorkorderViewProgress() noexcept;
+	afx_msg void OnWorkorderViewRepaired() noexcept;
+	afx_msg void OnReportViewFinanceTax() noexcept;
+	afx_msg void OnReportWorkorderClosed() noexcept;
+	afx_msg void OnFilePrintSetup() noexcept;
 
 public:
-	inline CDatabaseConnection* GetDatabaseConnection() { return m_dbConnection; }
-	inline WorkorderViewType GetWorkorderViewType() const { return m_enuWorkorderViewType; }
-	CView* SwitchView(ViewType vtView);
-	void SetStatusBarText(UINT nStrID);
-	CString GetSelectedEmployeeName();
-	ViewType GetActiveViewType();
-	void IsIdle();
-	inline HANDLE GetDeviceMode() { return m_hDevMode ? m_hDevMode : DefineDeviceMode(); }
+	inline CDatabaseConnection* GetDatabaseConnection() const noexcept { return m_dbConnection; }
+	inline WorkorderViewType GetWorkorderViewType() const noexcept { return m_enuWorkorderViewType; }
+	CView* SwitchView(ViewType vtView) const noexcept;
+	void SetStatusBarText(UINT nStrID) const noexcept;
+	CString GetSelectedEmployeeName() const noexcept;
+	ViewType GetActiveViewType() const noexcept;
+	void IsIdle() const noexcept;
+	inline HANDLE GetDeviceMode() noexcept { return m_hDevMode ? m_hDevMode : DefineDeviceMode(); }
 
 private:
-	HANDLE DefineDeviceMode();
-
+	HANDLE DefineDeviceMode() noexcept;
 };
 extern CRepairCafeCureApp theApp;

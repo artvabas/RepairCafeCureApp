@@ -195,8 +195,6 @@ void CAssetView::OnFilePrintPreview() noexcept
 	AFXPrintPreview(this);
 }
 
-/* Member methods */
-
 // OnClickedHistorySearch: Handle the search button click event
 // This method will search the database for the asset and workorder history
 // and display the results in the list control

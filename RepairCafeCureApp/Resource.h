@@ -64,11 +64,12 @@
 #define IDB_WORKORDEREXTRASMALL         329
 #define IDD_CONTRIBUTION                330
 #define IDD_SPLASHSCREEN                333
+#define IDD_REPORT_WORKOREER_CLOSED_FORM 334
 #define IDI_ARTVABAS_LOGO               341
 #define IDB_REPORTLARGE                 345
 #define IDB_REPORTSMALL                 346
-#define IDB_BITMAP1                     348
 #define IDB_REPORTCONTRIBUTION          348
+#define IDB_HISTORYSEARCH               349
 #define IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH 1001
 #define IDC_CUSTVIEW_BUTTON_SEARCH      1002
 #define IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER 1003
@@ -170,6 +171,8 @@
 #define IDC_REPORT_TAX_PERIOD_CREATE    1108
 #define IDC_REPORT_TAX_PERIOD_RESULT    1109
 #define IDC_REPORT_TAX_PERIOD_TOTAL_AMOUNT 1111
+#define IDC_LIST1                       1112
+#define IDC_WORKORDER_CLOSED_REPORT     1112
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_APP_VIEW                     32775
@@ -181,14 +184,15 @@
 #define ID_WORKORDER_EXTRA_INVOICE      32786
 #define ID_GENERAL_SHOW_LOGINBAR_CHECK  32788
 #define ID_REPORT_VIEW_FINANCE_TAX      32789
+#define ID_REPORT_WORKORDER_CLOSED      32791
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        349
-#define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1112
+#define _APS_NEXT_RESOURCE_VALUE        351
+#define _APS_NEXT_COMMAND_VALUE         32792
+#define _APS_NEXT_CONTROL_VALUE         1113
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif
