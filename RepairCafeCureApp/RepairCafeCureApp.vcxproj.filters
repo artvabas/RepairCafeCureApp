@@ -150,6 +150,9 @@
     <ClInclude Include="CReportTaxView.h">
       <Filter>Header Files\artvabas\rcc\ui</Filter>
     </ClInclude>
+    <ClInclude Include="CReportWorkorderClosedView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -205,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="CReportTaxView.cpp">
       <Filter>Source Files\artvabas\rcc\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="CReportWorkorderClosedView.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -292,6 +298,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\HistorySearch.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

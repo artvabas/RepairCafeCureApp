@@ -38,7 +38,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 04-06-2024, (dd-mm-yyyy)
+* Updated: 05-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -58,6 +58,7 @@
 #include "CCustomerView.h"
 #include "CWorkorderView.h"
 #include "CReportTaxView.h"
+#include "CReportWorkorderClosedView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -84,13 +85,14 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 }
 
 CRepairCafeCureApp::CRepairCafeCureApp() noexcept
-	: m_pAssetView(NULL)
-	, m_pCustomerView(NULL)
-	, m_pWorkorderView(NULL)
-	, m_pReportTaxView(NULL)
-	, m_dbConnection(new CDatabaseConnection())
-	, m_enuWorkorderViewType(VIEW_WORKORDER_OPEN)
-	, m_bIsIdle(true)
+	: m_pAssetView{ NULL }
+	, m_pCustomerView{ NULL }
+	, m_pWorkorderView{ NULL }
+	, m_pReportTaxView{ NULL }
+	, m_pReportWorkorderClosedView{ NULL }
+	, m_dbConnection{ new CDatabaseConnection() }
+	, m_enuWorkorderViewType{ VIEW_WORKORDER_OPEN }
+	, m_bIsIdle{ true }
 {
 	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.1"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
@@ -117,6 +119,7 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_WORKORDER_VIEW_PROGRESS, &CRepairCafeCureApp::OnWorkorderViewProgress)
 	ON_COMMAND(ID_WORKORDER_VIEW_REPAIRED, &CRepairCafeCureApp::OnWorkorderViewRepaired)
 	ON_COMMAND(ID_REPORT_VIEW_FINANCE_TAX, &CRepairCafeCureApp::OnReportViewFinanceTax)
+	ON_COMMAND(ID_REPORT_WORKORDER_CLOSED, &CRepairCafeCureApp::OnReportWorkorderClosed)
 END_MESSAGE_MAP()
 
 /* Overrides  methods */
@@ -184,6 +187,9 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pReportTaxView = (CView*)new CReportTaxView;
 	if (NULL == m_pReportTaxView) return FALSE;
 
+	m_pReportWorkorderClosedView = (CView*)new CReportWorkorderClosedView;
+	if (NULL == m_pReportWorkorderClosedView) return FALSE;
+
 	// Get the active document
 	CDocument* pDoc = pView->GetDocument();
 
@@ -202,6 +208,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	UINT viewAssetID = AFX_IDW_PANE_FIRST + 1;
 	UINT viewWorkorderID = AFX_IDW_PANE_FIRST + 2;
 	UINT viewReportTaxID = AFX_IDW_PANE_FIRST + 3;
+	UINT viewReportWorkorderClosedID = AFX_IDW_PANE_FIRST + 4;
 	CRect rect(0, 0, 0, 0); // Gets resized later.
 
 	// Create the new view. The view persists for
@@ -210,6 +217,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pAssetView->Create(NULL, _T("Asset"), WS_CHILD, rect, m_pMainWnd, viewAssetID, &newContext);
 	m_pWorkorderView->Create(NULL, _T("Workorder"), WS_CHILD, rect, m_pMainWnd, viewWorkorderID, &newContext);
 	m_pReportTaxView->Create(NULL, _T("Report Tax"), WS_CHILD, rect, m_pMainWnd, viewReportTaxID, &newContext);
+	m_pReportWorkorderClosedView->Create(NULL, _T("Report Workorder Closed"), WS_CHILD, rect, m_pMainWnd, viewReportWorkorderClosedID, &newContext);
 
 	// When a document template creates a view, the WM_INITIALUPDATE
 	// message is sent automatically. However, this code must
@@ -217,6 +225,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pAssetView->SendMessage(WM_INITIALUPDATE, 0, 0);
 	m_pWorkorderView->SendMessage(WM_INITIALUPDATE, 0, 0);
 	m_pReportTaxView->SendMessage(WM_INITIALUPDATE, 0, 0);
+	m_pReportWorkorderClosedView->SendMessage(WM_INITIALUPDATE, 0, 0);
 
 	// The one and only window has been initialized, so show and update it
 	m_pMainWnd->SetWindowTextW(_T("Repair Cafe Cure App - Customer"));
@@ -229,7 +238,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 int CRepairCafeCureApp::ExitInstance()
 {
 	//TODO: handle additional resources you may have added
-	//AfxOleTerm(FALSE);
+	AfxOleTerm(FALSE);
 	
 	return CWinAppEx::ExitInstance();
 }
@@ -238,7 +247,7 @@ int CRepairCafeCureApp::ExitInstance()
 
 // OnCustomerView is called when user select the customer button on the ribbon
 // Change the view
-void CRepairCafeCureApp::OnCustomerView()
+void CRepairCafeCureApp::OnCustomerView() noexcept
 {
 	SwitchView(VIEW_CUSTOMER);
 	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Customer"));
@@ -252,7 +261,7 @@ void CRepairCafeCureApp::OnCustomerView()
 
 // OnAssetView is called when user select the Asset button on the ribbon
 // Change the view
-void CRepairCafeCureApp::OnAssetView()
+void CRepairCafeCureApp::OnAssetView() noexcept
 {
 	SwitchView(VIEW_ASSET);
 	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - History"));
@@ -260,7 +269,7 @@ void CRepairCafeCureApp::OnAssetView()
 
 // OnWorkorderViewOpen is called when user select the workorder-open button on the ribbon
 // set type of view and change the view 
-void CRepairCafeCureApp::OnWorkorderViewOpen()
+void CRepairCafeCureApp::OnWorkorderViewOpen() noexcept
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_OPEN;
 	SwitchView(VIEW_WORKORDER);
@@ -273,7 +282,7 @@ void CRepairCafeCureApp::OnWorkorderViewOpen()
 
 // OnWorkorderViewProgress is called when user select the workorder-progress button on the ribbon
 // set type of view and change the view 
-void CRepairCafeCureApp::OnWorkorderViewProgress()
+void CRepairCafeCureApp::OnWorkorderViewProgress() noexcept
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_PROGRESS;
 	SwitchView(VIEW_WORKORDER);
@@ -286,7 +295,7 @@ void CRepairCafeCureApp::OnWorkorderViewProgress()
 
 // OnWorkorderViewProgress is called when user select the workorder-repaired button on the ribbon
 // set type of view and change the view 
-void CRepairCafeCureApp::OnWorkorderViewRepaired()
+void CRepairCafeCureApp::OnWorkorderViewRepaired() noexcept
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_REPAIRED;
 	SwitchView(VIEW_WORKORDER);
@@ -297,15 +306,21 @@ void CRepairCafeCureApp::OnWorkorderViewRepaired()
 		pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
 }
 
-void CRepairCafeCureApp::OnReportViewFinanceTax()
+void CRepairCafeCureApp::OnReportViewFinanceTax() noexcept
 {
 	SwitchView(VIEW_REPORT_FINANCE_TAX);
 	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Tax"));
 }
 
+void CRepairCafeCureApp::OnReportWorkorderClosed() noexcept
+{
+	SwitchView(VIEW_REPORT_WORKORDER_CLOSED);
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Workorder Closed"));
+}
+
 // OnFilePrintSetup is called when user select the print setup button on the ribbon
 // Set the printer orientation for the selected view
-void CRepairCafeCureApp::OnFilePrintSetup()
+void CRepairCafeCureApp::OnFilePrintSetup() noexcept
 {
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 	if (pMainFrame) {
@@ -329,7 +344,7 @@ void CRepairCafeCureApp::OnFilePrintSetup()
 
 // SwitchView is used for switching the views of this application
 // vtView - enum with the view type yo switch to
-CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
+CView* CRepairCafeCureApp::SwitchView(ViewType vtView) const noexcept
 {
 	CView* pActiveView = ((CFrameWnd*)m_pMainWnd)->GetActiveView();
 	CView* pNewView = NULL;
@@ -353,16 +368,27 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 		case VIEW_REPORT_FINANCE_TAX:
 			pNewView = m_pReportTaxView;
 			break;
+		case VIEW_REPORT_WORKORDER_CLOSED:
+			pNewView = m_pReportWorkorderClosedView;
+			break;
 	}
 
 #ifndef _WIN32
+	if (pNewView != NULL) {
+		((CFrameWnd*)m_pMainWnd)->SetActiveView(pNewView);
+		((CFrameWnd*)m_pMainWnd)->RecalcLayout();
+		pNewView->Invalidate();
+}
 	UINT temp = ::GetWindowWord(pActiveView->m_hWnd, GWW_ID);
 	::SetWindowWord(pActiveView->m_hWnd, GWW_ID, ::GetWindowWord(pNewView->m_hWnd, GWW_ID));
 	::SetWindowWord(pNewView->m_hWnd, GWW_ID, temp);
+	}
 #else
-	UINT temp = ::GetWindowLong(pActiveView->m_hWnd, GWL_ID);
-	::SetWindowLong(pActiveView->m_hWnd, GWL_ID, ::GetWindowLong(pNewView->m_hWnd, GWL_ID));
-	::SetWindowLong(pNewView->m_hWnd, GWL_ID, temp);
+	if (pNewView != NULL) {
+		UINT temp = ::GetWindowLong(pActiveView->m_hWnd, GWL_ID);
+		::SetWindowLong(pActiveView->m_hWnd, GWL_ID, ::GetWindowLong(pNewView->m_hWnd, GWL_ID));
+		::SetWindowLong(pNewView->m_hWnd, GWL_ID, temp);
+	}
 #endif
 
 	// Swap the views and attach the view
@@ -376,7 +402,7 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView)
 
 // SetStatusBarText is used to set the status bar text
 // - nStrID, the ID from string table
-void CRepairCafeCureApp::SetStatusBarText(UINT nStrID)
+void CRepairCafeCureApp::SetStatusBarText(UINT nStrID) const noexcept
 {
 	BOOL bNameValid;
 	CString strName;
@@ -389,7 +415,7 @@ void CRepairCafeCureApp::SetStatusBarText(UINT nStrID)
 
 // GetSelectedEmployeeName is used to get teh selected employee,
 // who unlock this application.
-CString CRepairCafeCureApp::GetSelectedEmployeeName()
+CString CRepairCafeCureApp::GetSelectedEmployeeName() const noexcept
 {
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 	if ( pMainFrame != NULL ) return pMainFrame->GetSelectedEmployee();
@@ -398,7 +424,7 @@ CString CRepairCafeCureApp::GetSelectedEmployeeName()
 
 // IsIdle is called by the timer trigger,
 // Unselect employee and update current view controls
-void CRepairCafeCureApp::IsIdle()
+void CRepairCafeCureApp::IsIdle() const noexcept
 {
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	if ( pMainFrm != NULL ) {
@@ -409,7 +435,7 @@ void CRepairCafeCureApp::IsIdle()
 
 // GetDeviceMode is used to get the device mode for printing
 // for the selected view.
-HANDLE CRepairCafeCureApp::DefineDeviceMode()
+HANDLE CRepairCafeCureApp::DefineDeviceMode() noexcept
 {
 	PRINTDLG pd{};
 	pd.lStructSize = (DWORD)sizeof(PRINTDLG);
@@ -417,7 +443,7 @@ HANDLE CRepairCafeCureApp::DefineDeviceMode()
 }
 
 // GetActiveViewType is used to get the selected workorder view type
-ViewType CRepairCafeCureApp::GetActiveViewType()
+ViewType CRepairCafeCureApp::GetActiveViewType() const noexcept
 {
 	ViewType vtView{};
 	CView* pActiveView = ((CFrameWnd*)m_pMainWnd)->GetActiveView();
@@ -427,6 +453,7 @@ ViewType CRepairCafeCureApp::GetActiveViewType()
 		else if (pActiveView == m_pCustomerView) vtView = VIEW_CUSTOMER;
 		else if (pActiveView == m_pWorkorderView) vtView = VIEW_WORKORDER;
 		else if (pActiveView == m_pReportTaxView) vtView = VIEW_REPORT_FINANCE_TAX;
+		else if (pActiveView == m_pReportWorkorderClosedView) vtView = VIEW_REPORT_WORKORDER_CLOSED;
 
 		return vtView;
 	}
@@ -478,7 +505,7 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 // OnAppAbout is called when user click on the info button on the ribbon
-void CRepairCafeCureApp::OnAppAbout()
+void CRepairCafeCureApp::OnAppAbout() noexcept
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();

@@ -28,7 +28,7 @@
 
 /*
 * This file is part of RepairCafeCureApp.
-* File: CReportTaxView.h, implemmnet class CReportTaxView
+* File: CReportTaxView.h, implement class CReportTaxView
 *
 * This class is the view of the generating contribution report for tax.
 * With this view, the user can select a period and generate a report.
@@ -78,7 +78,7 @@ END_MESSAGE_MAP()
 
 /* Override methods */
 
-// DoDataExchange: Exchange and validate dialog data values wtih controls
+// DoDataExchange: Exchange and validate dialog data values with controls
 // @param pDX: A pointer to a CDataExchange object
 void CReportTaxView::DoDataExchange(CDataExchange* pDX)
 {
@@ -108,7 +108,7 @@ void CReportTaxView::OnInitialUpdate()
 }
 
 // PreTranslateMessage: Called before the window message is translated
-// Caputre the Enter key and call the OnBnClickedReportTaxPeriodCreate method
+// Capture the Enter key and call the OnBnClickedReportTaxPeriodCreate method
 // when the button is enabled.
 // @param pMsg: A pointer to a MSG structure
 BOOL CReportTaxView::PreTranslateMessage(MSG* pMsg)
@@ -396,7 +396,7 @@ void CReportTaxView::Dump(CDumpContext& dc) const
 /* message handlers */
 
 // OnFilePrintPreview: Called to show the print preview dialog
-void CReportTaxView::OnFilePrintPreview()
+void CReportTaxView::OnFilePrintPreview() noexcept
 {
 	AFXPrintPreview(this);
 }
@@ -405,7 +405,7 @@ void CReportTaxView::OnFilePrintPreview()
 // Enable the create report button when the start date is less than the end date
 // @param pNMHDR: A pointer to a NMHDR structure
 // @param pResult: A pointer to a LRESULT structure
-void CReportTaxView::OnDtnDateTimeChangeReportTaxPeriod(NMHDR* pNMHDR, LRESULT* pResult)
+void CReportTaxView::OnDtnDateTimeChangeReportTaxPeriod(NMHDR* pNMHDR, LRESULT* pResult) noexcept
 {
 	LPNMDATETIMECHANGE pDTChange = reinterpret_cast<LPNMDATETIMECHANGE>(pNMHDR);
 	UpdateData(TRUE);
@@ -419,7 +419,7 @@ void CReportTaxView::OnDtnDateTimeChangeReportTaxPeriod(NMHDR* pNMHDR, LRESULT* 
 // OnBnClickedReportTaxPeriodCreate: Called when the create report button is clicked
 // Create a report of the contributions in the selected period from the database
 // Display the report in the list control
-void CReportTaxView::OnBnClickedReportTaxPeriodCreate()
+void CReportTaxView::OnBnClickedReportTaxPeriodCreate() noexcept
 {
 	UpdateData(TRUE);
 
@@ -512,11 +512,13 @@ void CReportTaxView::OnBnClickedReportTaxPeriodCreate()
 	theApp.EndWaitCursor();
 }
 
+/* Member methods */
+
 // SetPrinterOrientation: Set the printer orientation
 // @param h: A handle to the printer device
 // @param dc: A pointer to a CDC object
 // @return: A boolean value
-bool CReportTaxView::SetPrinterOrientation(HANDLE h, CDC* dc)
+bool CReportTaxView::SetPrinterOrientation(HANDLE h, CDC* dc) const noexcept
 {
 	DEVMODE* devMode;
 	if (!h) return false;

@@ -81,11 +81,11 @@ namespace artvabas::rcc::ui {
 
 	private:
 		DECLARE_MESSAGE_MAP()
-		afx_msg void OnFilePrintPreview();
-		afx_msg void OnDtnDateTimeChangeReportTaxPeriod(NMHDR* pNMHDR, LRESULT* pResult);
-		afx_msg void OnBnClickedReportTaxPeriodCreate();
+		afx_msg void OnFilePrintPreview() noexcept;
+		afx_msg void OnDtnDateTimeChangeReportTaxPeriod(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+		afx_msg void OnBnClickedReportTaxPeriodCreate() noexcept;
 
 	public:
-		bool SetPrinterOrientation(HANDLE h, CDC* dc = NULL);
+		bool SetPrinterOrientation(HANDLE h, CDC* dc = NULL) const noexcept;
 	};
 }

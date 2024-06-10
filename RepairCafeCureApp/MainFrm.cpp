@@ -315,6 +315,9 @@ void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI) {
 		case VIEW_REPORT_FINANCE_TAX:
 			pCmdUI->Enable(TRUE);
 			break;
+		case VIEW_REPORT_WORKORDER_CLOSED:
+			pCmdUI->Enable(TRUE);
+			break;
 	}
 }
 

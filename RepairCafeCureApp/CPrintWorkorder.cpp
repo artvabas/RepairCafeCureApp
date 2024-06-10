@@ -278,26 +278,35 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 	// Print body text (receipt)
 	pDC->TextOutW(nPosX1, nPosY1, _T("HUISREGELS"));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De activiteiten van NME Repair worden gratis en op vrijwillige basis uitgevoerd door de"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("aanwezige reparatiedeskundigen."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- NME-Repair handelt onder de naam St. NME Regio Alkmaar."));
+	//pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("aanwezige reparatiedeskundigen."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Noch de organisatie van het NME Repair, noch de reparateurs zijn aansprakelijk voor schade"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("als gevolg van verstrekte reparatieadviezen of instructies, voor schade aan de ter reparatie"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("aangeboden voorwerpen, voor gevolgschade of voor andere schade die het gevolg is van"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("activiteiten van het NME Repair."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- Noch de organisatoren van NME-Repair, noch de reparateurs zijn aansprakelijk voor schade"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  als gevolg van verstrekte reparatieadviezen of instructies, voor schade aan de ter reparatie"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  aangeboden voorwerpen, voor gevolgschade of voor andere schade die het gevolg is van"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  activiteiten van het NME - Repair."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Voor het gebruik van nieuwe materialen zoals; snoeren, stekkers, zekeringen, onderdelen, etc,"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("dient apart te worden betaald."));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("Bezoekers die defecte voorwerpen aanbieden ter reparatie, doen dat op eigen risico."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- De reparateurs geven geen garantie op uitgevoerde reparaties en zijn niet aansprakelijk"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  als voorwerpen die zijn gerepareerd, thuis toch niet blijken te functioneren."));
+	//pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("Bezoekers die defecte voorwerpen aanbieden ter reparatie, doen dat op eigen risico."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De reparateurs van het NME Repair behouden zich het recht voor om voorwerpen te weigeren en/of"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("niet te repareren."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- Voor het gebruik van nieuwe materialen zoals snoeren, stekkers, zekeringen, onderdelen, ect."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  dient apart te worden betaald."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De reparateurs van het NME Repair zijn niet verplicht om gedemonteerde voorwerpen die niet"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("gerepareerd kunnen worden, weer te monteren."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- Bezoekers die defecte voorwerpen aanbieden ter reparatie, doen dat geheel op eigen risico."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  NME - Repair is niet aansprakelijk voor verloren zaken; b.v.door brand en / of diefstal."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("De bezoekers van het MNE Repair zijn zelfs verantwoordelijk voor het netjes afvoeren van"));
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("kapotte voorwerpen die niet konden worden gerepareerd."));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- De reparateurs behouden zich het recht voor om bepaalde voorwerpen niet te repareren."));
+	//pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("kapotte voorwerpen die niet konden worden gerepareerd."));
+
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- De reparateurs zijn niet verplicht om gemonteerde apparaten die niet gerepareerd kunnen worden"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  weer in elkaar te zetten."));
+
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- De bezoekers van NME-Repair zijn zelf verantwoordelijk voor het netjes afvoeren van kapotte"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  voorwerpen die niet kunnen worden gerepareerd."));
+
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- Gezien de hoge bankkosten zijn wij genoodzaakt bij het afrekenen van gebruikte materialen"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  € 1,00 administratiekosten in rekening te brengen"));
 
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Een vrijwillige bijdrage wordt op prijs gesteld."));
 
