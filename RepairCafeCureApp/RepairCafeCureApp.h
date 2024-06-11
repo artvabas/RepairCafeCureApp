@@ -36,7 +36,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 05-06-2024, (dd-mm-yyyy)
+* Updated: 11-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -59,6 +59,8 @@ using namespace artvabas::rcc::database;
 enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER, VIEW_REPORT_FINANCE_TAX, VIEW_REPORT_WORKORDER_CLOSED };
 // The workorder status views
 enum WorkorderViewType { VIEW_WORKORDER_OPEN, VIEW_WORKORDER_PROGRESS, VIEW_WORKORDER_REPAIRED };
+// The report tax status
+enum FinanceTaxViewType { VIEW_CONTRIBUTON_REPORT, VIEW_PIN_TRANSACTION_REPORT };
 
 class CRepairCafeCureApp : public CWinAppEx
 {
@@ -75,6 +77,9 @@ private:
 		CView* m_pReportWorkorderClosedView;
 
 		WorkorderViewType m_enuWorkorderViewType;
+		FinanceTaxViewType m_eFinanceTaxViewType;
+
+		bool m_bIsPrintPreview;
 
 public:
 	CRepairCafeCureApp() noexcept;
@@ -93,18 +98,22 @@ private:
 	afx_msg void OnWorkorderViewProgress() noexcept;
 	afx_msg void OnWorkorderViewRepaired() noexcept;
 	afx_msg void OnReportViewFinanceTax() noexcept;
+	afx_msg void OnReportWorkorderPinTransaction() noexcept;
 	afx_msg void OnReportWorkorderClosed() noexcept;
 	afx_msg void OnFilePrintSetup() noexcept;
 
 public:
 	inline CDatabaseConnection* GetDatabaseConnection() const noexcept { return m_dbConnection; }
 	inline WorkorderViewType GetWorkorderViewType() const noexcept { return m_enuWorkorderViewType; }
+	inline FinanceTaxViewType GetFinanceTaxViewType() const noexcept { return m_eFinanceTaxViewType; }
 	CView* SwitchView(ViewType vtView) const noexcept;
 	void SetStatusBarText(UINT nStrID) const noexcept;
 	CString GetSelectedEmployeeName() const noexcept;
 	ViewType GetActiveViewType() const noexcept;
 	void IsIdle() const noexcept;
 	inline HANDLE GetDeviceMode() noexcept { return m_hDevMode ? m_hDevMode : DefineDeviceMode(); }
+	inline bool IsPrintPreview() const noexcept { return m_bIsPrintPreview; }
+	inline void SetPrintPreview(bool bIsPrintPreview) noexcept { m_bIsPrintPreview = bIsPrintPreview; }
 
 private:
 	HANDLE DefineDeviceMode() noexcept;

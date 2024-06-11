@@ -36,7 +36,7 @@ To see the license for this source code, please visit :
 	* Target: Windows 10/11 64bit
 	* Version: 1.0.0.1 (Alpha)
 	* Created: 18-10-2023, (dd-mm-yyyy)
-	* Updated: 28-05-2024, (dd-mm-yyyy)
+	* Updated: 10-06-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* License: GPLv3

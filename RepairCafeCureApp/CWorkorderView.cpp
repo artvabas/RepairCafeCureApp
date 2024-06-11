@@ -38,7 +38,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 04-06-2024, (dd-mm-yyyy)
+* Updated: 11-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -179,7 +179,7 @@ void CWorkorderView::OnInitialUpdate()
 		m_lscWorkorderExisting.InsertColumn(4, _T("CREATION DATE"), LVCFMT_LEFT, 100);
 		m_lscWorkorderExisting.InsertColumn(5, _T("CREATED BY"), LVCFMT_LEFT, 0);
 		m_lscWorkorderExisting.InsertColumn(6, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
-		m_lscWorkorderExisting.InsertColumn(7, _T("RESPOSIBLE"), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(7, _T("RESPOSIBLE"), LVCFMT_LEFT, 200);
 		m_lscWorkorderExisting.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
 		m_lscWorkorderExisting.InsertColumn(9, _T("CLOSED DATE"), LVCFMT_LEFT, 0);
 		m_lscWorkorderExisting.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
