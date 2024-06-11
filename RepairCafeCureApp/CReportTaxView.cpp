@@ -30,14 +30,14 @@
 * This file is part of RepairCafeCureApp.
 * File: CReportTaxView.h, implement class CReportTaxView
 *
-* This class is the view of the generating contribution report for tax.
+* This class is the view for generating contribution and PIN transaction reports for tax uses.
 * With this view, the user can select a period and generate a report.
 * The report is displayed in a list control and can be printed.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 04-06-2024, (dd-mm-yyyy)
+* Updated: 11-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -60,6 +60,7 @@ CReportTaxView::CReportTaxView()
 	, m_cdtStartDate(COleDateTime::GetCurrentTime())
 	, m_cdtEndDate(COleDateTime::GetCurrentTime())
 	, m_strTotalAmountContribution(_T(""))
+	, m_strReportTaxKind(_T(""))
 	, m_ePrinterOrientation(PORTRAIT)
 {}
 
@@ -74,6 +75,7 @@ BEGIN_MESSAGE_MAP(CReportTaxView, CFormView)
 	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_REPORT_TAX_PERIOD_START, &CReportTaxView::OnDtnDateTimeChangeReportTaxPeriod)
 	ON_NOTIFY(DTN_DATETIMECHANGE, IDC_REPORT_TAX_PERIOD_END, &CReportTaxView::OnDtnDateTimeChangeReportTaxPeriod)
 	ON_BN_CLICKED(IDC_REPORT_TAX_PERIOD_CREATE, &CReportTaxView::OnBnClickedReportTaxPeriodCreate)
+	ON_WM_SHOWWINDOW()
 END_MESSAGE_MAP()
 
 /* Override methods */
@@ -88,6 +90,7 @@ void CReportTaxView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_REPORT_TAX_PERIOD_CREATE, m_btnCreateReport);
 	DDX_Control(pDX, IDC_REPORT_TAX_PERIOD_RESULT, m_lstReportResultTax);
 	DDX_Text(pDX, IDC_REPORT_TAX_PERIOD_TOTAL_AMOUNT, m_strTotalAmountContribution);
+	DDX_Text(pDX, IDC_REPORT_TAX_PERIOD_KIND, m_strReportTaxKind);
 }
 
 // OnInitialUpdate: Called after the view is first time created
@@ -97,12 +100,18 @@ void CReportTaxView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 
 	m_lstReportResultTax.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_lstReportResultTax.InsertColumn(0, _T("DATE COMPLETE"), LVCFMT_LEFT, 100);
-	m_lstReportResultTax.InsertColumn(1, _T("WORKORDER ID"), LVCFMT_LEFT, 100);
-	m_lstReportResultTax.InsertColumn(2, _T("SURNAME"), LVCFMT_LEFT, 100);
-	m_lstReportResultTax.InsertColumn(3, _T("PHONE"), LVCFMT_LEFT, 100);
-	m_lstReportResultTax.InsertColumn(4, _T("CELL PHONE"), LVCFMT_LEFT, 100);
-	m_lstReportResultTax.InsertColumn(5, _T("AMOUNT"), LVCFMT_RIGHT, 100);
+
+	if (theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT) {
+		m_lstReportResultTax.InsertColumn(0, _T("DATE COMPLETE"), LVCFMT_LEFT, 100);
+		m_lstReportResultTax.InsertColumn(1, _T("WORKORDER ID"), LVCFMT_LEFT, 100);
+		m_lstReportResultTax.InsertColumn(2, _T("SURNAME"), LVCFMT_LEFT, 100);
+		m_lstReportResultTax.InsertColumn(3, _T("PHONE"), LVCFMT_LEFT, 100);
+		m_lstReportResultTax.InsertColumn(4, _T("CELL PHONE"), LVCFMT_LEFT, 100);
+		m_lstReportResultTax.InsertColumn(5, _T("AMOUNT"), LVCFMT_RIGHT, 100);
+	}
+	else if (theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT) {
+		// TODO
+	}
 
 	m_btnCreateReport.SetTextColor(RGB(255, 0, 0));
 }
@@ -145,6 +154,7 @@ void CReportTaxView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
 // @param pDC: A pointer to a CDC object
 void CReportTaxView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
+	pInfo->m_bPreview ? theApp.SetPrintPreview(true) : theApp.SetPrintPreview(false);
 	CFormView::OnEndPrinting(pDC, pInfo);
 }
 
@@ -268,8 +278,14 @@ void CReportTaxView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	pDC->SelectObject(pFont);
 	pDC->SetTextColor(RGB(255, 255, 255));
 
-	pDC->DrawText(_T("Overzicht vrijwillige bijdrage, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth()]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")),
-		rctHeader, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	if (theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT) {
+		pDC->DrawText(_T("Overzicht vrijwillige bijdrage, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth()]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")),
+			rctHeader, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	}
+	else if (theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT) {
+		pDC->DrawText(_T("Overzicht PIN transacties, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth()]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")),
+			rctHeader, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	}
 	
 	// calculate new start print position
 	nPosY += HeaderTextLineDown(3);
@@ -416,8 +432,36 @@ void CReportTaxView::OnDtnDateTimeChangeReportTaxPeriod(NMHDR* pNMHDR, LRESULT* 
 	*pResult = 0;
 }
 
+// OnShowWindow: Called when the window is shown
+// Initialize the list control and set the extended styl.
+// Because the view is shared, the list control is cleared and the total amount is set to empty.
+// It's shared because the view is used to generate a contribution report or a PIN transaction report.
+// @param bShow: A boolean value to show the window
+// @param nStatus: An unsigned integer value to show the status
+void CReportTaxView::OnShowWindow(BOOL bShow, UINT nStatus) noexcept
+{
+	CFormView::OnShowWindow(bShow, nStatus);
+
+	if ( bShow && !theApp.IsPrintPreview() ) {
+		m_lstReportResultTax.DeleteAllItems();
+		m_strTotalAmountContribution.Empty();
+		m_cdtEndDate = COleDateTime::GetCurrentTime();
+		m_cdtStartDate = COleDateTime::GetCurrentTime();
+		m_btnCreateReport.EnableWindow(FALSE);
+		if (theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT) {
+			m_strReportTaxKind = _T("Contribution Report");
+		}
+		else if (theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT) {
+			m_strReportTaxKind = _T("PIN Transaction Report");
+		}
+		UpdateData(FALSE);
+	}
+
+	// TODO: Add your message handler code here
+}
+
 // OnBnClickedReportTaxPeriodCreate: Called when the create report button is clicked
-// Create a report of the contributions in the selected period from the database
+// Create a report of the contributions or PIN transaction in the selected period from the database
 // Display the report in the list control
 void CReportTaxView::OnBnClickedReportTaxPeriodCreate() noexcept
 {
@@ -432,11 +476,20 @@ void CReportTaxView::OnBnClickedReportTaxPeriodCreate() noexcept
 	theApp.BeginWaitCursor();
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
-	strSqlQuery.Format(_T("SELECT [CONTRIBUTION_CREATEDATE], [CONTRIBUITION_WORKORDER_ID], [CUSTOMER_SURNAME], [CUSTOMER_PHONE], ")
-		_T("[CUSTOMER_CELL_PHONE], [CONTRIBUTION_AMOUNT] FROM [dbo].[CONTRIBUTION], [dbo].[CUSTOMER] ")
-		_T("WHERE ([CONTRIBUTION_CREATEDATE] >= N\'%s\' AND [CONTRIBUTION_CREATEDATE] <= N\'%s\' AND [CUSTOMER_ID] = [CONTRIBUTION_CUSTOMER_ID])"), 
-		static_cast<LPCTSTR>(m_cdtStartDate.Format(_T("%Y-%m-%d"))), 
-		static_cast<LPCTSTR>(m_cdtEndDate.Format(_T("%Y-%m-%d"))));
+	if (theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT) {
+		strSqlQuery.Format(_T("SELECT [CONTRIBUTION_CREATEDATE], [CONTRIBUITION_WORKORDER_ID], [CUSTOMER_SURNAME], [CUSTOMER_PHONE], ")
+			_T("[CUSTOMER_CELL_PHONE], [CONTRIBUTION_AMOUNT] FROM [dbo].[CONTRIBUTION], [dbo].[CUSTOMER] ")
+			_T("WHERE ([CONTRIBUTION_CREATEDATE] >= N\'%s\' AND [CONTRIBUTION_CREATEDATE] <= N\'%s\' AND [CUSTOMER_ID] = [CONTRIBUTION_CUSTOMER_ID])"),
+			static_cast<LPCTSTR>(m_cdtStartDate.Format(_T("%Y-%m-%d"))),
+			static_cast<LPCTSTR>(m_cdtEndDate.Format(_T("%Y-%m-%d"))));
+	}
+	else if (theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT) {
+		strSqlQuery.Format(_T("SELECT [INVOICE_CREATE_DATE], [INVOICE_WORKORDER_ID], [CUSTOMER_SURNAME], [CUSTOMER_PHONE], ")
+			_T("[CUSTOMER_CELL_PHONE], [INVOICE_TOTAL] FROM [dbo].[INVOICE], [dbo].[CUSTOMER] ")
+			_T("WHERE ([INVOICE_CREATE_DATE] >= N\'%s\' AND [INVOICE_CREATE_DATE] <= N\'%s\' AND [CUSTOMER_ID] = [INVOICE_CUSTOMER_ID] AND [INVOICE_PAYMENT_PIN] = 1)"),
+			static_cast<LPCTSTR>(m_cdtStartDate.Format(_T("%Y-%m-%d"))),
+			static_cast<LPCTSTR>(m_cdtEndDate.Format(_T("%Y-%m-%d"))));
+	}
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 

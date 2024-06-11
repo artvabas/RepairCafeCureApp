@@ -30,14 +30,14 @@
 * This file is part of RepairCafeCureApp.
 * File: CReportTaxView.h, defines class CReportTaxView
 *
-* This class is the view of the generating contribution report for tax.
+* This class is the view for generating contribution and PIN transaction reports for tax uses.
 * With this view, the user can select a period and generate a report.
 * The report is displayed in a list control and can be printed.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.1 (alpha)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 04-06-2024, (dd-mm-yyyy)
+* Updated: 11-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -57,6 +57,7 @@ namespace artvabas::rcc::ui {
 		COleDateTime m_cdtEndDate;
 		CMFCButton m_btnCreateReport;
 		CListCtrl m_lstReportResultTax;
+		CString m_strReportTaxKind;
 		CString m_strTotalAmountContribution;
 		PrinterOrientation m_ePrinterOrientation;
 
@@ -84,6 +85,7 @@ namespace artvabas::rcc::ui {
 		afx_msg void OnFilePrintPreview() noexcept;
 		afx_msg void OnDtnDateTimeChangeReportTaxPeriod(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
 		afx_msg void OnBnClickedReportTaxPeriodCreate() noexcept;
+		afx_msg void OnShowWindow(BOOL bShow, UINT nStatus) noexcept;
 
 	public:
 		bool SetPrinterOrientation(HANDLE h, CDC* dc = NULL) const noexcept;

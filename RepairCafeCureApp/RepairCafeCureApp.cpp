@@ -38,7 +38,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.1 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 05-06-2024, (dd-mm-yyyy)
+* Updated: 11-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -92,7 +92,9 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_pReportWorkorderClosedView{ NULL }
 	, m_dbConnection{ new CDatabaseConnection() }
 	, m_enuWorkorderViewType{ VIEW_WORKORDER_OPEN }
+	, m_eFinanceTaxViewType{ VIEW_CONTRIBUTON_REPORT }
 	, m_bIsIdle{ true }
+	, m_bIsPrintPreview{ false }
 {
 	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.1"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
@@ -120,6 +122,7 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_WORKORDER_VIEW_REPAIRED, &CRepairCafeCureApp::OnWorkorderViewRepaired)
 	ON_COMMAND(ID_REPORT_VIEW_FINANCE_TAX, &CRepairCafeCureApp::OnReportViewFinanceTax)
 	ON_COMMAND(ID_REPORT_WORKORDER_CLOSED, &CRepairCafeCureApp::OnReportWorkorderClosed)
+	ON_COMMAND(ID_REPORT_WORKORDER_PINTRANSACTION, &CRepairCafeCureApp::OnReportWorkorderPinTransaction)
 END_MESSAGE_MAP()
 
 /* Overrides  methods */
@@ -308,9 +311,20 @@ void CRepairCafeCureApp::OnWorkorderViewRepaired() noexcept
 
 void CRepairCafeCureApp::OnReportViewFinanceTax() noexcept
 {
+	m_bIsPrintPreview = false;
+	m_eFinanceTaxViewType = VIEW_CONTRIBUTON_REPORT;
 	SwitchView(VIEW_REPORT_FINANCE_TAX);
-	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Tax"));
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Contribution"));
 }
+
+void CRepairCafeCureApp::OnReportWorkorderPinTransaction() noexcept
+{
+	m_bIsPrintPreview = false;
+	m_eFinanceTaxViewType = VIEW_PIN_TRANSACTION_REPORT;
+	SwitchView(VIEW_REPORT_FINANCE_TAX);
+	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Pin Transactions"));
+}
+
 
 void CRepairCafeCureApp::OnReportWorkorderClosed() noexcept
 {
