@@ -676,6 +676,8 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 	pDC->DrawText(_T("Totaal:"), rctTotal, DT_RIGHT | DT_TABSTOP);
 	pDC->DrawText(_T("€") + m_pStructWorkorderData->strWorkorderTotalPartsPrice, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
+	pDC->TextOutW(nPosX, nPosY += BodyTextLineDown(2), _T("• Administratie kosten: Bankkosten t.b.v. uw bestelde onderdeel(en)."));
+
 	// Destroy image
 	imgLogo.Destroy();
 	fontPlainHeader.DeleteObject();

@@ -47,9 +47,11 @@
 #include "pch.h"
 #include "RepairCafeCureApp.h"
 #include "CReportWorkorderClosedView.h"
+#include "CSqlNativeAVB.h"
+#include "DatabaseTables.h"
 
-
-// CReportWorkorderClosedView
+using namespace artvabas::sql;
+using namespace artvabas::database::tables::closedworkorders;
 
 IMPLEMENT_DYNCREATE(CReportWorkorderClosedView, CFormView)
 
@@ -66,6 +68,7 @@ BEGIN_MESSAGE_MAP(CReportWorkorderClosedView, CFormView)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CFormView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CReportWorkorderClosedView::OnFilePrintPreview)
 	ON_NOTIFY(NM_DBLCLK, IDC_WORKORDER_CLOSED_REPORT, &CReportWorkorderClosedView::OnNMDoubleClickWorkorderClosedReport)
+	ON_WM_SHOWWINDOW()
 END_MESSAGE_MAP()
 
 /* Overrode methods */
@@ -85,7 +88,7 @@ void CReportWorkorderClosedView::OnInitialUpdate()
 	m_lstWorkorderClosedReport.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 150);
 	m_lstWorkorderClosedReport.InsertColumn(1, _T("WORKORDER DESCRIPTION"), LVCFMT_LEFT, 150);
 	m_lstWorkorderClosedReport.InsertColumn(2, _T("EMPLOYEE RESPONSIBLE"), LVCFMT_LEFT, 150);
-	m_lstWorkorderClosedReport.InsertColumn(3, _T("WORKORDER DESCRIPTION"), LVCFMT_LEFT, 150);
+	m_lstWorkorderClosedReport.InsertColumn(3, _T("WORKORDER CLOSED DATE"), LVCFMT_LEFT, 150);
 	m_lstWorkorderClosedReport.InsertColumn(4, _T("WORKORDER STATUS"), LVCFMT_LEFT, 150);
 	m_lstWorkorderClosedReport.InsertColumn(5, _T("ASSET ID"), LVCFMT_LEFT, 0);
 	m_lstWorkorderClosedReport.InsertColumn(6, _T("ASSET DESCRIPTION"), LVCFMT_LEFT, 150);
@@ -147,6 +150,93 @@ void CReportWorkorderClosedView::Dump(CDumpContext& dc) const
 void CReportWorkorderClosedView::OnFilePrintPreview() noexcept
 {
 	AFXPrintPreview(this);
+}
+
+void CReportWorkorderClosedView::OnShowWindow(BOOL bShow, UINT nStatus)
+{
+	CFormView::OnShowWindow(bShow, nStatus);
+
+	if ( bShow ) {
+		int nIndex{ 0 };			// Index of the list control item.
+		auto row{ 0 };		// Row of the list control item.
+		CString strBuildQuery{ _T("SELECT [WORKORDER_ID], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_CLOSED_DATE], [WORKORDER_STATUS], ")
+		_T("[WORKORDER_ASSET_ID], [ASSET_DESCRIPTION], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID] ")
+		_T("FROM [dbo].[WORKORDER], [dbo].[ASSET] WHERE ([WORKORDER_STATUS] = N'Closed' AND [ASSET_CUSTOMER_ID] = [WORKORDER_CUSTOMER_ID] ")
+		_T("AND [WORKORDER_ASSET_ID] = [ASSET_ID])") };
+
+		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+		theApp.BeginWaitCursor();
+
+		m_lstWorkorderClosedReport.DeleteAllItems();
+
+		CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
+
+		if (sql.CreateSQLConnection()) {
+
+			SQLCHAR szName[SQLCHARVSMAL]{};
+			SQLLEN cbName{};
+			SQLRETURN retcode{};
+			SQLHSTMT hstmt{ sql.GetStatementHandle() };
+			SQLWCHAR* strQuery{ strBuildQuery.GetBuffer() };
+			strBuildQuery.ReleaseBuffer();
+
+			retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
+
+			if (retcode == SQL_SUCCESS) {
+				while (TRUE) {
+					retcode = SQLFetch(hstmt);
+					if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+						AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+
+						auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
+							if (cbName == SQL_NULL_DATA) {
+								return _T("");
+							}
+							return static_cast<CString>(szName);
+							};
+
+						// Get data for columns 1, employee names
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						nIndex = m_lstWorkorderClosedReport.InsertItem(row++, CheckForNull(szName, cbName));
+
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_lstWorkorderClosedReport.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
+
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_lstWorkorderClosedReport.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
+
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_lstWorkorderClosedReport.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
+
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_lstWorkorderClosedReport.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
+
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_lstWorkorderClosedReport.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
+
+						SQLGetData(hstmt, CLOSED_WORKORDERS.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_lstWorkorderClosedReport.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
+
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_lstWorkorderClosedReport.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
+
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						m_lstWorkorderClosedReport.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
+					}
+					else
+						break;
+				}
+			}
+			if (!sql.CheckReturnCodeForClosing(retcode))
+				theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_FAIL);
+			else
+				theApp.SetStatusBarText(IDS_STATUSBAR_SELECT_OK);
+		}
+		sql.CloseConnection();
+		theApp.EndWaitCursor();
+		UpdateData(FALSE);
+	}
 }
 
 void CReportWorkorderClosedView::OnNMDoubleClickWorkorderClosedReport(NMHDR* pNMHDR, LRESULT* pResult) noexcept

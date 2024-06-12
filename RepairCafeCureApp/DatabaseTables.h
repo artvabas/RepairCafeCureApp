@@ -34,9 +34,9 @@
 * It is used to avoid hardcoding the SQL column indexes in the project
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (Alpha)
+* Version: 1.0.0.1 (Alpha)
 * Created: 25-04-2024, (dd-mm-yyyy)
-* Updated: 28-04-2024, (dd-mm-yyyy)
+* Updated: 12-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -131,5 +131,19 @@ namespace artvabas::database::tables {
 			SQLSMALLINT CUSTOMER_CELL_PHONE{ 5 };
 			SQLSMALLINT CONTRIBUTION_AMOUNT{ 6 };
 		}REPORT_CONTRIBUTION_TAX;
+	}
+
+	namespace closedworkorders {
+		constexpr struct closedworkorders {
+			SQLUSMALLINT WORKORDER_ID{ 1 };
+			SQLUSMALLINT WORKORDER_DESCRIPTION{ 2 };
+			SQLUSMALLINT WORKORDER_RESPONSIBLE{ 3 };
+			SQLUSMALLINT WORKORDER_CLOSED_DATE{ 4 };
+			SQLUSMALLINT WORKORDER_STATUS{ 5 };
+			SQLUSMALLINT WORKORDER_ASSET_ID{ 6 };
+			SQLUSMALLINT ASSET_DESCRIPTION{ 7 };
+			SQLUSMALLINT WORKORDER_CUSTOMER_ID{ 8 };
+			SQLUSMALLINT WORKORDER_INVOICE_ID{ 9 };
+		}CLOSED_WORKORDERS;
 	}
 }

@@ -79,6 +79,7 @@ private:
 private:
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnFilePrintPreview() noexcept;
+	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnNMDoubleClickWorkorderClosedReport(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
 
 public:
