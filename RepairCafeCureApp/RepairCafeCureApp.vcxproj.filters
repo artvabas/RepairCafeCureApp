@@ -153,6 +153,9 @@
     <ClInclude Include="CReportWorkorderClosedView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CClosedWorkorderDetailsTabCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -210,6 +213,9 @@
       <Filter>Source Files\artvabas\rcc\ui</Filter>
     </ClCompile>
     <ClCompile Include="CReportWorkorderClosedView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CClosedWorkorderDetailsTabCtrl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
