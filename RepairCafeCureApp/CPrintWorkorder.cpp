@@ -299,13 +299,13 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- De reparateurs behouden zich het recht voor om bepaalde voorwerpen niet te repareren."));
 	//pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("kapotte voorwerpen die niet konden worden gerepareerd."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- De reparateurs zijn niet verplicht om gemonteerde apparaten die niet gerepareerd kunnen worden"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- De reparateurs zijn niet verplicht om gedemonteerde apparaten die niet gerepareerd kunnen worden"));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  weer in elkaar te zetten."));
 
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- De bezoekers van NME-Repair zijn zelf verantwoordelijk voor het netjes afvoeren van kapotte"));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  voorwerpen die niet kunnen worden gerepareerd."));
 
-	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- Gezien de hoge bankkosten zijn wij genoodzaakt bij het afrekenen van gebruikte materialen"));
+	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("- Gezien de hoge bankkosten zijn wij genoodzaakt bij het afrekenen van bestelde materialen"));
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(1), _T("  € 1,00 administratiekosten in rekening te brengen"));
 
 	pDC->TextOutW(nPosX1, nPosY1 += BodyTextLineDown(2), _T("Een vrijwillige bijdrage wordt op prijs gesteld."));

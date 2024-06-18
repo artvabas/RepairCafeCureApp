@@ -41,7 +41,7 @@
 * This class is also responsible for the communication between the two forms/tabs.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (Alpha)
+* Version: 1.0.0.1 (Alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
 * Updated: 28-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -56,8 +56,8 @@ namespace artvabas::rcc::ui::controls {
 	// Struct for shared data between the two tabs (Asset Details and Workorder)
 	struct AssetDetailsRecords
 	{
-		unsigned int m_nAssetID;
-		unsigned int m_nAssetCustomerID;
+		unsigned int m_nAssetID{ 0 };
+		unsigned int m_nAssetCustomerID{ 0 };
 
 		CString m_strCustomerSurname;
 		CString m_strCustomerName;

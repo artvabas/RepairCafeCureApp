@@ -77,7 +77,7 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 	auto dwTimeNow = GetTickCount64();
 	auto dwTimeIdle = dwTimeNow - lii.dwTime;
 
-	if (dwTimeIdle > static_cast<unsigned long long>(1000 * 60) * 1 && !theApp.m_bIsIdle) {
+	if (dwTimeIdle > static_cast<unsigned long long>(1000 * 60) * 2 && !theApp.m_bIsIdle) {
 		theApp.IsIdle();
 		//isIdle = true;
 		auto result = MessageBoxW(theApp.m_pMainWnd->m_hWnd, _T("Automatically Locked the app!"), _T("Repair Cafe Cure App is Idle"), MB_OK);
@@ -96,7 +96,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_bIsIdle{ true }
 	, m_bIsPrintPreview{ false }
 {
-	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.1"));
+	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.2"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
 }
 

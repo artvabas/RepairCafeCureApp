@@ -40,9 +40,9 @@
 * THis class is also responsible for the communication between the two forms.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (Alpha)
+* Version: 1.0.0.2 (Alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 28-04-2024, (dd-mm-yyyy)
+* Updated: 18-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -57,8 +57,6 @@
 using namespace artvabas::rcc::ui::dialogs;
 
 IMPLEMENT_DYNAMIC(CTabCtrlAssetWorkorder, CTabCtrl)
-
-/* Con-deconstructs */
 
 CTabCtrlAssetWorkorder::CTabCtrlAssetWorkorder(CString& strCustomerSurname, CString& strCustomerName, unsigned int& nCustomerID)
 	: m_nNumberOfTabs{ 2 }
@@ -92,8 +90,9 @@ CTabCtrlAssetWorkorder::CTabCtrlAssetWorkorder(CString& strCustomerSurname, CStr
 
 CTabCtrlAssetWorkorder::~CTabCtrlAssetWorkorder()
 {
-	for ( auto nCount = 0; nCount < m_nNumberOfTabs; nCount++)  {
-		delete m_tabPages[nCount];
+	for ( auto nCount = 0; nCount < m_nNumberOfTabs; nCount++ ) {
+		if ( m_tabPages[nCount] != nullptr )
+			delete m_tabPages[nCount];
 	}
 }
 
@@ -146,9 +145,6 @@ void CTabCtrlAssetWorkorder::Init() noexcept
 {
 	m_tabPages[0]->Create(IDD_ASSET_TAB, this);
 	m_tabPages[1]->Create(IDD_WORKORDER_TAB, this);
-
-	m_tabPages[0]->ShowWindow(SW_SHOW);
-	m_tabPages[1]->ShowWindow(SW_HIDE);
 
 	InsertItem(0, _T("Asset"));
 	InsertItem(1, _T("Workorder"));

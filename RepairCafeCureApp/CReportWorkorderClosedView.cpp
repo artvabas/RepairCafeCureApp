@@ -49,8 +49,10 @@
 #include "CReportWorkorderClosedView.h"
 #include "CSqlNativeAVB.h"
 #include "DatabaseTables.h"
+#include "CClosedWorkorderDetails.h"
 
 using namespace artvabas::sql;
+using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::database::tables::closedworkorders;
 
 IMPLEMENT_DYNCREATE(CReportWorkorderClosedView, CFormView)
@@ -125,9 +127,220 @@ void CReportWorkorderClosedView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 	CFormView::OnEndPrinting(pDC, pInfo);
 }
 
+//
 void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 {
-	// Code here
+	typedef unsigned int pixel;
+	const pixel pixMargin = 100; // 1 inch margin
+	const pixel pixFontHeightHeader = 120;
+	const pixel pixFontHeightBody = 80;
+
+	const wchar_t* wzsMonth[] = { L"januari", L"februari", L"maart", L"april", L"mei",  L"juni",
+								 L"juli", L"augustus", L"september", L"oktober", L"november", L"december" };
+
+	CFont fontBoldHeader;
+	VERIFY(fontBoldHeader.CreateFont(
+		pixFontHeightHeader,      // nHeight
+		0,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_BOLD,				  // nWeight
+		FALSE,                    // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+		_T("Cascadia Mono")));    // lpszFacename
+
+	CFont fontPlainBody;
+	VERIFY(fontPlainBody.CreateFont(
+		pixFontHeightBody,        // nHeight
+		0,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_NORMAL,                // nWeight
+		FALSE,                    // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+		_T("Cascadia Mono")));    // lpszFacename
+
+	CFont fontBoldBody;
+	VERIFY(fontBoldBody.CreateFont(
+		pixFontHeightBody,        // nHeight
+		0,                        // nWidth
+		0,                        // nEscapement
+		0,                        // nOrientation
+		FW_BOLD,		          // nWeight
+		FALSE,                     // bItalic
+		FALSE,                    // bUnderline
+		0,                        // cStrikeOut
+		ANSI_CHARSET,             // nCharSet
+		OUT_DEFAULT_PRECIS,       // nOutPrecision
+		CLIP_DEFAULT_PRECIS,      // nClipPrecision
+		DEFAULT_QUALITY,          // nQuality
+		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
+		_T("Cascadia Mono")));    // lpszFacename
+
+	// Lambda functions for calculating pixels movements
+	auto TotalTabInPixels = [pixMargin](unsigned int nTotalTabs) -> pixel {
+		return pixMargin * nTotalTabs;
+		};
+
+	auto HeaderTextLineDown = [pixFontHeightHeader](unsigned int nTotalLines) -> pixel {
+		return pixFontHeightHeader * nTotalLines;
+		};
+
+	auto BodyTextLineDown = [pixFontHeightBody](unsigned int nTotalLines) -> pixel {
+		return pixFontHeightBody * nTotalLines;
+		};
+
+	// Get printer device resolutions
+	const int nHorRes = pDC->GetDeviceCaps(HORZRES);	// get printable width
+	const int nVerRes = pDC->GetDeviceCaps(VERTRES);	// get printable height
+	const int nLogPixelsX = pDC->GetDeviceCaps(LOGPIXELSX);	// get device resolution along X
+	const int nLogPixelsY = pDC->GetDeviceCaps(LOGPIXELSY);	// get device resolution along Y
+
+	CImage imgLogo;
+	imgLogo.Load(_T("logo.bmp"));
+	CFont* pFont = nullptr;
+	unsigned long middleDocBody = 0UL;
+
+	pDC->m_bPrinting = TRUE;
+	pDC->StartPage();
+
+	// Print border
+	CRect rctBorder(0, 0, nHorRes, nVerRes);
+	rctBorder.DeflateRect(nLogPixelsX / 2, nLogPixelsY / 2);
+	pDC->Draw3dRect(rctBorder, RGB(0, 0, 0), RGB(0, 0, 0));
+
+	/* Common print jobs */
+
+	// Set print start position
+	int nPosX = rctBorder.TopLeft().x + 10;
+	int nPosY = rctBorder.TopLeft().y + 10;
+
+	// Print logo
+	imgLogo.StretchBlt(pDC->m_hDC, nPosX, nPosY, static_cast<int>(imgLogo.GetWidth() * 6.8), static_cast<int>(imgLogo.GetHeight() * 6.8), 0, 0, imgLogo.GetWidth(), imgLogo.GetHeight(), SRCCOPY);
+
+	// Calculate new start print position
+	nPosY += static_cast<int>(imgLogo.GetHeight() * 6.8) + 10;
+
+	// Print header
+	pFont = &fontBoldHeader;
+
+	// Print Header rectangle
+	CRect rctHeader(nPosX + 60, nPosY, nPosX + static_cast<int>(imgLogo.GetWidth() * 6.8) - 60, nPosY + HeaderTextLineDown(2));
+	pDC->FillRect(rctHeader, &CBrush(RGB(0, 102, 255)));
+	pDC->Draw3dRect(rctHeader, RGB(0, 102, 255), RGB(0, 102, 255));
+
+	// Print header text
+	pDC->SelectObject(pFont);
+	pDC->SetTextColor(RGB(255, 255, 255));
+
+
+	pDC->DrawText(_T("Overzicht gesloten werkorders"),	rctHeader, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	
+	// calculate new start print position
+	nPosY += HeaderTextLineDown(3);
+
+	/*
+	* [WORKORDER_ID], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_CLOSED_DATE], [WORKORDER_STATUS], ")
+		_T("[WORKORDER_ASSET_ID], [ASSET_DESCRIPTION], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID]
+	*/
+
+	CRect rctWorkorderID(nPosX, nPosY, nPosX + TotalTabInPixels(4), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctWorkorderID, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	CRect rctWorkorderDescription(rctWorkorderID.right, nPosY, rctWorkorderID.right + TotalTabInPixels(14), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctWorkorderDescription, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	CRect rctWorkorderResponsible(rctWorkorderDescription.right, nPosY, rctWorkorderDescription.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctWorkorderResponsible, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	CRect rctWorkorderCloseDate(rctWorkorderResponsible.right, nPosY, rctWorkorderResponsible.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctWorkorderCloseDate, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	CRect rctWorkorderStatus(rctWorkorderCloseDate.right, nPosY, rctWorkorderCloseDate.right + TotalTabInPixels(4), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctWorkorderStatus, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	CRect rctAssetDescription(rctWorkorderStatus.right, nPosY, rctWorkorderStatus.right + TotalTabInPixels(10), nPosY + BodyTextLineDown(20));
+	pDC->Draw3dRect(rctAssetDescription, RGB(255, 255, 255), RGB(255, 255, 255));
+
+	// Print Table Header
+	pFont = &fontBoldBody;
+	pDC->SelectObject(pFont);
+
+	// print work comment area
+	pFont = &fontBoldBody;
+	pDC->SelectObject(pFont);
+
+	pDC->SetTextColor(RGB(0, 0, 0));
+	pDC->DrawText(_T("Werkorder:"), rctWorkorderID, DT_LEFT | DT_TABSTOP);
+	pDC->DrawText(_T("Defect:"), rctWorkorderDescription, DT_LEFT | DT_TABSTOP);
+	pDC->DrawText(_T("Technicus:"), rctWorkorderResponsible, DT_LEFT | DT_TABSTOP);
+	pDC->DrawText(_T("Datum:"), rctWorkorderCloseDate, DT_LEFT | DT_TABSTOP);
+	pDC->DrawText(_T("Status:"), rctWorkorderStatus, DT_LEFT | DT_TABSTOP);
+	pDC->DrawText(_T("Apparaat:"), rctAssetDescription, DT_LEFT | DT_TABSTOP);
+
+	// Print Table Body
+	pFont = &fontPlainBody;
+	pDC->SelectObject(pFont);
+
+	// Print body text
+	nPosY += BodyTextLineDown(1);
+
+	// Print table body
+	for (int i = 0; i < m_lstWorkorderClosedReport.GetItemCount(); i++) {
+		CString strWorkorderID = m_lstWorkorderClosedReport.GetItemText(i, 0);
+		CString strWorkorderDescription = m_lstWorkorderClosedReport.GetItemText(i, 1);
+		CString strWorkorderResponsible = m_lstWorkorderClosedReport.GetItemText(i, 2);
+		CString strWorkorderCloseDate = m_lstWorkorderClosedReport.GetItemText(i, 3);
+		CString strWorkorderStatus = m_lstWorkorderClosedReport.GetItemText(i, 4);
+		CString strAssetDescription = m_lstWorkorderClosedReport.GetItemText(i, 6);
+
+		CRect rctWorkorderID(nPosX, nPosY, nPosX + TotalTabInPixels(4), nPosY + BodyTextLineDown(1));
+		pDC->DrawText(strWorkorderID, rctWorkorderID, DT_LEFT | DT_TABSTOP);
+
+		CRect rctWorkorderDescription(rctWorkorderID.right, nPosY, rctWorkorderID.right + TotalTabInPixels(14), nPosY + BodyTextLineDown(1));
+		pDC->DrawText(strWorkorderDescription, rctWorkorderDescription, DT_LEFT | DT_TABSTOP);
+
+		CRect rctWorkorderResponsible(rctWorkorderDescription.right, nPosY, rctWorkorderDescription.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(1));
+		pDC->DrawText(strWorkorderResponsible, rctWorkorderResponsible, DT_LEFT | DT_TABSTOP);
+
+		CRect rctWorkorderCloseDate(rctWorkorderResponsible.right, nPosY, rctWorkorderResponsible.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(1));
+		pDC->DrawText(strWorkorderCloseDate, rctWorkorderCloseDate, DT_LEFT | DT_TABSTOP);
+
+		CRect rctWorkorderStatus(rctWorkorderCloseDate.right, nPosY, rctWorkorderCloseDate.right + TotalTabInPixels(4), nPosY + BodyTextLineDown(1));
+		pDC->DrawText(strWorkorderStatus, rctWorkorderStatus, DT_LEFT | DT_TABSTOP);
+
+		CRect rctAssetDescription(rctWorkorderStatus.right, nPosY, rctWorkorderStatus.right + TotalTabInPixels(10), nPosY + BodyTextLineDown(1));
+		pDC->DrawText(strAssetDescription, rctAssetDescription, DT_LEFT | DT_TABSTOP);
+
+		nPosY += BodyTextLineDown(1);
+	}
+
+	// Print footer
+	nPosY += BodyTextLineDown(1);
+	pFont = &fontPlainBody;
+	pDC->SelectObject(pFont);
+	COleDateTime cdtNow = COleDateTime::GetCurrentTime();
+
+	pDC->TextOutW(nPosX, nPosY, _T("Dit overzicht is gegenereerd door Repair Cafe CureApp op ") + cdtNow.Format(_T("%d-%m-%Y")));
+
+	// Destroy image
+	imgLogo.Destroy();
+	fontBoldHeader.DeleteObject();
+	fontPlainBody.DeleteObject();
+	fontBoldBody.DeleteObject();
+
 	CFormView::OnPrint(pDC, pInfo);
 }
 
@@ -243,6 +456,12 @@ void CReportWorkorderClosedView::OnNMDoubleClickWorkorderClosedReport(NMHDR* pNM
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	// TODO: Add your control notification handler code here
+	unsigned int nWorkorderID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 0));
+	unsigned int nAssetID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 5));
+	unsigned int nCustomerID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 7));
+	unsigned int nInvoiceID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 8));
+	CClosedWorkorderDetails dlg(nWorkorderID, nAssetID, nCustomerID, nInvoiceID);
+	dlg.DoModal();
 	*pResult = 0;
 }
 /* Member methods */

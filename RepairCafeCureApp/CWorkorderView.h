@@ -36,17 +36,17 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.2 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 11-06-2024, (dd-mm-yyyy)
+* Updated: 17-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
 */
 
 #pragma once
-namespace artvabas::rcc::ui
-{
+//namespace artvabas::rcc::ui
+//{
 	class CWorkorderView : public CFormView
 	{
 		DECLARE_DYNCREATE(CWorkorderView)
@@ -86,14 +86,18 @@ namespace artvabas::rcc::ui
 		CString m_strWorkorderTotalPartsPrice;
 
 		CEdit m_edtWorkorderNewLog;
+		CEdit m_edcAssetDescription;
+		CEdit m_edcAssetModelNumber;
+		CEdit m_edcAssetBrand;
 
 		CButton m_chbWorkorderAssetDisposed;
 		CButton m_chbWorkorderContactedCustomer;
-		
+
 		CMFCButton m_btnWorkorderUpdate;
 		CMFCButton m_btnWorkorderFinished;
 		CMFCButton m_btnWorkorderClose;
 		CMFCButton m_btnWorkorderParts;
+		CMFCButton m_btnWorkorderAssetUpdate;
 
 		CComboBox m_cbxWorkorderEmployeeResponsible;
 
@@ -124,11 +128,13 @@ namespace artvabas::rcc::ui
 		afx_msg void OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
 		afx_msg void OnCbnSelectChangeWorkorderViewResponsible() noexcept;
 		afx_msg void OnEnChangeWorkorderViewLog() noexcept;
+		afx_msg void OnEnChangeWorkorderViewAsset() noexcept;
 		afx_msg void OnBnClickedWorkorderViewUpdate() noexcept;
 		afx_msg void OnBnClickedWorkorderVewCustomerContactedCustomer() noexcept;
 		afx_msg void OnBnClickedWorkorderViewFinished() noexcept;
 		afx_msg void OnBnClickedWorkorderViewClose();
 		afx_msg void OnBnClickedWorkorderViewAssetDisposed() noexcept;
+		afx_msg void OnBnClickedWorkorderViewAssetDetailsUpdate() noexcept;
 		afx_msg void OnBnClickedWorkorderViewParts() noexcept;
 		afx_msg void OnFilePrintPreview() noexcept;
 		afx_msg void OnWorkorderExtraCombi() noexcept;
@@ -146,5 +152,5 @@ namespace artvabas::rcc::ui
 		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) noexcept;
 	public:
 		bool SetPrinterOrientation(HANDLE h, CDC* dc = NULL);
-	};
-}
+};
+//}
