@@ -36,9 +36,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.2 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 11-06-2024, (dd-mm-yyyy)
+* Updated: 17-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -72,7 +72,7 @@ CWorkorderView::CWorkorderView() noexcept
 	, m_bPrintCombi{ false }
 	, m_bPrintInvoice{ false }
 	, m_bPinTransaction{ false }
-	, m_ePrinterOrientation{ PrinterOrientation::LANDSCAPE }
+	, m_ePrinterOrientation{ LANDSCAPE }
 	, m_unWorkorderId{ 0 }
 	, m_strCustomerSurname{ _T("") }
 	, m_strCustomerName{ _T("") }
@@ -109,12 +109,20 @@ BEGIN_MESSAGE_MAP(CWorkorderView, CFormView)
 		&CWorkorderView::OnBnClickedWorkorderViewUpdate)
 	ON_EN_CHANGE(IDC_WORKORDERVIEW_LOG,
 		&CWorkorderView::OnEnChangeWorkorderViewLog)
+	ON_EN_CHANGE(IDC_WORKORDERVIEW_ASSET_DESCRIPTION, 
+		&CWorkorderView::OnEnChangeWorkorderViewAsset)
+	ON_EN_CHANGE(IDC_WORKORDERVIEW_ASSET_MODEL_NUMBER, 
+		&CWorkorderView::OnEnChangeWorkorderViewAsset)
+	ON_EN_CHANGE(IDC_WORKORDERVIEW_ASSET_BRAND, 
+		&CWorkorderView::OnEnChangeWorkorderViewAsset)
 	ON_BN_CLICKED(IDC_WORKORDERVIEW_CUSTOMER_CONTACTED_CUSTOMER,
 		&CWorkorderView::OnBnClickedWorkorderVewCustomerContactedCustomer)
 	ON_BN_CLICKED(IDC_WORKORDERVIEW_FINISHED,
 		&CWorkorderView::OnBnClickedWorkorderViewFinished)
 	ON_BN_CLICKED(IDC_WORKORDERVIEW_ASSET_DISPOSED,
 		&CWorkorderView::OnBnClickedWorkorderViewAssetDisposed)
+	ON_BN_CLICKED(IDC_WORKORDERVIEW_ASSETDETAILS_UPDATE, 
+		&CWorkorderView::OnBnClickedWorkorderViewAssetDetailsUpdate)
 	ON_BN_CLICKED(IDC_WORKORDERVIEW_PARTS,
 		&CWorkorderView::OnBnClickedWorkorderViewParts)
 	ON_COMMAND(ID_FILE_PRINT,
@@ -164,6 +172,10 @@ void CWorkorderView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_WORKORDERVIEW_LOG, m_edtWorkorderNewLog);
 	DDX_Text(pDX, IDC_WORKORDERVIEW_TOTAL_PRICE, m_strWorkorderTotalPartsPrice);
 	DDX_Control(pDX, IDC_WORKORDERVIEW_CLOSE, m_btnWorkorderClose);
+	DDX_Control(pDX, IDC_WORKORDERVIEW_ASSETDETAILS_UPDATE, m_btnWorkorderAssetUpdate);
+	DDX_Control(pDX, IDC_WORKORDERVIEW_ASSET_DESCRIPTION, m_edcAssetDescription);
+	DDX_Control(pDX, IDC_WORKORDERVIEW_ASSET_MODEL_NUMBER, m_edcAssetModelNumber);
+	DDX_Control(pDX, IDC_WORKORDERVIEW_ASSET_BRAND, m_edcAssetBrand);
 }
 
 // OnInitialUpdate is called by the framework when the view is first activated.
@@ -179,7 +191,7 @@ void CWorkorderView::OnInitialUpdate()
 		m_lscWorkorderExisting.InsertColumn(4, _T("CREATION DATE"), LVCFMT_LEFT, 100);
 		m_lscWorkorderExisting.InsertColumn(5, _T("CREATED BY"), LVCFMT_LEFT, 0);
 		m_lscWorkorderExisting.InsertColumn(6, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
-		m_lscWorkorderExisting.InsertColumn(7, _T("RESPOSIBLE"), LVCFMT_LEFT, 200);
+		m_lscWorkorderExisting.InsertColumn(7, _T("RESPONSIBLE"), LVCFMT_LEFT, 200);
 		m_lscWorkorderExisting.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
 		m_lscWorkorderExisting.InsertColumn(9, _T("CLOSED DATE"), LVCFMT_LEFT, 0);
 		m_lscWorkorderExisting.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
@@ -325,6 +337,7 @@ void CWorkorderView::Dump(CDumpContext& dc) const { CFormView::Dump(dc); }
 // OnFilePrintPreview is called by the framework when the user clicks on the print preview button.
 void CWorkorderView::OnFilePrintPreview() noexcept
 {
+	m_ePrinterOrientation = LANDSCAPE;
 	AFXPrintPreview(this);
 }
 
@@ -410,6 +423,10 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				break;
 			case VIEW_WORKORDER_PROGRESS:
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
+				m_edcAssetDescription.SetReadOnly(FALSE);
+				m_edcAssetModelNumber.SetReadOnly(FALSE);
+				m_edcAssetBrand.SetReadOnly(FALSE);
+				m_btnWorkorderAssetUpdate.EnableWindow(FALSE);
 				m_btnWorkorderParts.EnableWindow(TRUE);
 				m_chbWorkorderAssetDisposed.EnableWindow(TRUE);
 				m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
@@ -510,11 +527,82 @@ void CWorkorderView::OnEnChangeWorkorderViewLog() noexcept
 	UpdateData(FALSE);
 }
 
+// OnEnChangeWorkorderViewAsset is called by the framework when the user changes the asset description edit control.
+// This method is used to enable and disable controls depending on the state of the form.
+void CWorkorderView::OnEnChangeWorkorderViewAsset() noexcept
+{
+	UpdateData(TRUE);
+	m_edtWorkorderNewLog.EnableWindow(FALSE);
+	m_btnWorkorderParts.EnableWindow(FALSE);
+	m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
+	m_chbWorkorderContactedCustomer.EnableWindow(FALSE);
+	m_btnWorkorderUpdate.EnableWindow(FALSE);
+	m_cbxWorkorderEmployeeResponsible.EnableWindow(FALSE);
+	m_lscWorkorderExisting.EnableWindow(FALSE);
+	m_lscWorkorderSpareParts.EnableWindow(FALSE);
+
+	if (m_strAssetDescription.IsEmpty()) m_btnWorkorderAssetUpdate.EnableWindow(FALSE);
+	else {
+		m_btnWorkorderAssetUpdate.EnableWindow(TRUE);
+		SetCustomFocusButton(&m_btnWorkorderAssetUpdate, RED, false);
+	}
+}
+
 // OnBnClickedWorkorderViewAssetDisposed is called by the framework when the user clicks on the asset disposed check box.
 // This method is used to enable and disable controls depending on the state of the form.
 void CWorkorderView::OnBnClickedWorkorderViewAssetDisposed() noexcept
 {
 	SetControlsAfterChangeContactedOrDisposed();
+}
+
+// OnBnClickedWorkorderViewAssetDetailsUpdate is called by the framework when the user clicks on the asset details update button.
+// This method is used to update the asset information in the database.
+void CWorkorderView::OnBnClickedWorkorderViewAssetDetailsUpdate() noexcept
+{
+	UpdateData(TRUE);
+	CString strQuery;
+	auto nAssetID  = _wtoi(m_lscWorkorderExisting.GetItemText(m_lscWorkorderExisting.GetSelectionMark(), 1));
+
+	auto buildFieldValue = [](CString str) -> CString {
+		CString strResult;
+		if (str.IsEmpty()) return _T("NULL");
+		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
+		return strResult;
+		};
+
+	strQuery.Format(_T("UPDATE ASSET SET ASSET_DESCRIPTION = %s, ASSET_MODEL_NUMBER = %s,")
+		_T("ASSET_BRAND = %s WHERE ASSET_ID = %d"),
+		static_cast<LPCTSTR>(buildFieldValue(m_strAssetDescription)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strAssetModelNumber)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strAssetBrand)),
+		nAssetID);
+
+	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
+	theApp.BeginWaitCursor();
+
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
+
+	if (sql.CreateSQLConnection()) {
+
+		if (!sql.ExecuteQuery(strQuery.GetBuffer()))
+			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_FAIL);
+		else {
+			m_edtWorkorderNewLog.EnableWindow(TRUE);
+			m_btnWorkorderParts.EnableWindow(TRUE);
+			m_chbWorkorderAssetDisposed.EnableWindow(TRUE);
+			m_chbWorkorderContactedCustomer.EnableWindow(TRUE);
+			m_btnWorkorderAssetUpdate.EnableWindow(FALSE);
+			m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
+			m_lscWorkorderExisting.EnableWindow(TRUE);
+			m_lscWorkorderSpareParts.EnableWindow(TRUE);
+			OnEnChangeWorkorderViewLog();
+			theApp.SetStatusBarText(IDS_STATUSBAR_UPDATE_OK);
+		}
+		strQuery.ReleaseBuffer();
+	}
+
+	sql.CloseConnection();
+	theApp.EndWaitCursor();
 }
 
 // OnBnClickedWorkorderVewCustomerContactedCustomer is called by the framework when the user clicks on the contacted customer check box.
@@ -579,7 +667,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 
 			auto buildFieldValue = [](CString str) -> CString {
 				CString strResult;
-				if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
+				if (str.IsEmpty()) return _T("NULL");
 				strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 				return strResult;
 			};
@@ -592,7 +680,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 						_T("[CONTRIBUTION_CREATEDATE], [CONTRIBUTION_AMOUNT]) VALUES(%d, %d, %s, %f)"),
 						invoiceData.unCustomerID,
 						invoiceData.unWorkOrderID,
-						buildFieldValue(strCurDate),
+						static_cast<LPCTSTR>(buildFieldValue(strCurDate)),
 						contributionData.dContribution);
 					theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 				
@@ -611,7 +699,7 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 						invoiceData.unCustomerID,
 						invoiceData.unAssetID,
 						invoiceData.unWorkOrderID,
-						buildFieldValue(strCurDate),
+						static_cast<LPCTSTR>(buildFieldValue(strCurDate)),
 						contributionData.bPaymentWithPin ? 1 : 0,
 						dTotal);
 					theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
@@ -1193,17 +1281,17 @@ void CWorkorderView::PerformWorkorderUpdate() {
 
 	auto buildFieldValue = [](CString str) -> CString {
 		CString strResult;
-		if (str.IsEmpty()) return static_cast<LPCTSTR>(_T("NULL"));
+		if (str.IsEmpty()) return _T("NULL");
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 		return strResult;
 	};
 
 	strQuery.Format(_T("UPDATE WORKORDER SET WORKORDER_RESPONSIBLE = %s, WORKORDER_STATUS = %s,")
 		_T("WORKORDER_CLOSED_DATE = %s, WORKORDER_HISTORY = %s WHERE WORKORDER_ID = %d"),
-		buildFieldValue(strEmployee),
-		buildFieldValue(m_strWorkorderStatus),
-		buildFieldValue(m_strWorkorderClosedDate),
-		buildFieldValue(m_strWorkorderHistoryLog),
+		static_cast<LPCTSTR>(buildFieldValue(strEmployee)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderStatus)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderClosedDate)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderHistoryLog)),
 		m_unWorkorderId);
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
@@ -1281,8 +1369,13 @@ void CWorkorderView::ResetAllControls() noexcept
 	m_btnWorkorderFinished.EnableWindow(FALSE);
 	m_btnWorkorderClose.EnableWindow(FALSE);
 	m_btnWorkorderParts.EnableWindow(FALSE);
+	m_btnWorkorderAssetUpdate.EnableWindow(FALSE);
 	m_chbWorkorderAssetDisposed.EnableWindow(FALSE);
 	m_chbWorkorderContactedCustomer.EnableWindow(FALSE);
+
+	m_edcAssetDescription.SetReadOnly(TRUE);
+	m_edcAssetModelNumber.SetReadOnly(TRUE);
+	m_edcAssetBrand.SetReadOnly(TRUE);
 
 	UpdateData(FALSE);
 	InitWorkorderExistingList();

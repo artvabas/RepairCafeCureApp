@@ -193,7 +193,12 @@
   <ItemGroup>
     <ClInclude Include="CAssetDialog.h" />
     <ClInclude Include="CAssetTab.h" />
+    <ClInclude Include="CClosedWorkorderAssetDetailsTab.h" />
+    <ClInclude Include="CClosedWorkorderCustomerDetailsTab.h" />
+    <ClInclude Include="CClosedWorkOrderDetailsTab.h" />
+    <ClInclude Include="CClosedWorkorderDetails.h" />
     <ClInclude Include="CClosedWorkorderDetailsTabCtrl.h" />
+    <ClInclude Include="CClosedWorkorderInvoiceDetailsTab.h" />
     <ClInclude Include="CContributionPaymentDialog.h" />
     <ClInclude Include="CCustomerView.h" />
     <ClInclude Include="CDatabaseConnection.h" />
@@ -220,7 +225,12 @@
   <ItemGroup>
     <ClCompile Include="CAssetDialog.cpp" />
     <ClCompile Include="CAssetTab.cpp" />
+    <ClCompile Include="CClosedWorkorderAssetDetailsTab.cpp" />
+    <ClCompile Include="CClosedWorkorderCustomerDetailsTab.cpp" />
+    <ClCompile Include="CClosedWorkOrderDetailsTab.cpp" />
+    <ClCompile Include="CClosedWorkorderDetails.cpp" />
     <ClCompile Include="CClosedWorkorderDetailsTabCtrl.cpp" />
+    <ClCompile Include="CClosedWorkorderInvoiceDetailsTab.cpp" />
     <ClCompile Include="CContributionPaymentDialog.cpp" />
     <ClCompile Include="CCustomerView.cpp" />
     <ClCompile Include="CDatabaseConnection.cpp" />

@@ -153,8 +153,23 @@
     <ClInclude Include="CReportWorkorderClosedView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CClosedWorkorderDetails.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
+    </ClInclude>
     <ClInclude Include="CClosedWorkorderDetailsTabCtrl.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\artvabas\rcc\ui\controls</Filter>
+    </ClInclude>
+    <ClInclude Include="CClosedWorkOrderDetailsTab.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CClosedWorkorderAssetDetailsTab.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CClosedWorkorderCustomerDetailsTab.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CClosedWorkorderInvoiceDetailsTab.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -215,8 +230,23 @@
     <ClCompile Include="CReportWorkorderClosedView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CClosedWorkorderDetails.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
+    </ClCompile>
     <ClCompile Include="CClosedWorkorderDetailsTabCtrl.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\artvabas\rcc\ui\controls</Filter>
+    </ClCompile>
+    <ClCompile Include="CClosedWorkOrderDetailsTab.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CClosedWorkorderAssetDetailsTab.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CClosedWorkorderCustomerDetailsTab.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CClosedWorkorderInvoiceDetailsTab.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
