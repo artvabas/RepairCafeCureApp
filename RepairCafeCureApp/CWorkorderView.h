@@ -45,8 +45,8 @@
 */
 
 #pragma once
-//namespace artvabas::rcc::ui
-//{
+namespace artvabas::rcc::ui
+{
 	class CWorkorderView : public CFormView
 	{
 		DECLARE_DYNCREATE(CWorkorderView)
@@ -152,5 +152,5 @@
 		void SetCustomFocusButton(CMFCButton* pButton, ColorButton Color, bool bFocus) noexcept;
 	public:
 		bool SetPrinterOrientation(HANDLE h, CDC* dc = NULL);
-};
-//}
+	};
+} // namespace artvabas::rcc::ui

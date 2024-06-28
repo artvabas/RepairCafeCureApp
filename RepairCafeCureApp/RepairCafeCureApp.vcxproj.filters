@@ -150,9 +150,6 @@
     <ClInclude Include="CReportTaxView.h">
       <Filter>Header Files\artvabas\rcc\ui</Filter>
     </ClInclude>
-    <ClInclude Include="CReportWorkorderClosedView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CClosedWorkorderDetails.h">
       <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
     </ClInclude>
@@ -170,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="CClosedWorkorderInvoiceDetailsTab.h">
       <Filter>Header Files\artvabas\rcc\ui\dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CReportWorkorderClosedView.h">
+      <Filter>Header Files\artvabas\rcc\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -227,9 +227,6 @@
     <ClCompile Include="CReportTaxView.cpp">
       <Filter>Source Files\artvabas\rcc\ui</Filter>
     </ClCompile>
-    <ClCompile Include="CReportWorkorderClosedView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CClosedWorkorderDetails.cpp">
       <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
     </ClCompile>
@@ -247,6 +244,9 @@
     </ClCompile>
     <ClCompile Include="CClosedWorkorderInvoiceDetailsTab.cpp">
       <Filter>Source Files\artvabas\rcc\ui\dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="CReportWorkorderClosedView.cpp">
+      <Filter>Source Files\artvabas\rcc\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

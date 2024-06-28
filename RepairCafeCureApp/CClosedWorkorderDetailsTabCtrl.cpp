@@ -36,9 +36,9 @@
 * The asset details tab contains the asset details form, the workorder tab contains the workorder form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.2 (Alpha)
+* Version: 1.0.0.3 (Alpha)
 * Created: 17-06-2024, (dd-mm-yyyy)
-* Updated: 17-06-2024, (dd-mm-yyyy)
+* Updated: 28-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -53,6 +53,7 @@
 #include "CClosedWorkorderInvoiceDetailsTab.h"
 #include "CClosedWorkorderCustomerDetailsTab.h"
 
+using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::rcc::ui::controls;
 
 IMPLEMENT_DYNAMIC(CClosedWorkorderDetailsTabCtrl, CTabCtrl)

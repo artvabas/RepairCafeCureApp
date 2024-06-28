@@ -35,9 +35,9 @@
 * which is the view of the CListCtrl created on the closed workorder details dialog
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.2 (Alpha)
+* Version: 1.0.0.3 (Alpha)
 * Created: 17-06-2024, (dd-mm-yyyy)
-* Updated: 18-06-2024, (dd-mm-yyyy)
+* Updated: 28-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
