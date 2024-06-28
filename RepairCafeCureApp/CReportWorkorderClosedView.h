@@ -35,9 +35,9 @@
 * jump into the close workorder to see the details with a option to print them.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.3 (alpha)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 11-06-2024, (dd-mm-yyyy)
+* Updated: 28-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -45,43 +45,44 @@
 */
 
 #pragma once
-
-class CReportWorkorderClosedView : public CFormView
+namespace artvabas::rcc::ui
 {
-	DECLARE_DYNCREATE(CReportWorkorderClosedView)
+	class CReportWorkorderClosedView : public CFormView
+	{
+		DECLARE_DYNCREATE(CReportWorkorderClosedView)
 #ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_REPORT_WORKOREER_CLOSED_FORM };
+		enum { IDD = IDD_REPORT_WORKOREER_CLOSED_FORM };
 #endif
 
-private:
-	PrinterOrientation m_ePrinterOrientation;
-	CListCtrl m_lstWorkorderClosedReport;
+	private:
+		PrinterOrientation m_ePrinterOrientation;
+		CListCtrl m_lstWorkorderClosedReport;
 
-public:
-	CReportWorkorderClosedView();           // protected constructor used by dynamic creation
-	virtual ~CReportWorkorderClosedView();
+	public:
+		CReportWorkorderClosedView();
+		virtual ~CReportWorkorderClosedView();
 
-private:
-	void DoDataExchange(CDataExchange* pDX) override;
-	void OnInitialUpdate() override;
-	BOOL PreTranslateMessage(MSG* pMsg) override;
-	BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
-	void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
-	void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
-	void OnPrint(CDC* pDC, CPrintInfo* pInfo) override;
+	private:
+		void DoDataExchange(CDataExchange* pDX) override;
+		void OnInitialUpdate() override;
+		BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
+		void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
+		void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
+		void OnPrint(CDC* pDC, CPrintInfo* pInfo) override;
 #ifdef _DEBUG
-	void AssertValid() const override;
+		void AssertValid() const override;
 #ifndef _WIN32_WCE
-	void Dump(CDumpContext& dc) const override;
+		void Dump(CDumpContext& dc) const override;
 #endif
 #endif
-	
-private:
-	DECLARE_MESSAGE_MAP()
-	afx_msg void OnFilePrintPreview() noexcept;
-	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
-	afx_msg void OnNMDoubleClickWorkorderClosedReport(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
 
-public:
-	bool SetPrinterOrientation(HANDLE h, CDC* dc = NULL) const  noexcept;
-};
+	private:
+		DECLARE_MESSAGE_MAP()
+		afx_msg void OnFilePrintPreview() noexcept;
+		afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+		afx_msg void OnNMDoubleClickWorkorderClosedReport(NMHDR* pNMHDR, LRESULT* pResult) noexcept;
+
+	public:
+		bool SetPrinterOrientation(HANDLE h, CDC* dc = NULL) const  noexcept;
+	};
+} // namespace artvabas::rcc::ui

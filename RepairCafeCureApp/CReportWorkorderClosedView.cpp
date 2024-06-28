@@ -35,9 +35,9 @@
 * jump into the close workorder to see the details with a option to print them.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.3 (alpha)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 11-06-2024, (dd-mm-yyyy)
+* Updated: 28s-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -51,6 +51,7 @@
 #include "DatabaseTables.h"
 #include "CClosedWorkorderDetails.h"
 
+using namespace artvabas::rcc::ui;
 using namespace artvabas::sql;
 using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::database::tables::closedworkorders;
@@ -65,6 +66,7 @@ CReportWorkorderClosedView::CReportWorkorderClosedView()
 CReportWorkorderClosedView::~CReportWorkorderClosedView()
 {}
 
+// For handlling application messages
 BEGIN_MESSAGE_MAP(CReportWorkorderClosedView, CFormView)
 	ON_COMMAND(ID_FILE_PRINT, &CFormView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CFormView::OnFilePrint)
@@ -75,12 +77,16 @@ END_MESSAGE_MAP()
 
 /* Overrode methods */
 
+// For handling data exchange between the controls and their variables
+// - pDX: A pointer to a CDataExchange object
 void CReportWorkorderClosedView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_WORKORDER_CLOSED_REPORT, m_lstWorkorderClosedReport);
 }
 
+// For handling the view's initial update
+// - This method is called after the view is first attached to the document
 void CReportWorkorderClosedView::OnInitialUpdate()
 {
 	CFormView::OnInitialUpdate();
@@ -98,36 +104,26 @@ void CReportWorkorderClosedView::OnInitialUpdate()
 	m_lstWorkorderClosedReport.InsertColumn(8, _T("INVOICE ID"), LVCFMT_LEFT, 0);
 }
 
-BOOL CReportWorkorderClosedView::PreTranslateMessage(MSG* pMsg)
-{
-	if (pMsg->message == WM_KEYDOWN) {
-		if (pMsg->wParam == VK_RETURN) {
-			return TRUE;
-		}
-		else if (pMsg->wParam == VK_ESCAPE) {
-			return TRUE;
-		}
-	}
-	return CFormView::PreTranslateMessage(pMsg);
-}
-
+// Is called before printing, for preparing the print job
 BOOL CReportWorkorderClosedView::OnPreparePrinting(CPrintInfo* pInfo)
 {
 	return DoPreparePrinting(pInfo);
 }
 
+// Is called just before printing for setting the printer settings
 void CReportWorkorderClosedView::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
 	SetPrinterOrientation(theApp.GetDeviceMode(), pDC);
 	CFormView::OnBeginPrinting(pDC, pInfo);
 }
 
+// Is called after printing for cleaning up
 void CReportWorkorderClosedView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 {
 	CFormView::OnEndPrinting(pDC, pInfo);
 }
 
-//
+// Is called for printing the view
 void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 {
 	typedef unsigned int pixel;
@@ -251,11 +247,6 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	// calculate new start print position
 	nPosY += HeaderTextLineDown(3);
 
-	/*
-	* [WORKORDER_ID], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_CLOSED_DATE], [WORKORDER_STATUS], ")
-		_T("[WORKORDER_ASSET_ID], [ASSET_DESCRIPTION], [WORKORDER_CUSTOMER_ID], [WORKORDER_INVOICE_ID]
-	*/
-
 	CRect rctWorkorderID(nPosX, nPosY, nPosX + TotalTabInPixels(4), nPosY + BodyTextLineDown(20));
 	pDC->Draw3dRect(rctWorkorderID, RGB(255, 255, 255), RGB(255, 255, 255));
 
@@ -344,12 +335,13 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	CFormView::OnPrint(pDC, pInfo);
 }
 
+// For validating the view
 #ifdef _DEBUG
 void CReportWorkorderClosedView::AssertValid() const
 {
 	CFormView::AssertValid();
 }
-
+// For dumping the view
 #ifndef _WIN32_WCE
 void CReportWorkorderClosedView::Dump(CDumpContext& dc) const
 {
@@ -360,11 +352,15 @@ void CReportWorkorderClosedView::Dump(CDumpContext& dc) const
 
 /* Message map methods */
 
+// For showing the print preview
 void CReportWorkorderClosedView::OnFilePrintPreview() noexcept
 {
 	AFXPrintPreview(this);
 }
 
+// Is called when the view is shown, for loading the data and showing it in the list control
+// - bShow: A flag that indicates if the view is shown
+// - nStatus: The status of the view
 void CReportWorkorderClosedView::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CFormView::OnShowWindow(bShow, nStatus);
@@ -452,20 +448,25 @@ void CReportWorkorderClosedView::OnShowWindow(BOOL bShow, UINT nStatus)
 	}
 }
 
+// Is called when the user double clicks on a list control item, for showing the details of the closed workorder
+// - pNMHDR: A pointer to a NMHDR structure
+// - pResult: A pointer to a LRESULT structure
 void CReportWorkorderClosedView::OnNMDoubleClickWorkorderClosedReport(NMHDR* pNMHDR, LRESULT* pResult) noexcept
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-	// TODO: Add your control notification handler code here
-	unsigned int nWorkorderID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 0));
-	unsigned int nAssetID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 5));
-	unsigned int nCustomerID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 7));
-	unsigned int nInvoiceID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 8));
-	CClosedWorkorderDetails dlg(nWorkorderID, nAssetID, nCustomerID, nInvoiceID);
-	dlg.DoModal();
+	auto pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	if (pNMItemActivate->iItem != -1) {
+		unsigned int nWorkorderID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 0));
+		unsigned int nAssetID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 5));
+		unsigned int nCustomerID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 7));
+		unsigned int nInvoiceID = _ttoi(m_lstWorkorderClosedReport.GetItemText(pNMItemActivate->iItem, 8));
+		CClosedWorkorderDetails dlg(nCustomerID, nAssetID, nWorkorderID, nInvoiceID);
+		dlg.DoModal();
+	}
 	*pResult = 0;
 }
 /* Member methods */
 
+// For setting the printer orientation
 bool CReportWorkorderClosedView::SetPrinterOrientation(HANDLE h, CDC* dc) const noexcept
 {
 	DEVMODE* devMode;

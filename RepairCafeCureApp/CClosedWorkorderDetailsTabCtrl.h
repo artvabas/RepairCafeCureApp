@@ -37,7 +37,7 @@
 * the third tab is the customer details tab and the fourth tab is the invoice details tab.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (Alpha)
+* Version: 1.0.0.3 (Alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
 * Updated: 28-04-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas

@@ -34,7 +34,7 @@
 * which is the view of the CListCtrl created on the closed workorder details dialog
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.2 (Alpha)
+* Version: 1.0.0.3 (Alpha)
 * Created: 17-06-2024, (dd-mm-yyyy)
 * Updated: 18-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -60,15 +60,15 @@ CClosedWorkorderDetails::CClosedWorkorderDetails(unsigned int& unCustomerID, uns
 CClosedWorkorderDetails::~CClosedWorkorderDetails()
 {}
 
-// DoDataExchange mothod is used for binding ID's with their controls
-// - pDx 
+// DoDataExchange method is used for binding ID's with their controls
+// - DDX_Control binds the control with the ID
 void CClosedWorkorderDetails::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CLOSED_WORKORDER_DETAILS_TAB_CONTROL, m_ctrTabClosedWorkorderDetails);
 }
 
-// OnInitDialog method is called by the framework when dialog is buid and needs to be initialized
+// OnInitDialog method is called by the framework when dialog is created
 BOOL CClosedWorkorderDetails::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
