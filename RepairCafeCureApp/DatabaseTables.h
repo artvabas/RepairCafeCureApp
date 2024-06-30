@@ -34,16 +34,16 @@
 * It is used to avoid hardcoding the SQL column indexes in the project
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (Alpha)
+* Version: 1.0.0.3 (Alpha)
 * Created: 25-04-2024, (dd-mm-yyyy)
-* Updated: 12-06-2024, (dd-mm-yyyy)
+* Updated: 30-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
 */
 #pragma once
 // Arrays sizes (wchar_t)
-#define SQLCHARVSMAL 50
+#define SQLCHARVSMALL 50
 #define SQLCHARVMAX 1024
 
 namespace artvabas::database::tables {
@@ -106,6 +106,18 @@ namespace artvabas::database::tables {
 			SQLUSMALLINT WORKORDER_CLOSED_DATE{ 10 };
 			SQLUSMALLINT WORKORDER_HISTORY { 11 };
 		}WORKORDER;
+	}
+
+	namespace invoice {
+		constexpr struct invoice {
+			SQLUSMALLINT INVOICE_ID{ 1 };
+			SQLUSMALLINT INVOICE_CUSTOMER_ID{ 2 };
+			SQLUSMALLINT INVOICE_ASSET_ID{ 3 };
+			SQLUSMALLINT INVOICE_WORKORDER_ID{ 4 };
+			SQLUSMALLINT INVOICE_CREATE_DATE{ 5 };
+			SQLUSMALLINT INVOICE_PAYMENT_PIN{ 6 };
+			SQLUSMALLINT INVOICE_TOTAL{ 7 };
+		}INVOICE;
 	}
 	
 	namespace historysearch {

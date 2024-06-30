@@ -418,7 +418,7 @@ BOOL CAssetTab::LoadAssetDetailsList() noexcept
 
 	if (sql.CreateSQLConnection()) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
@@ -443,25 +443,25 @@ BOOL CAssetTab::LoadAssetDetailsList() noexcept
 						return static_cast<CString>(szName);
 						};
 
-					SQLGetData(hstmt, ASSET.ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					nIndex = m_ctrExistingAssetList.InsertItem(row++, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, ASSET.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctrExistingAssetList.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);

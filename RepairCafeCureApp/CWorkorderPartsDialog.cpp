@@ -403,7 +403,7 @@ bool CWorkorderPartsDialog::InitStockPartList()
 
 	if ( sql.CreateSQLConnection() ) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
 		SQLHSTMT hstmt{ sql.GetStatementHandle() };
@@ -427,16 +427,16 @@ bool CWorkorderPartsDialog::InitStockPartList()
 					return static_cast<CString>(szName);
 					};
 
-					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					nIndex = m_lscWorkorderStockPartList.InsertItem(row++, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderStockPartList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_IN_STOCK, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_IN_STOCK, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderStockPartList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, SPAREPARTSTOCK.SPAREPART_PRICE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					CString strValue = static_cast<CString>(szName);
 					auto dPrice = _ttof(strValue);
 					strValue.Format(_T("%.2f"), dPrice);
@@ -482,7 +482,7 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 
 	if ( sql.CreateSQLConnection() ) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
 		SQLHSTMT hstmt{ sql.GetStatementHandle() };
@@ -509,21 +509,21 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 					return static_cast<CString>(szName);
 					};
 
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					nIndex = m_lscWorkorderAddedPartList.InsertItem(row++, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderAddedPartList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderStockPartList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_UNIT_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_UNIT_PRICE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					dConvertToMoney = _ttof(static_cast<CString>(szName));
 					strValue.Format(_T("%.2f"), dConvertToMoney);
 					m_lscWorkorderAddedPartList.SetItemText(nIndex, 3, strValue);
 
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_TOTAL_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_TOTAL_PRICE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					dConvertToMoney = _ttof(static_cast<CString>(szName));
 					strValue.Format(_T("%.2f"), dConvertToMoney);
 					m_lscWorkorderAddedPartList.SetItemText(nIndex, 4, strValue);

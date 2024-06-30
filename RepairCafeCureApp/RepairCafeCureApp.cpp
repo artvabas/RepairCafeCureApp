@@ -96,7 +96,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_bIsIdle{ true }
 	, m_bIsPrintPreview{ false }
 {
-	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.2"));
+	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.3"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
 }
 

@@ -382,7 +382,7 @@ void CReportWorkorderClosedView::OnShowWindow(BOOL bShow, UINT nStatus)
 
 		if (sql.CreateSQLConnection()) {
 
-			SQLCHAR szName[SQLCHARVSMAL]{};
+			SQLCHAR szName[SQLCHARVSMALL]{};
 			SQLLEN cbName{};
 			SQLRETURN retcode{};
 			SQLHSTMT hstmt{ sql.GetStatementHandle() };
@@ -406,31 +406,31 @@ void CReportWorkorderClosedView::OnShowWindow(BOOL bShow, UINT nStatus)
 							};
 
 						// Get data for columns 1, employee names
-						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						nIndex = m_lstWorkorderClosedReport.InsertItem(row++, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						m_lstWorkorderClosedReport.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						m_lstWorkorderClosedReport.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						m_lstWorkorderClosedReport.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						m_lstWorkorderClosedReport.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						m_lstWorkorderClosedReport.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, CLOSED_WORKORDERS.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						m_lstWorkorderClosedReport.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						m_lstWorkorderClosedReport.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
 
-						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+						SQLGetData(hstmt, CLOSED_WORKORDERS.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 						m_lstWorkorderClosedReport.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
 					}
 					else

@@ -46,11 +46,7 @@
 * License: GPLv3
 */
 #pragma once
-#include "CClosedWorkorderDetailsTabCtrl.h"
-
 namespace artvabas::rcc::ui::dialogs {
-
-	using namespace artvabas::rcc::ui::controls;
 
 	class CClosedWorkOrderDetailsTab : public CDialogEx
 	{
@@ -60,7 +56,6 @@ namespace artvabas::rcc::ui::dialogs {
 		DECLARE_DYNAMIC(CClosedWorkOrderDetailsTab)
 
 	private:
-		CClosedWorkorderDetailsTabCtrl* m_pTabControl;
 		unsigned int m_unWorkorderID;
 
 		CString m_strWorkorderID;
@@ -76,14 +71,13 @@ namespace artvabas::rcc::ui::dialogs {
 		CString m_strWorkorderHistoryLog;
 
 	public:
-		CClosedWorkOrderDetailsTab(CClosedWorkorderDetailsTabCtrl* pTabControl, unsigned int unID, CWnd* pParent = nullptr);   // standard constructor
+		CClosedWorkOrderDetailsTab(unsigned int unID, CWnd* pParent = nullptr);
 		virtual ~CClosedWorkOrderDetailsTab();
 
-	protected:
-		virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	private:
+		BOOL OnInitDialog() override;
+		void DoDataExchange(CDataExchange* pDX) override;
 
 		DECLARE_MESSAGE_MAP()
-	public:
-		virtual BOOL OnInitDialog();
 	};
 }

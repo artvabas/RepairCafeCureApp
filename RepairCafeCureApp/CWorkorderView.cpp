@@ -823,7 +823,7 @@ void CWorkorderView::InitWorkorderExistingList() {
 
 	if ( sql.CreateSQLConnection() ) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
@@ -848,34 +848,34 @@ void CWorkorderView::InitWorkorderExistingList() {
 					};
 
 					// Get data for columns 1, employee names
-					SQLGetData(hstmt, WORKORDER.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					nIndex = m_lscWorkorderExisting.InsertItem(row++, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_BY, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_BY, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 6, CheckForNull(szNameLong, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderExisting.SetItemText(nIndex, 9, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
@@ -911,7 +911,7 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 
 	if ( sql.CreateSQLConnection() ) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
 		SQLHSTMT hstmt{ sql.GetStatementHandle() };
@@ -935,7 +935,7 @@ void CWorkorderView::InitWorkorderEmployeeResponsibleComboBox() {
 					};
 
 					// Get data for columns 1, employee names
-					SQLGetData(hstmt, 1, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, 1, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_cbxWorkorderEmployeeResponsible.AddString(CheckForNull(szName, cbName));
 				}
 				else 
@@ -970,7 +970,7 @@ void CWorkorderView::InitWorkorderSparePartsList() {
 
 	if ( sql.CreateSQLConnection() ) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
@@ -1000,21 +1000,21 @@ void CWorkorderView::InitWorkorderSparePartsList() {
 					};
 
 					// Get data for columns 1, employee names
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					nIndex = m_lscWorkorderSpareParts.InsertItem(row++, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_lscWorkorderSpareParts.SetItemText(nIndex, 1, CheckForNull(szNameLong, cbName));
 
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lscWorkorderSpareParts.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_UNIT_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_UNIT_PRICE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					dConvertToMoney = _ttof(CheckForNull(szName, cbName));
 					strConvert.Format(_T("% .2f"), dConvertToMoney);
 					m_lscWorkorderSpareParts.SetItemText(nIndex, 3, strConvert);
 
-					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_TOTAL_PRICE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_TOTAL_PRICE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					dTotalPrice += (dConvertToMoney = _ttof(CheckForNull(szName, cbName)));
 					strConvert.Format(_T("% .2f"), dConvertToMoney);
 					m_lscWorkorderSpareParts.SetItemText(nIndex, 4, strConvert);
@@ -1112,7 +1112,7 @@ bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 
 	if ( sql.CreateSQLConnection() ) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
@@ -1140,10 +1140,10 @@ bool CWorkorderView::GetAssetInfo(const unsigned int& nAssetId) {
 					SQLGetData(hstmt, ASSET.ASSET_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_strAssetDescription = CheckForNull(szNameLong, cbName);
 
-					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strAssetModelNumber = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, ASSET.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strAssetBrand = CheckForNull(szName, cbName);
 
 					SQLGetData(hstmt, ASSET.ASSET_HISTORY_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
@@ -1179,7 +1179,7 @@ bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 
 	if ( sql.CreateSQLConnection() ) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
@@ -1207,16 +1207,16 @@ bool CWorkorderView::GetCustomerInfo(const unsigned int& nCustomerId) {
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_SURNAME, SQL_C_CHAR, szName, SQLCHARVMAX, &cbName);
 					m_strCustomerSurname = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_NAME, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_NAME, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strCustomerName = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strCustomerCellPhone = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strCustomerPhone = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_EMAIL, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_EMAIL, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strCustomerEmail = CheckForNull(szName, cbName);
 
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_COMMENT, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
