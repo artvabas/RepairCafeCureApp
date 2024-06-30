@@ -248,7 +248,7 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 
 	if ( sql.CreateSQLConnection() ) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
@@ -272,22 +272,22 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 						return static_cast<CString>(szName);
 					};
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					nIndex = m_ctlExistingCustomersList.InsertItem(row++, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_SURNAME, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_SURNAME, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctlExistingCustomersList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_NAME, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_NAME, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctlExistingCustomersList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctlExistingCustomersList.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctlExistingCustomersList.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, CUSTOMER.CUSTOMER_EMAIL, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_EMAIL, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_ctlExistingCustomersList.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_COMMENT, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);

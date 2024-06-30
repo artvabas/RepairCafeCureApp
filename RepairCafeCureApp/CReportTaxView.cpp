@@ -496,7 +496,7 @@ void CReportTaxView::OnBnClickedReportTaxPeriodCreate() noexcept
 	if (sql.CreateSQLConnection()) {
 
 		double dTotalAmount{ 0.0 };
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
 		SQLHSTMT hstmt{ sql.GetStatementHandle() };
@@ -519,22 +519,22 @@ void CReportTaxView::OnBnClickedReportTaxPeriodCreate() noexcept
 						return static_cast<CString>(szName);
 						};
 
-					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CONTRIBUTION_CREATEDATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CONTRIBUTION_CREATEDATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					nIndex = m_lstReportResultTax.InsertItem(row++, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CONTRIBUITION_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CONTRIBUITION_WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstReportResultTax.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CUSTOMER_SURNAME, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CUSTOMER_SURNAME, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstReportResultTax.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CUSTOMER_PHONE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstReportResultTax.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CUSTOMER_CELL_PHONE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstReportResultTax.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CONTRIBUTION_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, REPORT_CONTRIBUTION_TAX.CONTRIBUTION_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					auto strAmount = CheckForNull(szName, cbName);
 					dTotalAmount += _tstof(strAmount);
 					strAmount = strAmount.Left(strAmount.Find(_T('.')) + 3);

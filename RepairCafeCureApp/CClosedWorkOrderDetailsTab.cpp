@@ -28,7 +28,7 @@
 
 /*
 * This file is part of RepairCafeCureApp.
-* File: CClosedWorkOrderDetailsTab.h, implements class CClosedWorkOrderDetailsTab
+* File: CClosedWorkOrderDetailsTab.cpp, implements class CClosedWorkOrderDetailsTab
 *
 * This class is the view of the Workorder-tab in the CClosedWorkorderDetailsTabCtrl class,
 * which is the view of the CListCtrl created on the Closed Workorder Details dialog (CClosedWorkorderDetails)
@@ -58,9 +58,8 @@ using namespace artvabas::database::tables::workorder;
 
 IMPLEMENT_DYNAMIC(CClosedWorkOrderDetailsTab, CDialogEx)
 
-CClosedWorkOrderDetailsTab::CClosedWorkOrderDetailsTab(CClosedWorkorderDetailsTabCtrl* pTabControl, unsigned int unID, CWnd* pParent)
+CClosedWorkOrderDetailsTab::CClosedWorkOrderDetailsTab(unsigned int unID, CWnd* pParent)
 	: CDialogEx(IDD_CLOSED_WORKORDER_DETAILS_TAB, pParent)
-	, m_pTabControl{ pTabControl }
 	, m_unWorkorderID{ unID }
 	, m_strWorkorderID{ _T("") }
 	, m_strWorkorderAssetID{ _T("") }
@@ -81,7 +80,7 @@ CClosedWorkOrderDetailsTab::~CClosedWorkOrderDetailsTab()
 BEGIN_MESSAGE_MAP(CClosedWorkOrderDetailsTab, CDialogEx)
 END_MESSAGE_MAP()
 
-// OnintDialog is called when the dialog is created, it is used to load the data from the database
+// OnIntDialog is called when the dialog is created, it is used to load the data from the database
 // and display it in the dialog.
 BOOL CClosedWorkOrderDetailsTab::OnInitDialog()
 {
@@ -97,7 +96,7 @@ BOOL CClosedWorkOrderDetailsTab::OnInitDialog()
 
 	if (sql.CreateSQLConnection()) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
@@ -120,35 +119,34 @@ BOOL CClosedWorkOrderDetailsTab::OnInitDialog()
 						}
 						return static_cast<CString>(szName);
 						};
-					// Get data for columns 1, employee names
-					SQLGetData(hstmt, WORKORDER.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderID = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_ASSET_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderAssetID = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CUSTOMER_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderCustomerID = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_INVOICE_ID, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderInvoiceID = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderCreateDate = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_BY, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CREATE_BY, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderCreatedBy = CheckForNull(szName, cbName);
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_strWorkorderDescription = CheckForNull(szNameLong, cbName);
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderEmployeeResponsible = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderStatus = CheckForNull(szName, cbName);
 
-					SQLGetData(hstmt, WORKORDER.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, WORKORDER.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_strWorkorderClosedDate = CheckForNull(szName, cbName);
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);

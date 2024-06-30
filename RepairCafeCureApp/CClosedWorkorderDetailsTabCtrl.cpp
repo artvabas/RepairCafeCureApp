@@ -64,10 +64,10 @@ CClosedWorkorderDetailsTabCtrl::CClosedWorkorderDetailsTabCtrl(unsigned int& unC
 	, m_tabCurrent{ 0 }
 {
 	try {
-		m_tabPages[0] = new CClosedWorkOrderDetailsTab(this, unWorkorderID);
-		m_tabPages[1] = new CClosedWorkorderAssetDetailsTab(this, unAssetID);
-		m_tabPages[2] = new CClosedWorkorderInvoiceDetailsTab(this, unInvoiceID);
-		m_tabPages[3] = new CClosedWorkorderCustomerDetailsTab(this, unCustomerID);
+		m_tabPages[0] = new CClosedWorkOrderDetailsTab(unWorkorderID);
+		m_tabPages[1] = new CClosedWorkorderAssetDetailsTab(unAssetID);
+		m_tabPages[2] = new CClosedWorkorderInvoiceDetailsTab(unInvoiceID);
+		m_tabPages[3] = new CClosedWorkorderCustomerDetailsTab(unCustomerID);
 	}
 	catch (std::bad_alloc& e) {
 		AfxMessageBox(static_cast<CString>(e.what()));

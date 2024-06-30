@@ -229,7 +229,7 @@ void CAssetView::OnClickedHistorySearch()
 
 	if (sql.CreateSQLConnection()) {
 
-		SQLCHAR szName[SQLCHARVSMAL]{};
+		SQLCHAR szName[SQLCHARVSMALL]{};
 		SQLCHAR szNameLong[SQLCHARVMAX]{};
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
@@ -253,25 +253,25 @@ void CAssetView::OnClickedHistorySearch()
 						return static_cast<CString>(szName);
 						};
 
-					SQLGetData(hstmt, HISTORY_SEARCH.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, HISTORY_SEARCH.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					nIndex = m_lstHistorySearchResults.InsertItem(row++, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, HISTORY_SEARCH.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, HISTORY_SEARCH.ASSET_MODEL_NUMBER, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstHistorySearchResults.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, HISTORY_SEARCH.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, HISTORY_SEARCH.ASSET_BRAND, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstHistorySearchResults.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, HISTORY_SEARCH.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, HISTORY_SEARCH.ASSET_DISPOSED, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstHistorySearchResults.SetItemText(nIndex, 3, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, HISTORY_SEARCH.WORKORDER_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, HISTORY_SEARCH.WORKORDER_CREATE_DATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstHistorySearchResults.SetItemText(nIndex, 4, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, HISTORY_SEARCH.WORKORDER_CREATE_BY, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, HISTORY_SEARCH.WORKORDER_CREATE_BY, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstHistorySearchResults.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
-					SQLGetData(hstmt, HISTORY_SEARCH.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMAL, &cbName);
+					SQLGetData(hstmt, HISTORY_SEARCH.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					m_lstHistorySearchResults.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, HISTORY_SEARCH.WORKORDER_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
