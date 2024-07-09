@@ -1,11 +1,9 @@
 # Repair Cafe Cure App
 ## ** This project is still in progress and not finished **
 ### Curtain files are for security & privay reasons not added to this project, these files are:
-> CDatabaseConnection.h
-> CDatabaseConnection.cpp
+> CDatabaseConnection.h & CDatabaseConnection.cpp
 
-> CAdminLogin.h
-> CAdminLogin.cpp
+> CAdminLogin.h & CAdminLogin.cpp
 
 > securitydata.h
 
@@ -22,11 +20,10 @@ Major features of the Repair Cafe Cure App are:
 
 > Workorder progress, from open to closure, with track on history.
 
-> Invoices, automotic creation and history view.
+> Invoices, automatic creation and history view.
 
 > Report creating, for tax and diagnostic purposes.
 
 > Administrotor level: Database maintenance and security settings. 
 
 > History search, for faster repairs.
-
