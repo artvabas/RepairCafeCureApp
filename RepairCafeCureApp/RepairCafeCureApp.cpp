@@ -36,9 +36,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.4 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 11-06-2024, (dd-mm-yyyy)
+* Updated: 09-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -64,6 +64,12 @@
 #define new DEBUG_NEW
 #endif
 
+#ifndef _DEBUG
+#include "CAdminLogin.h"
+using namespace artvabas::rcc::security::admin;
+#endif
+
+
 CRepairCafeCureApp theApp; // The one and only CRepairCafeCureApp object
 
 // TimerCallback is used for deciding if the computer where this application is running on
@@ -79,7 +85,7 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 
 	if (dwTimeIdle > static_cast<unsigned long long>(1000 * 60) * 2 && !theApp.m_bIsIdle) {
 		theApp.IsIdle();
-		//isIdle = true;
+		theApp.SetAdmin(false);
 		auto result = MessageBoxW(theApp.m_pMainWnd->m_hWnd, _T("Automatically Locked the app!"), _T("Repair Cafe Cure App is Idle"), MB_OK);
 	} 
 }
@@ -96,7 +102,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_bIsIdle{ true }
 	, m_bIsPrintPreview{ false }
 {
-	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.3"));
+	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.4"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
 }
 
@@ -123,6 +129,7 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_REPORT_VIEW_FINANCE_TAX, &CRepairCafeCureApp::OnReportViewFinanceTax)
 	ON_COMMAND(ID_REPORT_WORKORDER_CLOSED, &CRepairCafeCureApp::OnReportWorkorderClosed)
 	ON_COMMAND(ID_REPORT_WORKORDER_PINTRANSACTION, &CRepairCafeCureApp::OnReportWorkorderPinTransaction)
+	ON_COMMAND(ID_APP_ADMIN, &CRepairCafeCureApp::OnAppAdmin)
 END_MESSAGE_MAP()
 
 /* Overrides  methods */
@@ -332,6 +339,16 @@ void CRepairCafeCureApp::OnReportWorkorderClosed() noexcept
 	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Workorder Closed"));
 }
 
+void CRepairCafeCureApp::OnAppAdmin() noexcept
+{
+#ifdef _DEBUG
+	AfxMessageBox(_T("App is in debug mode, no Admin!"));
+#else
+	CAdminLogin dlg;
+	if (dlg.DoModal() == IDOK) SetAdmin(true);
+#endif
+}
+
 // OnFilePrintSetup is called when user select the print setup button on the ribbon
 // Set the printer orientation for the selected view
 void CRepairCafeCureApp::OnFilePrintSetup() noexcept
@@ -404,7 +421,6 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView) const noexcept
 		::SetWindowLong(pNewView->m_hWnd, GWL_ID, temp);
 	}
 #endif
-
 	// Swap the views and attach the view
 	pActiveView->ShowWindow(SW_HIDE);
 	pNewView->ShowWindow(SW_SHOW);

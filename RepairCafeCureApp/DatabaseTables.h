@@ -33,10 +33,10 @@
 * This header will be used everywhere in the project to define the SQL columns for the database tables
 * It is used to avoid hardcoding the SQL column indexes in the project
 *
-* Target: Windows 10/11 64bit
-* Version: 1.0.0.3 (Alpha)
+* Target: Windows 10/11 64bitS
+* Version: 1.0.0.4 (Alpha)
 * Created: 25-04-2024, (dd-mm-yyyy)
-* Updated: 30-06-2024, (dd-mm-yyyy)
+* Updated: 06-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -47,6 +47,14 @@
 #define SQLCHARVMAX 1024
 
 namespace artvabas::database::tables {
+	namespace employee {
+		constexpr struct employee {
+			SQLUSMALLINT EMPLOYEE_ID{ 1 };
+			SQLUSMALLINT EMPLOYEE_NAME{ 2 };
+			SQLUSMALLINT EMPLOYEE_ROLE_ADMIN{ 3 };
+		}EMPLOYEE;
+	}
+
 	namespace asset {
 		constexpr struct asset {
 			SQLUSMALLINT ASSET_ID { 1 };
@@ -122,15 +130,17 @@ namespace artvabas::database::tables {
 	
 	namespace historysearch {
 		constexpr struct search {
-			SQLUSMALLINT ASSET_DESCRIPTION { 1 };
-			SQLUSMALLINT ASSET_MODEL_NUMBER { 2 };
-			SQLUSMALLINT ASSET_BRAND { 3 };
-			SQLUSMALLINT ASSET_DISPOSED { 4 };
-			SQLUSMALLINT WORKORDER_CREATE_DATE { 5 };
-			SQLUSMALLINT WORKORDER_CREATE_BY { 6 };
-			SQLUSMALLINT WORKORDER_RESPONSIBLE { 7 };
-			SQLUSMALLINT WORKORDER_DESCRIPTION { 8 };
-			SQLUSMALLINT WORKORDER_HISTORY { 9 };
+			SQLUSMALLINT ASSET_ID{ 1 };
+			SQLUSMALLINT ASSET_DESCRIPTION { 2 };
+			SQLUSMALLINT ASSET_MODEL_NUMBER { 3 };
+			SQLUSMALLINT ASSET_BRAND { 4 };
+			SQLUSMALLINT ASSET_DISPOSED { 5 };
+			SQLUSMALLINT WORKORDER_ASSET_ID{ 6 };
+			SQLUSMALLINT WORKORDER_CREATE_DATE { 7 };
+			SQLUSMALLINT WORKORDER_CREATE_BY { 8 };
+			SQLUSMALLINT WORKORDER_RESPONSIBLE { 9 };
+			SQLUSMALLINT WORKORDER_DESCRIPTION { 10 };
+			SQLUSMALLINT WORKORDER_HISTORY { 11 };
 		}HISTORY_SEARCH;
 	}
 

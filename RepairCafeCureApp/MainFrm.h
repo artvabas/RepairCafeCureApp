@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (Alpha)
+* Version: 1.0.0.4 (Alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 02-05-2024, (dd-mm-yyyy)
+* Updated: 09-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -60,6 +60,7 @@ private:
 	CMFCRibbonApplicationButton m_MainButton;
 	CMFCToolBarImages m_PanelImages;
 	CMFCCaptionBar    m_wndCaptionBar;
+	std::vector<std::pair<CString, bool>> m_vecEmployeeList;
 
 protected:
 	CMainFrame() noexcept;
@@ -83,6 +84,7 @@ private:
 	afx_msg void OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateGeneralShowLoginbarCheck(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateAppAdmin(CCmdUI* pCmdUI);
 public:
 	afx_msg void OnCaptionBarComboBoxEmployeeNameChange();
 
@@ -92,5 +94,3 @@ public:
 	CString GetSelectedEmployee();
 	inline void EmployeeIdle() { m_pCmbCaptionBarEmployeeName->SetCurSel(0); }
 };
-
-

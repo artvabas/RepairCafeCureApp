@@ -33,9 +33,9 @@
 * This class is the view of the Asset form
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.4 (alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 02-06-2024, (dd-mm-yyyy)
+* Updated: 05-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -218,9 +218,9 @@ void CAssetView::OnClickedHistorySearch()
 		return strResult;
 		};
 
-	strBuildQuery.Format(_T("SELECT [ASSET_DESCRIPTION], [ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], ")
+	strBuildQuery.Format(_T("SELECT [ASSET_ID], [ASSET_DESCRIPTION], [ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [WORKORDER_ASSET_ID], [WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], ")
 		_T("[WORKORDER_RESPONSIBLE], [WORKORDER_DESCRIPTION], [WORKORDER_HISTORY] FROM [dbo].[ASSET], [dbo].[WORKORDER] ")
-		_T("WHERE([ASSET_DESCRIPTION] LIKE N\'%s\' AND[WORKORDER_DESCRIPTION] LIKE N\'%s\' AND[WORKORDER_HISTORY] LIKE N\'%s\')"),
+		_T("WHERE ([ASSET_DESCRIPTION] LIKE N\'%s\' AND [WORKORDER_DESCRIPTION] LIKE N\'%s\' AND [WORKORDER_HISTORY] LIKE N\'%s\' AND [WORKORDER_ASSET_ID] = [ASSET_ID])"),
 		static_cast<LPCTSTR>(buildString(m_strHistorySearchAssetDescription)),
 		static_cast<LPCTSTR>(buildString(m_strHistorySearchWorkorderDescription)),
 		static_cast<LPCTSTR>(buildString(m_strHistorySearchHistoryLog)));
