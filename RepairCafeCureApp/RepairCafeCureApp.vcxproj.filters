@@ -79,6 +79,12 @@
     <Filter Include="Source Files\artvabas\rcc\support">
       <UniqueIdentifier>{7053d189-26ab-45da-bc7e-348d543dd17c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\artvabas\rcc\security">
+      <UniqueIdentifier>{d7be4adb-bcf9-43ae-9675-45f551f3f0a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\rcc\Security">
+      <UniqueIdentifier>{bf8855ae-2b36-4a96-a440-8ba7aac4b728}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RepairCafeCureApp.h">
@@ -171,6 +177,9 @@
     <ClInclude Include="CReportWorkorderClosedView.h">
       <Filter>Header Files\artvabas\rcc\ui</Filter>
     </ClInclude>
+    <ClInclude Include="CAdminLogin.h">
+      <Filter>Header Files\artvabas\rcc\security</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -247,6 +256,9 @@
     </ClCompile>
     <ClCompile Include="CReportWorkorderClosedView.cpp">
       <Filter>Source Files\artvabas\rcc\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="CAdminLogin.cpp">
+      <Filter>Source Files\artvabas\rcc\Security</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -337,6 +349,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\HistorySearch.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\maintenancelarge.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\maintenancesmall.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

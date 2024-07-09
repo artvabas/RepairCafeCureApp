@@ -34,9 +34,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.4 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 11-06-2024, (dd-mm-yyyy)
+* Updated: 09-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -67,6 +67,7 @@ class CRepairCafeCureApp : public CWinAppEx
 public:
 	CSplashScreen m_SplashScreen;
 	bool m_bIsIdle;
+
 private:
 		CDatabaseConnection* m_dbConnection;
 
@@ -80,6 +81,7 @@ private:
 		FinanceTaxViewType m_eFinanceTaxViewType;
 
 		bool m_bIsPrintPreview;
+		bool m_bIsAdmin;
 
 public:
 	CRepairCafeCureApp() noexcept;
@@ -100,6 +102,7 @@ private:
 	afx_msg void OnReportViewFinanceTax() noexcept;
 	afx_msg void OnReportWorkorderPinTransaction() noexcept;
 	afx_msg void OnReportWorkorderClosed() noexcept;
+	afx_msg void OnAppAdmin() noexcept;
 	afx_msg void OnFilePrintSetup() noexcept;
 
 public:
@@ -114,6 +117,9 @@ public:
 	inline HANDLE GetDeviceMode() noexcept { return m_hDevMode ? m_hDevMode : DefineDeviceMode(); }
 	inline bool IsPrintPreview() const noexcept { return m_bIsPrintPreview; }
 	inline void SetPrintPreview(bool bIsPrintPreview) noexcept { m_bIsPrintPreview = bIsPrintPreview; }
+	inline bool IsAdmin() const noexcept { return m_bIsAdmin; }
+	inline void SetAdmin(bool bIsAdmin) noexcept { m_bIsAdmin = bIsAdmin; }
+
 
 private:
 	HANDLE DefineDeviceMode() noexcept;

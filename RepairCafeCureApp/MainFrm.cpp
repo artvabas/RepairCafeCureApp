@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1
+* Version: 1.0.0.4 (Alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 02-06-2024, (dd-mm-yyyy)
+* Updated: 09-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -51,12 +51,14 @@
 #include "framework.h"
 #include "RepairCafeCureApp.h"
 #include "MainFrm.h"
+#include "DatabaseTables.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 using namespace artvabas::sql;
+using namespace artvabas::database::tables::employee;
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
@@ -72,6 +74,7 @@ CMainFrame::~CMainFrame()
 		delete m_pCmbCaptionBarEmployeeName;
 		m_pCmbCaptionBarEmployeeName = nullptr;
 	}
+	m_vecEmployeeList.clear();
 }
 
 /* Message handles bindings */
@@ -105,6 +108,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_GENERAL_SHOW_LOGINBAR_CHECK,
 		&CMainFrame::OnUpdateGeneralShowLoginbarCheck)
 	ON_WM_TIMER()
+	ON_UPDATE_COMMAND_UI(ID_APP_ADMIN, &CMainFrame::OnUpdateAppAdmin)
 END_MESSAGE_MAP()
 
 /* Overrides */
@@ -201,6 +205,7 @@ void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
 		m_wndStatusBar.SetInformation(strTemp);
 	} else {
 		theApp.m_bIsIdle = true;
+		theApp.SetAdmin(false);
 		pView->SendMessage(WM_UPDATEUISTATE, 0);
 		bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_LOCK);
 		ASSERT(bNameValid);
@@ -255,7 +260,10 @@ BOOL CMainFrame::CreateCaptionBar()
 		SQLLEN cbName{};
 		SQLRETURN retcode{};
 		SQLHSTMT hstmt{ sql.GetStatementHandle() };
-		SQLWCHAR* strQuery{ _T("SELECT EMPLOYEE_NAME FROM EMPLOYEE ORDER BY EMPLOYEE_NAME") };
+		SQLWCHAR* strQuery{ _T("SELECT * FROM EMPLOYEE ORDER BY EMPLOYEE_NAME") };
+
+		CString strName;
+		bool bIsAdmin;
 
 		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
 
@@ -265,8 +273,11 @@ BOOL CMainFrame::CreateCaptionBar()
 				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO )
 					AfxMessageBox(_T("Error fetching data from Employee Table!"), MB_ICONEXCLAMATION);
 				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
-					SQLGetData(hstmt, 1, SQL_C_CHAR, szName, 50, &cbName);
-					m_pCmbCaptionBarEmployeeName->AddString(static_cast<CString>(szName));
+					SQLGetData(hstmt, EMPLOYEE.EMPLOYEE_NAME, SQL_C_CHAR, szName, 50, &cbName);
+					strName = static_cast<CString>(szName);
+					SQLGetData(hstmt, EMPLOYEE.EMPLOYEE_ROLE_ADMIN, SQL_C_BIT, &bIsAdmin, 0, nullptr);
+					m_pCmbCaptionBarEmployeeName->AddString(strName);
+					m_vecEmployeeList.push_back(std::make_pair(strName, bIsAdmin));
 				}
 				else
 					break;
@@ -351,4 +362,17 @@ void CMainFrame::OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI) {
 // trigged when user check or uncheck the checkbox on ribbinbar -> General
 void CMainFrame::OnUpdateGeneralShowLoginbarCheck(CCmdUI* pCmdUI) {
 	pCmdUI->SetCheck(m_wndCaptionBar.IsVisible());
+}
+
+void CMainFrame::OnUpdateAppAdmin(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(FALSE);
+	for each (std::pair<CString, bool>  employee in m_vecEmployeeList)
+	{
+		if (employee.first == GetSelectedEmployee())
+		{
+			pCmdUI->Enable(employee.second ? TRUE : FALSE);
+			break;
+		}
+	}
 }
