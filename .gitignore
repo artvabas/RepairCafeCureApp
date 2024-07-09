@@ -370,3 +370,9 @@ FodyWeavers.xsd
 /RepairCafeCureApp/logo.bmp
 /RepairCafeCureApp/CDatabaseConnection.h
 /RepairCafeCureApp/CDatabaseConnection.cpp
+/RepairCafeCureApp/CSecurityCription.cpp
+/RepairCafeCureApp/CSecurityCription.h
+/RepairCafeCureApp/SecurityEncryptor.cpp
+/RepairCafeCureApp/CAdminLogin.cpp
+/RepairCafeCureApp/CAdminLogin.h
+/RepairCafeCureApp/SecurityEncryptor.h
