@@ -1,6 +1,6 @@
 # Repair Cafe Cure App
 ## ** This project is still in progress and not finished **
-### Curtain files are for security & privay reasons not added to this project, these files are:
+### Certain files are for security & privay reasons and not added to this project, these files are:
 > CDatabaseConnection.h & CDatabaseConnection.cpp
 
 > CAdminLogin.h & CAdminLogin.cpp
