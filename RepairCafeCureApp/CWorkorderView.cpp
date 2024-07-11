@@ -190,11 +190,12 @@ void CWorkorderView::OnInitialUpdate()
 		m_lscWorkorderExisting.InsertColumn(3, _T("INVOICE ID"), LVCFMT_LEFT, 0);
 		m_lscWorkorderExisting.InsertColumn(4, _T("CREATION DATE"), LVCFMT_LEFT, 100);
 		m_lscWorkorderExisting.InsertColumn(5, _T("CREATED BY"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(6, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
-		m_lscWorkorderExisting.InsertColumn(7, _T("RESPONSIBLE"), LVCFMT_LEFT, 200);
-		m_lscWorkorderExisting.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
-		m_lscWorkorderExisting.InsertColumn(9, _T("CLOSED DATE"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(6, _T("RESPONSIBLE"), LVCFMT_LEFT, 100);
+		m_lscWorkorderExisting.InsertColumn(7, _T("STATUS"), LVCFMT_LEFT, 100);
+		m_lscWorkorderExisting.InsertColumn(8, _T("CLOSED DATE"), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(9, _T("HISTORY"), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(10, _T("ASSET"), LVCFMT_LEFT, 100);
+		m_lscWorkorderExisting.InsertColumn(11, _T("DESCRIPTION"), LVCFMT_LEFT, 600);
 
 		m_lscWorkorderSpareParts.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 		m_lscWorkorderSpareParts.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 0);
@@ -816,7 +817,7 @@ void CWorkorderView::InitWorkorderExistingList() {
 	theApp.BeginWaitCursor();
 
 	
-	strBuildQuery.Format(_T("SELECT WORKORDER.*, WORKORDER_ASSET_ID AS Expr1, WORKORDER_CUSTOMER_ID AS Expr2 FROM WORKORDER WHERE(WORKORDER_STATUS = N\'%s\')"),
+	strBuildQuery.Format(_T("SELECT WORKORDER.*, ASSET_DESCRIPTION FROM WORKORDER, ASSET WHERE(WORKORDER_STATUS = N\'%s\' AND WORKORDER_ASSET_ID = ASSET_ID)"),
 		static_cast<LPCTSTR>(strWorkorderStatus));
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
@@ -867,19 +868,22 @@ void CWorkorderView::InitWorkorderExistingList() {
 					m_lscWorkorderExisting.SetItemText(nIndex, 5, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_DESCRIPTION, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_lscWorkorderExisting.SetItemText(nIndex, 6, CheckForNull(szNameLong, cbName));
+					m_lscWorkorderExisting.SetItemText(nIndex, 11, CheckForNull(szNameLong, cbName));
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_RESPONSIBLE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
-					m_lscWorkorderExisting.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
+					m_lscWorkorderExisting.SetItemText(nIndex, 6, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_STATUS, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
-					m_lscWorkorderExisting.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
+					m_lscWorkorderExisting.SetItemText(nIndex, 7, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_CLOSED_DATE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
-					m_lscWorkorderExisting.SetItemText(nIndex, 9, CheckForNull(szName, cbName));
+					m_lscWorkorderExisting.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDER.WORKORDER_HISTORY, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
-					m_lscWorkorderExisting.SetItemText(nIndex, 10, CheckForNull(szNameLong, cbName));
+					m_lscWorkorderExisting.SetItemText(nIndex, 9, CheckForNull(szNameLong, cbName));
+
+					SQLGetData(hstmt, WORKORDER.ASSET_DESCRIPTION, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
+					m_lscWorkorderExisting.SetItemText(nIndex, 10, CheckForNull(szName, cbName));
 				}
 				else 
 					break;

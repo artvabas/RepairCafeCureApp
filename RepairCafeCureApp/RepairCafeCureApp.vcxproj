@@ -267,6 +267,7 @@
   <ItemGroup>
     <Image Include="res\bitmap1.bmp" />
     <Image Include="res\buttons.bmp" />
+    <Image Include="res\CloseWorkorders.bmp" />
     <Image Include="res\Contribution.bmp" />
     <Image Include="res\Customers.bmp" />
     <Image Include="res\filelarge.bmp" />

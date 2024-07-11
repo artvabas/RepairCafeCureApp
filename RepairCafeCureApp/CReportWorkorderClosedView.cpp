@@ -94,7 +94,7 @@ void CReportWorkorderClosedView::OnInitialUpdate()
 	m_lstWorkorderClosedReport.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 
 	m_lstWorkorderClosedReport.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 150);
-	m_lstWorkorderClosedReport.InsertColumn(1, _T("WORKORDER DESCRIPTION"), LVCFMT_LEFT, 150);
+	m_lstWorkorderClosedReport.InsertColumn(1, _T("WORKORDER DESCRIPTION"), LVCFMT_LEFT, 300);
 	m_lstWorkorderClosedReport.InsertColumn(2, _T("EMPLOYEE RESPONSIBLE"), LVCFMT_LEFT, 150);
 	m_lstWorkorderClosedReport.InsertColumn(3, _T("WORKORDER CLOSED DATE"), LVCFMT_LEFT, 150);
 	m_lstWorkorderClosedReport.InsertColumn(4, _T("WORKORDER STATUS"), LVCFMT_LEFT, 150);
