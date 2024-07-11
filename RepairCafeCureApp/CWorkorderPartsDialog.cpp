@@ -516,7 +516,7 @@ bool CWorkorderPartsDialog::InitAddedPartList()
 					m_lscWorkorderAddedPartList.SetItemText(nIndex, 1, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_AMOUNT, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
-					m_lscWorkorderStockPartList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
+					m_lscWorkorderAddedPartList.SetItemText(nIndex, 2, CheckForNull(szName, cbName));
 
 					SQLGetData(hstmt, WORKORDERPARTS.WORKORDER_PARTS_UNIT_PRICE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
 					dConvertToMoney = _ttof(static_cast<CString>(szName));
