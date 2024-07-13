@@ -78,7 +78,6 @@
 #define IDB_MAINTENANCELARGE            363
 #define IDB_MAINTENANCESMALL            364
 #define IDD_ADMIN_DIALOG                365
-#define IDB_BITMAP1                     367
 #define IDB_CLOSEDWORKORDERS            367
 #define IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH 1001
 #define IDC_CUSTVIEW_BUTTON_SEARCH      1002
@@ -243,13 +242,16 @@
 #define ID_APP_ADMIN                    32794
 #define ID_ADMIN_MAINTENANCE_EMPLOYEES  32796
 #define ID_ADMIN_MAINTENANCE_STOCK      32797
+#define ID_GENERAL_ACCESIBILITY_HIGHLIGHT 32799
+#define ID_CHECK3                       32801
+#define ID_GENERAL_VIEW_MINIMIZE_RIBBON 32801
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        368
-#define _APS_NEXT_COMMAND_VALUE         32799
+#define _APS_NEXT_COMMAND_VALUE         32802
 #define _APS_NEXT_CONTROL_VALUE         1161
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
