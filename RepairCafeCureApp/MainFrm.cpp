@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.4 (Alpha)
+* Version: 1.0.0.5 (Alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 09-07-2024, (dd-mm-yyyy)
+* Updated: 13-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -63,6 +63,8 @@ using namespace artvabas::database::tables::employee;
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
 CMainFrame::CMainFrame() noexcept
+	: m_bHighlightCategories(FALSE)
+	, m_bHighlightAll(FALSE)
 {
 	m_pCmbCaptionBarEmployeeName = new CComboBox();
 }
@@ -82,7 +84,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CAPTION_BAR,
 		&CMainFrame::OnViewCaptionBar)
-	//ON_UPDATE_COMMAND_UI(ID_VIEW_CAPTION_BAR, &CMainFrame::OnUpdateViewCaptionBar)
 	ON_COMMAND(ID_TOOLS_OPTIONS,
 		&CMainFrame::OnOptions)
 	ON_COMMAND(ID_FILE_PRINT,
@@ -95,6 +96,22 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 		&CMainFrame::OnUpdateIsPrintable)
 	ON_CBN_SELCHANGE(IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME,
 		&CMainFrame::OnCaptionBarComboBoxEmployeeNameChange)
+	ON_UPDATE_COMMAND_UI(ID_CUSTOMER_VIEW,
+		&CMainFrame::OnUpdateCustomerView)
+	ON_UPDATE_COMMAND_UI(ID_WORKORDER_VIEW_OPEN, 
+		&CMainFrame::OnUpdateWorkorderViewOpen)
+	ON_UPDATE_COMMAND_UI(ID_WORKORDER_VIEW_REPAIRED, 
+		&CMainFrame::OnUpdateWorkorderViewRepaired)
+	ON_UPDATE_COMMAND_UI(ID_WORKORDER_VIEW_PROGRESS, 
+		&CMainFrame::OnUpdateWorkorderViewProgress)
+	ON_UPDATE_COMMAND_UI(ID_REPORT_VIEW_FINANCE_TAX, 
+		&CMainFrame::OnUpdateReportViewFinanceTax)
+	ON_UPDATE_COMMAND_UI(ID_REPORT_WORKORDER_PINTRANSACTION, 
+		&CMainFrame::OnUpdateReportWorkorderPinTransaction)
+	ON_UPDATE_COMMAND_UI(ID_REPORT_WORKORDER_CLOSED, 
+		&CMainFrame::OnUpdateReportWorkorderClosed)
+	ON_UPDATE_COMMAND_UI(ID_APP_VIEW,
+		&CMainFrame::OnUpdateSearchHistory)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT,
 		&CMainFrame::OnUpdateIsPrintable)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_DIRECT,
@@ -105,10 +122,13 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 		&CMainFrame::OnUpdateWorkorderExtraInvoice)
 	ON_COMMAND(ID_GENERAL_SHOW_LOGINBAR_CHECK,
 		&CMainFrame::OnViewCaptionBar)
+	ON_COMMAND(ID_GENERAL_ACCESIBILITY_HIGHLIGHT, 
+		&CMainFrame::OnGeneralAccessibilityHighlight)
 	ON_UPDATE_COMMAND_UI(ID_GENERAL_SHOW_LOGINBAR_CHECK,
 		&CMainFrame::OnUpdateGeneralShowLoginbarCheck)
+	ON_UPDATE_COMMAND_UI(ID_APP_ADMIN,
+		&CMainFrame::OnUpdateAppAdmin)
 	ON_WM_TIMER()
-	ON_UPDATE_COMMAND_UI(ID_APP_ADMIN, &CMainFrame::OnUpdateAppAdmin)
 END_MESSAGE_MAP()
 
 /* Overrides */
@@ -156,6 +176,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
 	m_wndRibbonBar.SetWindows7Look(TRUE);
 
+	LoadSettings();
+
 	theApp.m_SplashScreen.DestroyWindow();
 	return 0;
 }
@@ -165,6 +187,34 @@ void CMainFrame::OnViewCaptionBar()
 {
 	m_wndCaptionBar.ShowWindow(m_wndCaptionBar.IsVisible() ? SW_HIDE : SW_SHOW);
 	RecalcLayout(FALSE);
+}
+
+// OnGeneralAccessibilityHighlight is called when the user selects an option from the combo box Highlight
+// It is used to highlight the the ribbon button selection, there are 3 options:
+// 1. Highlight ribbon buttons if there are more then one buttons in same panel
+// 2. Highlight all ribbon buttons after selection
+// 3. Use no highlight
+void CMainFrame::OnGeneralAccessibilityHighlight()
+{
+	CMFCRibbonComboBox* pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_GENERAL_ACCESIBILITY_HIGHLIGHT));
+	auto selectedItem = pComboBox->GetCurSel();
+
+	switch (selectedItem)
+	{
+	case 0:
+		m_bHighlightCategories = true;
+		m_bHighlightAll = false;
+		break;
+	case 1:
+		m_bHighlightCategories = false;
+		m_bHighlightAll = true;
+		break;
+	default:
+		m_bHighlightCategories = false;
+		m_bHighlightAll = false;
+		break;
+	}
+	SaveSettings(selectedItem);
 }
 
 // OnOptions is called when the user clicks on the options button in the ribbon bar
@@ -182,7 +232,7 @@ void CMainFrame::OnFilePrint()
 	if ( IsPrintPreview() ) PostMessage(WM_COMMAND, AFX_ID_PREVIEW_PRINT);
 }
 
-// 
+// OnFilePrintPreview is called when the user clicks on the print preview button in the ribbon bar
 void CMainFrame::OnFilePrintPreview()
 {
 	if ( IsPrintPreview() ) PostMessage(WM_COMMAND, AFX_ID_PREVIEW_CLOSE);
@@ -297,8 +347,42 @@ BOOL CMainFrame::CreateCaptionBar()
 	return TRUE;
 }
 
+// LoadSettings is called to load the settings from the ini file
+void CMainFrame::LoadSettings() noexcept
+{
+	// Load init settings
+	TCHAR szPath[MAX_PATH]{};
+	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
+		PathAppendW(szPath, _T("artvabas\\repairCafeCureApp\\rcca.ini"));
+		// Does destination exist?
+		if (GetFileAttributesW(szPath)) {
+			int selection = GetPrivateProfileIntW(_T("Settings"), _T("highlight"), 0, szPath);
+			CMFCRibbonComboBox* pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_GENERAL_ACCESIBILITY_HIGHLIGHT));
+			pComboBox->SelectItem(selection);
+			PostMessageW(WM_COMMAND, ID_GENERAL_ACCESIBILITY_HIGHLIGHT);
+		}
+	}
+}
+
+// SaveSettings is called to save the settings to the ini file
+void CMainFrame::SaveSettings(const int& nHighLight) const noexcept
+{
+	// Save the new init setting
+	TCHAR szPath[MAX_PATH]{};
+	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
+		PathAppendW(szPath, _T("artvabas"));
+		if (INVALID_FILE_ATTRIBUTES == GetFileAttributesW(szPath)) CreateDirectoryW(szPath, NULL);
+		PathAppendW(szPath, _T("repairCafeCureApp"));
+		if (INVALID_FILE_ATTRIBUTES == GetFileAttributesW(szPath)) CreateDirectoryW(szPath, NULL);
+		PathAppendW(szPath, _T("rcca.ini"));
+
+		std::wstring selectedItemStr = std::to_wstring(nHighLight);
+		WritePrivateProfileStringW(_T("Settings"), _T("highlight"), selectedItemStr.c_str(), szPath);
+	}
+}
+
 // GetSelectedEmployee is called to get the selected employee name from the combo box
-CString CMainFrame::GetSelectedEmployee() {
+CString CMainFrame::GetSelectedEmployee() const noexcept {
 	CString strEmployee;
 	auto nIndex = m_pCmbCaptionBarEmployeeName->GetCurSel();
 	if ( nIndex != CB_ERR && nIndex != 0 ) {
@@ -310,6 +394,88 @@ CString CMainFrame::GetSelectedEmployee() {
 	}
 	return strEmployee;
 }
+
+void CMainFrame::OnUpdateCustomerView(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightAll)
+	{
+		(theApp.GetActiveViewType() == VIEW_CUSTOMER)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+
+}
+
+void CMainFrame::OnUpdateWorkorderViewOpen(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightCategories || m_bHighlightAll)
+	{
+		(theApp.GetWorkorderViewType() == VIEW_WORKORDER_OPEN && theApp.GetActiveViewType() == VIEW_WORKORDER)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+}
+
+void CMainFrame::OnUpdateWorkorderViewProgress(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightCategories || m_bHighlightAll)
+	{
+		(theApp.GetWorkorderViewType() == VIEW_WORKORDER_PROGRESS && theApp.GetActiveViewType() == VIEW_WORKORDER)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+}
+
+void CMainFrame::OnUpdateWorkorderViewRepaired(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightCategories || m_bHighlightAll)
+	{
+		(theApp.GetWorkorderViewType() == VIEW_WORKORDER_REPAIRED && theApp.GetActiveViewType() == VIEW_WORKORDER)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+}
+
+void CMainFrame::OnUpdateSearchHistory(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightAll)
+	{
+		(theApp.GetActiveViewType() == VIEW_ASSET)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+}
+
+void CMainFrame::OnUpdateReportViewFinanceTax(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightCategories || m_bHighlightAll)
+	{
+		(theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT && theApp.GetActiveViewType() == VIEW_REPORT_FINANCE_TAX)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+}
+
+void CMainFrame::OnUpdateReportWorkorderPinTransaction(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightCategories || m_bHighlightAll)
+	{
+		(theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT && theApp.GetActiveViewType() == VIEW_REPORT_FINANCE_TAX)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+}
+
+void CMainFrame::OnUpdateReportWorkorderClosed(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightAll)
+	{
+		(theApp.GetActiveViewType() == VIEW_REPORT_WORKORDER_CLOSED)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+}
+
 
 // OnUpdateIsPrintable is called to update the print button in the ribbon bar
 void CMainFrame::OnUpdateIsPrintable(CCmdUI* pCmdUI) {

@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.4 (Alpha)
+* Version: 1.0.0.5 (Alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 09-07-2024, (dd-mm-yyyy)
+* Updated: 13-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -62,6 +62,9 @@ private:
 	CMFCCaptionBar    m_wndCaptionBar;
 	std::vector<std::pair<CString, bool>> m_vecEmployeeList;
 
+	bool m_bHighlightCategories;
+	bool m_bHighlightAll;
+
 protected:
 	CMainFrame() noexcept;
 public:
@@ -76,10 +79,19 @@ private:
 	DECLARE_MESSAGE_MAP()
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCaptionBar();
-	//afx_msg void OnUpdateViewCaptionBar(CCmdUI* pCmdUI);
 	afx_msg void OnOptions();
+	afx_msg void OnGeneralAccessibilityHighlight();
 	afx_msg void OnFilePrint();
 	afx_msg void OnFilePrintPreview();
+
+	afx_msg void OnUpdateCustomerView(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateWorkorderViewOpen(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateWorkorderViewProgress(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateWorkorderViewRepaired(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateSearchHistory(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateReportViewFinanceTax(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateReportWorkorderPinTransaction(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateReportWorkorderClosed(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateIsPrintable(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI);
@@ -90,7 +102,9 @@ public:
 
 private:
 	BOOL CreateCaptionBar();
+	void LoadSettings() noexcept;
+	void SaveSettings(const int& nHighLight) const noexcept;
 public:
-	CString GetSelectedEmployee();
-	inline void EmployeeIdle() { m_pCmbCaptionBarEmployeeName->SetCurSel(0); }
+	CString GetSelectedEmployee() const noexcept;
+	inline void EmployeeIdle() const noexcept { m_pCmbCaptionBarEmployeeName->SetCurSel(0); }
 };
