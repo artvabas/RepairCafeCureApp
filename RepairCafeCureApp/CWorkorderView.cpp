@@ -36,9 +36,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.2 (alpha)
+* Version: 1.0.0.5 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 17-06-2024, (dd-mm-yyyy)
+* Updated: 19-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -216,7 +216,15 @@ BOOL CWorkorderView::PreTranslateMessage(MSG* pMsg)
 {
 
 	if ( pMsg->message == WM_KEYDOWN ) {
-		if ( pMsg->wParam == VK_RETURN ) {
+		if ( pMsg->wParam == VK_RETURN) {
+			// Check if the Shift key is also down
+			if (GetKeyState(VK_SHIFT) & 0x8000) // 0x8000 checks if the high-order bit is set
+			{
+				// Shift + Enter was pressed
+				// Return to App for handling, means new line in edit Box
+
+				return CFormView::PreTranslateMessage(pMsg);
+			}
 			if (m_btnWorkorderUpdate.IsWindowEnabled() && m_btnWorkorderFinished.IsWindowEnabled()) {
 				OnBnClickedWorkorderViewFinished();
 				return TRUE;
@@ -388,9 +396,9 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 	
 		m_strWorkorderCreatedDate = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 4);
 		m_strWorkorderCreatedBy = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 5);
-		m_strWorkorderDescription = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 6);
-		m_strWorkorderStatus = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 8);
-		m_strWorkorderHistoryLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 10);
+		m_strWorkorderDescription = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 11);
+		m_strWorkorderStatus = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 7);
+		m_strWorkorderHistoryLog = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 9);
 
 		theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 
@@ -403,7 +411,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 		InitWorkorderSparePartsList();
 
 		// Set the employee responsible combo box on this form.
-		auto strValue = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 7);
+		auto strValue = m_lscWorkorderExisting.GetItemText(pNMItemActivate->iItem, 6);
 
 		if( !strValue.IsEmpty() )
 			m_cbxWorkorderEmployeeResponsible.SelectString(0, strValue.Trim());
@@ -418,9 +426,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				m_edtWorkorderNewLog.EnableWindow(FALSE);
 				m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
 				m_cbxWorkorderEmployeeResponsible.SetFocus();
-				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
-				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
-				ribbonBar->SetActiveCategory(ribbonBar->GetCategory(1));
+				theApp.ShowContextCategory(ID_CONTEXT_WORKORDER);
 				break;
 			case VIEW_WORKORDER_PROGRESS:
 				m_edtWorkorderNewLog.EnableWindow(TRUE);
@@ -434,9 +440,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				m_btnWorkorderUpdate.EnableWindow(FALSE);
 				m_cbxWorkorderEmployeeResponsible.EnableWindow(TRUE);
 				m_bResponsibleChanged = false;
-				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
-				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
-				ribbonBar->SetActiveCategory(ribbonBar->GetCategory(1));
+				theApp.ShowContextCategory(ID_CONTEXT_WORKORDER);
 				break;
 			case VIEW_WORKORDER_REPAIRED:
 				m_edtWorkorderNewLog.EnableWindow(FALSE);
@@ -448,9 +452,7 @@ void CWorkorderView::OnNMDoubleClickWorkorderViewExisting(NMHDR* pNMHDR, LRESULT
 				SetCustomFocusButton(&m_btnWorkorderClose, ColorButton::RED, true);
 				m_cbxWorkorderEmployeeResponsible.EnableWindow(FALSE);
 				m_bResponsibleChanged = false;
-				ribbonBar->ShowContextCategories(ID_CONTEXT_WORKORDER);
-				ribbonBar->ActivateContextCategory(ID_CONTEXT_WORKORDER);
-				ribbonBar->SetActiveCategory(ribbonBar->GetCategory(1));
+				theApp.ShowContextCategory(ID_CONTEXT_WORKORDER);
 				break;
 		}
 

@@ -367,7 +367,7 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderChange() noexcept
 // Is trigged when the user clicks on the delete button
 void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart() noexcept
 {
-	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(-1, LVNI_SELECTED);
+	int nIndex = m_lscWorkorderAddedPartList.GetNextItem(- 1, LVNI_SELECTED);
 	m_lscWorkorderAddedPartList.DeleteItem(nIndex);
 
 	ClearPartInputFields();

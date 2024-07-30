@@ -34,9 +34,9 @@
 * It is used to avoid hardcoding the SQL column indexes in the project
 *
 * Target: Windows 10/11 64bitS
-* Version: 1.0.0.4 (Alpha)
+* Version: 1.0.0.5 (Alpha)
 * Created: 25-04-2024, (dd-mm-yyyy)
-* Updated: 06-07-2024, (dd-mm-yyyy)
+* Updated: 14-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -78,6 +78,7 @@ namespace artvabas::database::tables {
 			SQLUSMALLINT CUSTOMER_EMAIL { 6 };
 			SQLUSMALLINT CUSTOMER_COMMENT { 7 };
 			SQLUSMALLINT CUSTOMER_GENERAL_LOG { 8 };
+			SQLUSMALLINT CUSTOMER_PARTIAL_INVOICE{ 9 };
 		}CUSTOMER;
 	}
 
