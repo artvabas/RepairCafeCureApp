@@ -35,9 +35,9 @@
 * The report is displayed in a list control and can be printed.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.5 (alpha)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 11-06-2024, (dd-mm-yyyy)
+* Updated: 14-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -479,14 +479,15 @@ void CReportTaxView::OnBnClickedReportTaxPeriodCreate() noexcept
 	if (theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT) {
 		strSqlQuery.Format(_T("SELECT [CONTRIBUTION_CREATEDATE], [CONTRIBUITION_WORKORDER_ID], [CUSTOMER_SURNAME], [CUSTOMER_PHONE], ")
 			_T("[CUSTOMER_CELL_PHONE], [CONTRIBUTION_AMOUNT] FROM [dbo].[CONTRIBUTION], [dbo].[CUSTOMER] ")
-			_T("WHERE ([CONTRIBUTION_CREATEDATE] >= N\'%s\' AND [CONTRIBUTION_CREATEDATE] <= N\'%s\' AND [CUSTOMER_ID] = [CONTRIBUTION_CUSTOMER_ID])"),
+			_T("WHERE ([CONTRIBUTION_CREATEDATE] >= N\'%s\' AND [CONTRIBUTION_CREATEDATE] <= N\'%s\' AND [CUSTOMER_ID] = [CONTRIBUTION_CUSTOMER_ID] AND [CUSTOMER_PARTIAL_INVOICE] = 0)"),
 			static_cast<LPCTSTR>(m_cdtStartDate.Format(_T("%Y-%m-%d"))),
 			static_cast<LPCTSTR>(m_cdtEndDate.Format(_T("%Y-%m-%d"))));
 	}
 	else if (theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT) {
 		strSqlQuery.Format(_T("SELECT [INVOICE_CREATE_DATE], [INVOICE_WORKORDER_ID], [CUSTOMER_SURNAME], [CUSTOMER_PHONE], ")
 			_T("[CUSTOMER_CELL_PHONE], [INVOICE_TOTAL] FROM [dbo].[INVOICE], [dbo].[CUSTOMER] ")
-			_T("WHERE ([INVOICE_CREATE_DATE] >= N\'%s\' AND [INVOICE_CREATE_DATE] <= N\'%s\' AND [CUSTOMER_ID] = [INVOICE_CUSTOMER_ID] AND [INVOICE_PAYMENT_PIN] = 1)"),
+			_T("WHERE ([INVOICE_CREATE_DATE] >= N\'%s\' AND [INVOICE_CREATE_DATE] <= N\'%s\' AND [CUSTOMER_ID] = [INVOICE_CUSTOMER_ID] ")
+			_T("AND [CUSTOMER_PARTIAL_INVOICE] = 0 AND [INVOICE_PAYMENT_PIN] = 1)"),
 			static_cast<LPCTSTR>(m_cdtStartDate.Format(_T("%Y-%m-%d"))),
 			static_cast<LPCTSTR>(m_cdtEndDate.Format(_T("%Y-%m-%d"))));
 	}

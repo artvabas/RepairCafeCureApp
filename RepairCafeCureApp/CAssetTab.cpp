@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.5 (alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 02-06-2024, (dd-mm-yyyy)
+* Updated: 15-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -140,6 +140,13 @@ BOOL CAssetTab::PreTranslateMessage(MSG* pMsg)
 	if (m_pTabControl->GetCurFocus() == 0) {
 		if (pMsg->message == WM_KEYDOWN) {
 			if (pMsg->wParam == VK_RETURN) {
+				// Check if the Shift key is also down
+				if (GetKeyState(VK_SHIFT) & 0x8000) // 0x8000 checks if the high-order bit is set
+				{
+					// Shift + Enter was pressed
+					// Return to App for handling, means new line in edit Box
+					return FALSE;
+				}
 				if (m_btnUpdateAsset.IsWindowEnabled()) {
 					OnBnClickedAssetTabUpdate();
 					return TRUE;
@@ -244,7 +251,7 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 		CString strResult;
 		if (str.IsEmpty()) return  _T("NULL");
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-		return static_cast<LPCTSTR>(strResult);
+		return strResult;
 	};
 
 	// A numeric zero is converted to a string zero or as an empty string, depending on the isNull parameter.
@@ -265,12 +272,12 @@ void CAssetTab::OnBnClickedAssetTabUpdate()
 		_T("[ASSET_DESCRIPTION] = %s, [ASSET_MODEL_NUMBER] = %s, [ASSET_BRAND] = %s, [ASSET_DISPOSED] = %s, ")
 		_T("[ASSET_HISTORY_LOG] = %s WHERE[ASSET_ID] = %d"),
 		m_nAssetCustomerID,
-		buildFieldValue(m_strAssetCreateDate),
-		buildFieldValue(m_strDescription),
-		buildFieldValue(m_strModelNumber),
-		buildFieldValue(m_strBrand),
-		buildFieldValue(intToCString(m_sAssetDisposed)),
-		buildFieldValue(m_strHistoryLog),
+		static_cast<LPCTSTR>(buildFieldValue(m_strAssetCreateDate)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strDescription)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strModelNumber)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strBrand)),
+		static_cast<LPCTSTR>(buildFieldValue(intToCString(m_sAssetDisposed))),
+		static_cast<LPCTSTR>(buildFieldValue(m_strHistoryLog)),
 		m_nAssetID);
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
@@ -313,17 +320,17 @@ void CAssetTab::OnBnClickedAssetTabNew(){
 		CString strResult;
 		if (str.IsEmpty()) return _T("NULL");
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
-		return static_cast<LPCTSTR>(strResult);
+		return strResult;
 	};
 
 	strQuery.Format(_T("INSERT INTO [ASSET] ([ASSET_CUSTOMER_ID], [ASSET_CREATE_DATE], [ASSET_DESCRIPTION], ")
 		_T("[ASSET_MODEL_NUMBER], [ASSET_BRAND], [ASSET_DISPOSED], [ASSET_HISTORY_LOG]) VALUES (%d, %s, %s, %s, %s, 0, %s)"),
 		m_nAssetCustomerID,
-		buildFieldValue(strCurDate),
-		buildFieldValue(m_strDescription),
-		buildFieldValue(m_strModelNumber),
-		buildFieldValue(m_strBrand),
-		buildFieldValue(m_strHistoryLog));
+		static_cast<LPCTSTR>(buildFieldValue(strCurDate)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strDescription)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strModelNumber)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strBrand)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strHistoryLog)));
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();

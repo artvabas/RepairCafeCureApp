@@ -36,9 +36,9 @@ To see the license for this source code, please visit :
 	* Do not add files here that you will be updating frequently as this negates the performance advantage.
 	*
 	* Target: Windows 10/11 64bit
-	* Version: 0.0.1.0 (Alpha)
+	* Version: 1.0.0.5 (Alpha)
 	* Created: 18-10-2023, (dd-mm-yyyy)
-	* Updated: 02-05-2024, (dd-mm-yyyy)
+	* Updated: 19-07-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* Description: Main application class for RepairCafeCureApp
@@ -54,6 +54,8 @@ To see the license for this source code, please visit :
 #include <string>
 #include "CSqlNativeAVB.h"
 #include <vector>
+
+#define ALL_CONTEXT_CATEGORY 0
 
 enum ColorButton { RED, BLUE, BLACK };
 enum PrinterOrientation { PORTRAIT, LANDSCAPE };

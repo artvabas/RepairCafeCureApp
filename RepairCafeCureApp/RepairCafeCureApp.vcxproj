@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -191,7 +191,10 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CAdminEmployeeMaintenance.h" />
     <ClInclude Include="CAdminLogin.h" />
+    <ClInclude Include="CAdminSparePartsStockMaintenance.h" />
+    <ClInclude Include="CAdminWorkorderToProgress.h" />
     <ClInclude Include="CAssetDialog.h" />
     <ClInclude Include="CAssetTab.h" />
     <ClInclude Include="CClosedWorkorderAssetDetailsTab.h" />
@@ -214,6 +217,7 @@
     <ClInclude Include="CWorkorderView.h" />
     <ClInclude Include="DatabaseTables.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="IAdminMaintenance.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RepairCafeCureApp.h" />
@@ -224,7 +228,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CAdminEmployeeMaintenance.cpp" />
     <ClCompile Include="CAdminLogin.cpp" />
+    <ClCompile Include="CAdminSparePartsStockMaintenance.cpp" />
+    <ClCompile Include="CAdminWorkorderToProgress.cpp" />
     <ClCompile Include="CAssetDialog.cpp" />
     <ClCompile Include="CAssetTab.cpp" />
     <ClCompile Include="CClosedWorkorderAssetDetailsTab.cpp" />
@@ -257,6 +264,7 @@
     <ClCompile Include="CAssetView.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="RepairCafeCureApp.reg" />
     <None Include="res\RepairCafeCureApp.rc2" />
     <None Include="res\ribbon.mfcribbon-ms" />

@@ -40,7 +40,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.5 (Alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 13-07-2024, (dd-mm-yyyy)
+* Updated: 21-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -95,7 +95,7 @@ private:
 	afx_msg void OnUpdateIsPrintable(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI);
-	afx_msg void OnUpdateGeneralShowLoginbarCheck(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateGeneralShowLoginBarCheck(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateAppAdmin(CCmdUI* pCmdUI);
 public:
 	afx_msg void OnCaptionBarComboBoxEmployeeNameChange();
@@ -107,4 +107,5 @@ private:
 public:
 	CString GetSelectedEmployee() const noexcept;
 	inline void EmployeeIdle() const noexcept { m_pCmbCaptionBarEmployeeName->SetCurSel(0); }
+	void GetEmployeeList() noexcept;
 };

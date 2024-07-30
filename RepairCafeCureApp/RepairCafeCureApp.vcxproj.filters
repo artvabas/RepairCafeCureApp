@@ -85,6 +85,15 @@
     <Filter Include="Source Files\artvabas\rcc\Security">
       <UniqueIdentifier>{bf8855ae-2b36-4a96-a440-8ba7aac4b728}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\artvabas\rcc\ineterfaces">
+      <UniqueIdentifier>{e3c44f83-d866-4b29-85da-0fcb86f345c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\artvabas\rcc\ui\dialogs\admin">
+      <UniqueIdentifier>{40adbae6-ae3c-4d9a-b8e9-bc15c5356841}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\artvabas\rcc\ui\dialog\admin">
+      <UniqueIdentifier>{0cfe5654-6351-4ee1-acdd-329ab277fb0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RepairCafeCureApp.h">
@@ -180,6 +189,18 @@
     <ClInclude Include="CAdminLogin.h">
       <Filter>Header Files\artvabas\rcc\security</Filter>
     </ClInclude>
+    <ClInclude Include="IAdminMaintenance.h">
+      <Filter>Header Files\artvabas\rcc\ineterfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="CAdminEmployeeMaintenance.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs\admin</Filter>
+    </ClInclude>
+    <ClInclude Include="CAdminSparePartsStockMaintenance.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs\admin</Filter>
+    </ClInclude>
+    <ClInclude Include="CAdminWorkorderToProgress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -260,6 +281,15 @@
     <ClCompile Include="CAdminLogin.cpp">
       <Filter>Source Files\artvabas\rcc\Security</Filter>
     </ClCompile>
+    <ClCompile Include="CAdminEmployeeMaintenance.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog\admin</Filter>
+    </ClCompile>
+    <ClCompile Include="CAdminSparePartsStockMaintenance.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog\admin</Filter>
+    </ClCompile>
+    <ClCompile Include="CAdminWorkorderToProgress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="RepairCafeCureApp.reg" />
@@ -269,6 +299,7 @@
     <None Include="res\RepairCafeCureApp.rc2">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RepairCafeCureApp.rc">

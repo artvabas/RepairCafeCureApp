@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.0.5 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 30-04-2024, (dd-mm-yyyy)
+* Updated: 14-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -80,6 +80,7 @@ namespace artvabas::rcc::ui {
 		CString m_strCustomerPhone;
 		CString m_strCustomerSurname;
 		CString m_strCustomerEmail;
+		CString m_strCustomerPartialInvoice;
 
 		unsigned m_nCustomerID;
 

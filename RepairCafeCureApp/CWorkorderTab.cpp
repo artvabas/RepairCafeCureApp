@@ -176,7 +176,7 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 	// Build the fields value for the query.
 	auto buildFieldValue = [](CString str) -> CString {
 		CString strResult;
-		if (str.IsEmpty()) return  static_cast<LPCTSTR>(_T("NULL"));
+		if (str.IsEmpty()) return  _T("NULL");
 		strResult.Format(_T("N\'%s\'"), static_cast<LPCTSTR>(str));
 		return strResult;
 	};
@@ -185,11 +185,11 @@ void CWorkorderTab::OnBnClickedWoTabCreate()
 		_T("[WORKORDER_CREATE_DATE], [WORKORDER_CREATE_BY], [WORKORDER_DESCRIPTION], [WORKORDER_RESPONSIBLE], [WORKORDER_STATUS], ")
 		_T("[WORKORDER_HISTORY]) VALUES(%d, %d, NULL, %s, %s, %s, NULL, %s, %s)"),
 		m_uiAssetID, m_uiCustomerID,
-		buildFieldValue(COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y"))),
-		buildFieldValue(theApp.GetSelectedEmployeeName()),
-		buildFieldValue(m_strWorkorderDescription),
-		buildFieldValue(_T("Open")),
-		buildFieldValue(strWorkorderLog));
+		static_cast<LPCTSTR>(buildFieldValue(COleDateTime::GetCurrentTime().Format(_T("%m/%d/%Y")))),
+		static_cast<LPCTSTR>(buildFieldValue(theApp.GetSelectedEmployeeName())),
+		static_cast<LPCTSTR>(buildFieldValue(m_strWorkorderDescription)),
+		static_cast<LPCTSTR>(buildFieldValue(_T("Open"))),
+		static_cast<LPCTSTR>(buildFieldValue(strWorkorderLog)));
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();

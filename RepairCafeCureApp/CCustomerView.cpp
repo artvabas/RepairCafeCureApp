@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.1 (alpha)
+* Version: 1.0.0.5 (alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 02-06-2024, (dd-mm-yyyy)
+* Updated: 15-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -69,6 +69,7 @@ CCustomerView::CCustomerView() noexcept
 	, m_strCustomerPhone{ _T("") }
 	, m_strCustomerSurname{ _T("") }
 	, m_strCustomerEmail{ _T("") }
+	, m_strCustomerPartialInvoice{ _T("") }
 	, m_bIsNewCustomer{ false }
 	, m_bIsDirtyCustomerDetails{ false }
 	, m_nCustomerID{ 0 }
@@ -117,6 +118,14 @@ BOOL CCustomerView::PreTranslateMessage(MSG* pMsg)
 {
 	if ( pMsg->message == WM_KEYDOWN ) {
 		if ( pMsg->wParam == VK_RETURN ) {
+			// Check if the Shift key is also down
+			if (GetKeyState(VK_SHIFT) & 0x8000) // 0x8000 checks if the high-order bit is set
+			{
+				// Shift + Enter was pressed
+				// Return to App for handling, means new line in edit Box
+
+				return CFormView::PreTranslateMessage(pMsg);
+			}
 			// Does the message come from the search surname edit control?
 			if (pMsg->hwnd == GetDlgItem(IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH)->m_hWnd) {
 				// Yes, then virtual click the search button.
@@ -176,6 +185,7 @@ void CCustomerView::OnInitialUpdate()
 	m_ctlExistingCustomersList.InsertColumn(5, _T("EMAIL"), LVCFMT_LEFT, 150);
 	m_ctlExistingCustomersList.InsertColumn(6, _T("COMMENT"), LVCFMT_LEFT, 0);
 	m_ctlExistingCustomersList.InsertColumn(7, _T("LOG"), LVCFMT_LEFT, 0);
+	m_ctlExistingCustomersList.InsertColumn(8, _T("PARTIAL INVOICE"), LVCFMT_LEFT, 0);
 
 	// Disable all child controls of the view.
 	OnUpdateUIState(UIS_INITIALIZE, 0);
@@ -295,6 +305,9 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 
 					SQLGetData(hstmt, CUSTOMER.CUSTOMER_GENERAL_LOG, SQL_C_CHAR, szNameLong, SQLCHARVMAX, &cbName);
 					m_ctlExistingCustomersList.SetItemText(nIndex, 7, CheckForNull(szNameLong, cbName));
+
+					SQLGetData(hstmt, CUSTOMER.CUSTOMER_PARTIAL_INVOICE, SQL_C_CHAR, szName, SQLCHARVSMALL, &cbName);
+					m_ctlExistingCustomersList.SetItemText(nIndex, 8, CheckForNull(szName, cbName));
 				}
 				else 
 					break;
@@ -433,6 +446,7 @@ void CCustomerView::OnDoubleClickCustViewCustomerList(NMHDR* pNMHDR, LRESULT* pR
 		m_strCustomerEmail = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 5);
 		m_strCustomerComment = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 6);
 		m_strCustomerLog = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 7);
+		m_strCustomerPartialInvoice = m_ctlExistingCustomersList.GetItemText(pNMItemActivate->iItem, 8);
 		UpdateData(FALSE);
 
 		// Enable the customer Asset button and disable the add and update customer buttons.
@@ -517,14 +531,15 @@ void CCustomerView::OnClickedCustViewButtonCustomerAdd() {
 	};
 
 	strQuery.Format(_T("INSERT INTO [CUSTOMER] ([CUSTOMER_SURNAME], [CUSTOMER_NAME], [CUSTOMER_CELL_PHONE], [CUSTOMER_PHONE], ")
-		_T("[CUSTOMER_EMAIL], [CUSTOMER_COMMENT], [CUSTOMER_GENERAL_LOG]) VALUES(%s, %s, %s, %s, %s, %s, %s)"),
+		_T("[CUSTOMER_EMAIL], [CUSTOMER_COMMENT], [CUSTOMER_GENERAL_LOG], [CUSTOMER_PARTIAL_INVOICE]) VALUES(%s, %s, %s, %s, %s, %s, %s, %d)"),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerSurname)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerName)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerCellPhone)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerPhone)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerEmail)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
-		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)));
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)),
+		0);
 
 	theApp.BeginWaitCursor();
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
@@ -577,7 +592,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 	};
 	
 	strQuery.Format(_T("UPDATE [CUSTOMER] SET [CUSTOMER_SURNAME] = %s, [CUSTOMER_NAME] = %s, [CUSTOMER_CELL_PHONE] = %s, [CUSTOMER_PHONE] = %s, ")
-		_T("[CUSTOMER_EMAIL] = %s, [CUSTOMER_COMMENT] = %s, [CUSTOMER_GENERAL_LOG] = %s WHERE[CUSTOMER_ID] = %d"),
+		_T("[CUSTOMER_EMAIL] = %s, [CUSTOMER_COMMENT] = %s, [CUSTOMER_GENERAL_LOG] = %s, [CUSTOMER_PARTIAL_INVOICE] = %s WHERE[CUSTOMER_ID] = %d"),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerSurname)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerName)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerCellPhone)),
@@ -585,6 +600,7 @@ void CCustomerView::OnClickedCustViewButtonCustomerUpdate() {
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerEmail)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerComment)),
 		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerLog)),
+		static_cast<LPCTSTR>(buildFieldValue(m_strCustomerPartialInvoice)),
 				m_nCustomerID);
 
 	theApp.BeginWaitCursor();

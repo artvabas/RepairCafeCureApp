@@ -40,7 +40,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.0.5 (Alpha)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 13-07-2024, (dd-mm-yyyy)
+* Updated: 19-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -71,7 +71,7 @@ CMainFrame::CMainFrame() noexcept
 
 CMainFrame::~CMainFrame()
 {
-	m_wndRibbonBar.HideAllContextCategories();
+	//m_wndRibbonBar.HideAllContextCategories();
 	if ( m_pCmbCaptionBarEmployeeName != nullptr ) {
 		delete m_pCmbCaptionBarEmployeeName;
 		m_pCmbCaptionBarEmployeeName = nullptr;
@@ -125,7 +125,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_GENERAL_ACCESIBILITY_HIGHLIGHT, 
 		&CMainFrame::OnGeneralAccessibilityHighlight)
 	ON_UPDATE_COMMAND_UI(ID_GENERAL_SHOW_LOGINBAR_CHECK,
-		&CMainFrame::OnUpdateGeneralShowLoginbarCheck)
+		&CMainFrame::OnUpdateGeneralShowLoginBarCheck)
 	ON_UPDATE_COMMAND_UI(ID_APP_ADMIN,
 		&CMainFrame::OnUpdateAppAdmin)
 	ON_WM_TIMER()
@@ -138,8 +138,6 @@ END_MESSAGE_MAP()
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
 	if (!CFrameWndEx::PreCreateWindow(cs)) return FALSE;
-	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
 	return TRUE;
 }
 #ifdef _DEBUG
@@ -199,8 +197,7 @@ void CMainFrame::OnGeneralAccessibilityHighlight()
 	CMFCRibbonComboBox* pComboBox = DYNAMIC_DOWNCAST(CMFCRibbonComboBox, m_wndRibbonBar.FindByID(ID_GENERAL_ACCESIBILITY_HIGHLIGHT));
 	auto selectedItem = pComboBox->GetCurSel();
 
-	switch (selectedItem)
-	{
+	switch (selectedItem) {
 	case 0:
 		m_bHighlightCategories = true;
 		m_bHighlightAll = false;
@@ -260,6 +257,8 @@ void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
 		bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_LOCK);
 		ASSERT(bNameValid);
 		m_wndStatusBar.SetInformation(strTemp);
+		m_wndRibbonBar.HideAllContextCategories();
+		m_wndRibbonBar.ForceRecalcLayout();
 	}
 }
 
@@ -297,49 +296,7 @@ BOOL CMainFrame::CreateCaptionBar()
 	ASSERT(bNameValid);
 	m_wndStatusBar.SetInformation(strTemp);
 
-	theApp.BeginWaitCursor();
-
-	// Add names to comboBox
-	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
-
-	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
-
-	if ( sql.CreateSQLConnection() ) {
-
-		SQLCHAR szName[50]{};
-		SQLLEN cbName{};
-		SQLRETURN retcode{};
-		SQLHSTMT hstmt{ sql.GetStatementHandle() };
-		SQLWCHAR* strQuery{ _T("SELECT * FROM EMPLOYEE ORDER BY EMPLOYEE_NAME") };
-
-		CString strName;
-		bool bIsAdmin;
-
-		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
-
-		if ( retcode == SQL_SUCCESS ) {
-			while (TRUE) {
-				retcode = SQLFetch(hstmt);
-				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO )
-					AfxMessageBox(_T("Error fetching data from Employee Table!"), MB_ICONEXCLAMATION);
-				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
-					SQLGetData(hstmt, EMPLOYEE.EMPLOYEE_NAME, SQL_C_CHAR, szName, 50, &cbName);
-					strName = static_cast<CString>(szName);
-					SQLGetData(hstmt, EMPLOYEE.EMPLOYEE_ROLE_ADMIN, SQL_C_BIT, &bIsAdmin, 0, nullptr);
-					m_pCmbCaptionBarEmployeeName->AddString(strName);
-					m_vecEmployeeList.push_back(std::make_pair(strName, bIsAdmin));
-				}
-				else
-					break;
-			}
-		}
-		sql.CheckReturnCodeForClosing(retcode);
-	}
-	sql.CloseConnection();
-
-	m_pCmbCaptionBarEmployeeName->SetCurSel(0);
-
-	theApp.EndWaitCursor();
+	GetEmployeeList();
 
 	bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_LOCK);
 	ASSERT(bNameValid);
@@ -395,85 +352,130 @@ CString CMainFrame::GetSelectedEmployee() const noexcept {
 	return strEmployee;
 }
 
+// GetEmployeeList is called to get the employee names from the database
+// It is used to get the employee names from the database and add them to the combo box
+void CMainFrame::GetEmployeeList() noexcept
+{
+	theApp.BeginWaitCursor();
+
+	m_pCmbCaptionBarEmployeeName->ResetContent();
+	m_vecEmployeeList.clear();
+	// Add names to comboBox
+	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
+
+	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
+
+	if (sql.CreateSQLConnection()) {
+
+		SQLCHAR szName[50]{};
+		SQLLEN cbName{};
+		SQLRETURN retcode{};
+		SQLHSTMT hstmt{ sql.GetStatementHandle() };
+		SQLWCHAR* strQuery{ _T("SELECT * FROM EMPLOYEE ORDER BY EMPLOYEE_NAME") };
+
+		CString strName;
+		bool bIsAdmin;
+
+		retcode = SQLExecDirectW(hstmt, strQuery, SQL_NTS);
+
+		if (retcode == SQL_SUCCESS) {
+			while (TRUE) {
+				retcode = SQLFetch(hstmt);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+					AfxMessageBox(_T("Error fetching data from Employee Table!"), MB_ICONEXCLAMATION);
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+					SQLGetData(hstmt, EMPLOYEE.EMPLOYEE_NAME, SQL_C_CHAR, szName, 50, &cbName);
+					strName = static_cast<CString>(szName);
+					SQLGetData(hstmt, EMPLOYEE.EMPLOYEE_ROLE_ADMIN, SQL_C_BIT, &bIsAdmin, 0, nullptr);
+					m_pCmbCaptionBarEmployeeName->AddString(strName);
+					m_vecEmployeeList.push_back(std::make_pair(strName, bIsAdmin));
+				} else break;
+			}
+		}
+		sql.CheckReturnCodeForClosing(retcode);
+	}
+	m_pCmbCaptionBarEmployeeName->SetCurSel(0);
+	sql.CloseConnection();
+	theApp.EndWaitCursor();
+}
+
+// OnUpdateCustomerView is called to highlight the customer view button in the ribbon bar,
+// Depending on the settings, the button is highlighted or not.
 void CMainFrame::OnUpdateCustomerView(CCmdUI* pCmdUI)
 {
-	if (m_bHighlightAll)
-	{
+	if (m_bHighlightAll) {
 		(theApp.GetActiveViewType() == VIEW_CUSTOMER)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
-	}
-	else pCmdUI->SetCheck(FALSE);
+	} else pCmdUI->SetCheck(FALSE);
 
 }
 
+// OnUpdateWorkorderViewOpen is called to highlight the workorder view open button in the ribbon bar.
+// Depending on the settings, the button is highlighted or not.
 void CMainFrame::OnUpdateWorkorderViewOpen(CCmdUI* pCmdUI)
 {
-	if (m_bHighlightCategories || m_bHighlightAll)
-	{
+	if (m_bHighlightCategories || m_bHighlightAll) {
 		(theApp.GetWorkorderViewType() == VIEW_WORKORDER_OPEN && theApp.GetActiveViewType() == VIEW_WORKORDER)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
-	}
-	else pCmdUI->SetCheck(FALSE);
+	} else pCmdUI->SetCheck(FALSE);
 }
 
+// OnUpdateWorkorderViewProgress is called to highlight the workorder view progress button in the ribbon bar.
+// Depending on the settings, the button is highlighted or not.
 void CMainFrame::OnUpdateWorkorderViewProgress(CCmdUI* pCmdUI)
 {
-	if (m_bHighlightCategories || m_bHighlightAll)
-	{
+	if (m_bHighlightCategories || m_bHighlightAll) {
 		(theApp.GetWorkorderViewType() == VIEW_WORKORDER_PROGRESS && theApp.GetActiveViewType() == VIEW_WORKORDER)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
-	}
-	else pCmdUI->SetCheck(FALSE);
+	} else pCmdUI->SetCheck(FALSE);
 }
 
+// OnUpdateWorkorderViewRepaired is called to highlight the workorder view repaired button in the ribbon bar.
+// Depending on the settings, the button is highlighted or not.
 void CMainFrame::OnUpdateWorkorderViewRepaired(CCmdUI* pCmdUI)
 {
-	if (m_bHighlightCategories || m_bHighlightAll)
-	{
+	if (m_bHighlightCategories || m_bHighlightAll) {
 		(theApp.GetWorkorderViewType() == VIEW_WORKORDER_REPAIRED && theApp.GetActiveViewType() == VIEW_WORKORDER)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
-	}
-	else pCmdUI->SetCheck(FALSE);
+	} else pCmdUI->SetCheck(FALSE);
 }
 
+// OnUpdateSearchHistory is called to highlight the search history button in the ribbon bar.
+// Depending on the settings, the button is highlighted or not.
 void CMainFrame::OnUpdateSearchHistory(CCmdUI* pCmdUI)
 {
-	if (m_bHighlightAll)
-	{
+	if (m_bHighlightAll) {
 		(theApp.GetActiveViewType() == VIEW_ASSET)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
-	}
-	else pCmdUI->SetCheck(FALSE);
+	} else pCmdUI->SetCheck(FALSE);
 }
 
 void CMainFrame::OnUpdateReportViewFinanceTax(CCmdUI* pCmdUI)
 {
-	if (m_bHighlightCategories || m_bHighlightAll)
-	{
+	if (m_bHighlightCategories || m_bHighlightAll) {
 		(theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT && theApp.GetActiveViewType() == VIEW_REPORT_FINANCE_TAX)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
-	}
-	else pCmdUI->SetCheck(FALSE);
+	} else pCmdUI->SetCheck(FALSE);
 }
 
+// OnUpdateReportWorkorderPinTransaction is called to highlight the report workorder pin transaction button in the ribbon bar.
+// Depending on the settings, the button is highlighted or not.
 void CMainFrame::OnUpdateReportWorkorderPinTransaction(CCmdUI* pCmdUI)
 {
-	if (m_bHighlightCategories || m_bHighlightAll)
-	{
+	if (m_bHighlightCategories || m_bHighlightAll) {
 		(theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT && theApp.GetActiveViewType() == VIEW_REPORT_FINANCE_TAX)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
-	}
-	else pCmdUI->SetCheck(FALSE);
+	} else pCmdUI->SetCheck(FALSE);
 }
 
+// OnUpdateReportWorkorderClosed is called to highlight the report workorder closed button in the ribbon bar.
+// Depending on the settings, the button is highlighted or not.
 void CMainFrame::OnUpdateReportWorkorderClosed(CCmdUI* pCmdUI)
 {
-	if (m_bHighlightAll)
-	{
+	if (m_bHighlightAll) {
 		(theApp.GetActiveViewType() == VIEW_REPORT_WORKORDER_CLOSED)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
-	}
-	else pCmdUI->SetCheck(FALSE);
+	} else pCmdUI->SetCheck(FALSE);
 }
 
 
@@ -524,19 +526,19 @@ void CMainFrame::OnUpdateWorkorderExtraInvoice(CCmdUI* pCmdUI) {
 	}
 }
 
-// OnUpdateGeneralShowLoginbarCheck toggle for show hide caption bar
-// trigged when user check or uncheck the checkbox on ribbinbar -> General
-void CMainFrame::OnUpdateGeneralShowLoginbarCheck(CCmdUI* pCmdUI) {
+// OnUpdateGeneralShowLoginBarCheck toggle for show hide caption bar
+// trigged when user check or uncheck the checkbox on ribbon bar -> General
+void CMainFrame::OnUpdateGeneralShowLoginBarCheck(CCmdUI* pCmdUI) {
 	pCmdUI->SetCheck(m_wndCaptionBar.IsVisible());
 }
 
+// OnUpdateAppAdmin is called to enable the admin button in the ribbon bar.
+// Depending on the user, the button is enabled or not.
 void CMainFrame::OnUpdateAppAdmin(CCmdUI* pCmdUI)
 {
 	pCmdUI->Enable(FALSE);
-	for each (std::pair<CString, bool>  employee in m_vecEmployeeList)
-	{
-		if (employee.first == GetSelectedEmployee())
-		{
+	for each (std::pair<CString, bool>  employee in m_vecEmployeeList) {
+		if (employee.first == GetSelectedEmployee()) {
 			pCmdUI->Enable(employee.second ? TRUE : FALSE);
 			break;
 		}

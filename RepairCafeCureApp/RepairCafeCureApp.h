@@ -34,9 +34,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.4 (alpha)
+* Version: 1.0.0.5 (alpha)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 09-07-2024, (dd-mm-yyyy)
+* Updated: 30-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -103,6 +103,9 @@ private:
 	afx_msg void OnReportWorkorderPinTransaction() noexcept;
 	afx_msg void OnReportWorkorderClosed() noexcept;
 	afx_msg void OnAppAdmin() noexcept;
+	afx_msg void OnAdminMaintenanceEmployees() noexcept;
+	afx_msg void OnAdminMaintenanceStock() noexcept;
+	afx_msg void OnAdminMaintenanceWorkorderProgress() noexcept;
 	afx_msg void OnFilePrintSetup() noexcept;
 
 public:
@@ -119,6 +122,7 @@ public:
 	inline void SetPrintPreview(bool bIsPrintPreview) noexcept { m_bIsPrintPreview = bIsPrintPreview; }
 	inline bool IsAdmin() const noexcept { return m_bIsAdmin; }
 	inline void SetAdmin(bool bIsAdmin) noexcept { m_bIsAdmin = bIsAdmin; }
+	void ShowContextCategory(const UINT nID, const BOOL bShow = 1) const noexcept;
 
 
 private:
