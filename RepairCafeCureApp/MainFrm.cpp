@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5 (Alpha)
+* Version: 1.0.1.0 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 19-07-2024, (dd-mm-yyyy)
+* Updated: 25-08-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -108,6 +108,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 		&CMainFrame::OnUpdateReportViewFinanceTax)
 	ON_UPDATE_COMMAND_UI(ID_REPORT_WORKORDER_PINTRANSACTION, 
 		&CMainFrame::OnUpdateReportWorkorderPinTransaction)
+	ON_UPDATE_COMMAND_UI(ID_REPORT_WORKORDER_CASHTRANSACTION,
+		&CMainFrame::OnUpdateReportWorkorderCashTransaction)
+	ON_UPDATE_COMMAND_UI(ID_REPORT_WORKORDER__TOTALFLOW,
+		&CMainFrame::OnUpdateReportWorkorderTotalFlow)
 	ON_UPDATE_COMMAND_UI(ID_REPORT_WORKORDER_CLOSED, 
 		&CMainFrame::OnUpdateReportWorkorderClosed)
 	ON_UPDATE_COMMAND_UI(ID_APP_VIEW,
@@ -466,6 +470,28 @@ void CMainFrame::OnUpdateReportWorkorderPinTransaction(CCmdUI* pCmdUI)
 		(theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT && theApp.GetActiveViewType() == VIEW_REPORT_FINANCE_TAX)
 			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
 	} else pCmdUI->SetCheck(FALSE);
+}
+
+// OnUpdateReportWorkorderCashTransaction is called to highlight the report workorder cash transaction button in the ribbon bar.
+// Depending on the settings, the button is highlighted or not.
+void CMainFrame::OnUpdateReportWorkorderCashTransaction(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightCategories || m_bHighlightAll) {
+		(theApp.GetFinanceTaxViewType() == VIEW_CASH_TRANSACTION_REPORT && theApp.GetActiveViewType() == VIEW_REPORT_FINANCE_TAX)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
+}
+
+// OnUpdateReportWorkorderTotalFlow is called to highlight the report workorder total flow button in the ribbon bar.
+// Depending on the settings, the button is highlighted or not.
+void CMainFrame::OnUpdateReportWorkorderTotalFlow(CCmdUI* pCmdUI)
+{
+	if (m_bHighlightCategories || m_bHighlightAll) {
+		(theApp.GetActiveViewType() == VIEW_REPORT_FINANCE_TOTAL)
+			? pCmdUI->SetCheck(TRUE) : pCmdUI->SetCheck(FALSE);
+	}
+	else pCmdUI->SetCheck(FALSE);
 }
 
 // OnUpdateReportWorkorderClosed is called to highlight the report workorder closed button in the ribbon bar.

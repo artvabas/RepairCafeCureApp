@@ -36,9 +36,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5 (alpha)
+* Version: 1.0.1.0 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 19-07-2024, (dd-mm-yyyy)
+* Updated: 08-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -680,11 +680,12 @@ void CWorkorderView::OnBnClickedWorkorderViewClose() {
 			if (sql.CreateSQLConnection() ) {
 				if (contributionData.dContribution > 0.0) {
 					strQuery.Format(_T("INSERT INTO [CONTRIBUTION] ([CONTRIBUTION_CUSTOMER_ID], [CONTRIBUITION_WORKORDER_ID], ")
-						_T("[CONTRIBUTION_CREATEDATE], [CONTRIBUTION_AMOUNT]) VALUES(%d, %d, %s, %f)"),
+						_T("[CONTRIBUTION_CREATEDATE], [CONTRIBUTION_AMOUNT], [CONTRIBUTION_PIN]) VALUES(%d, %d, %s, %f, %d)"),
 						invoiceData.unCustomerID,
 						invoiceData.unWorkOrderID,
 						static_cast<LPCTSTR>(buildFieldValue(strCurDate)),
-						contributionData.dContribution);
+						contributionData.dContribution,
+						contributionData.bPaymentWithPin ? 1 : 0);
 					theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 				
 					if (!sql.ExecuteQuery(strQuery.GetBuffer()))
