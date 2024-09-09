@@ -282,6 +282,7 @@
     <Image Include="res\Customers.bmp" />
     <Image Include="res\filelarge.bmp" />
     <Image Include="res\filesmall.bmp" />
+    <Image Include="res\FinanceFlowTotal.bmp" />
     <Image Include="res\HistorySearch.bmp" />
     <Image Include="res\info.bmp" />
     <Image Include="res\LogoAVBIcon.ico" />
