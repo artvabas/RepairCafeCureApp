@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5 (Alpha)
+* Version: 1.0.1.0 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 21-07-2024, (dd-mm-yyyy)
+* Updated: 25-08-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -91,6 +91,8 @@ private:
 	afx_msg void OnUpdateSearchHistory(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateReportViewFinanceTax(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateReportWorkorderPinTransaction(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateReportWorkorderCashTransaction(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateReportWorkorderTotalFlow(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateReportWorkorderClosed(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateIsPrintable(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateWorkorderExtraCombi(CCmdUI* pCmdUI);

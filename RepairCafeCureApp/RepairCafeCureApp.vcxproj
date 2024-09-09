@@ -207,6 +207,7 @@
     <ClInclude Include="CCustomerView.h" />
     <ClInclude Include="CDatabaseConnection.h" />
     <ClInclude Include="CPrintWorkorder.h" />
+    <ClInclude Include="CReportFinanceTotalView.h" />
     <ClInclude Include="CReportTaxView.h" />
     <ClInclude Include="CReportWorkorderClosedView.h" />
     <ClInclude Include="CSplashScreen.h" />
@@ -244,6 +245,7 @@
     <ClCompile Include="CCustomerView.cpp" />
     <ClCompile Include="CDatabaseConnection.cpp" />
     <ClCompile Include="CPrintWorkorder.cpp" />
+    <ClCompile Include="CReportFinanceTotalView.cpp" />
     <ClCompile Include="CReportTaxView.cpp" />
     <ClCompile Include="CReportWorkorderClosedView.cpp" />
     <ClCompile Include="CSplashScreen.cpp" />

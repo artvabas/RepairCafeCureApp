@@ -96,7 +96,7 @@ namespace artvabas::rcc::ui {
 		void OnInitialUpdate() override;
 		void DoDataExchange(CDataExchange* pDX) override;
 #ifdef _DEBUG
-			void AssertValid() const override;
+		void AssertValid() const override;
 #ifndef _WIN32_WCE
 		void Dump(CDumpContext& dc) const override;
 #endif

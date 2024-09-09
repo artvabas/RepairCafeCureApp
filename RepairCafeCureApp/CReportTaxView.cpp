@@ -35,9 +35,9 @@
 * The report is displayed in a list control and can be printed.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5 (alpha)
+* Version: 1.0.1.0 (beta)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 14-07-2024, (dd-mm-yyyy)
+* Updated: 08-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -101,18 +101,13 @@ void CReportTaxView::OnInitialUpdate()
 
 	m_lstReportResultTax.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 
-	if (theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT) {
-		m_lstReportResultTax.InsertColumn(0, _T("DATE COMPLETE"), LVCFMT_LEFT, 100);
-		m_lstReportResultTax.InsertColumn(1, _T("WORKORDER ID"), LVCFMT_LEFT, 100);
-		m_lstReportResultTax.InsertColumn(2, _T("SURNAME"), LVCFMT_LEFT, 100);
-		m_lstReportResultTax.InsertColumn(3, _T("PHONE"), LVCFMT_LEFT, 100);
-		m_lstReportResultTax.InsertColumn(4, _T("CELL PHONE"), LVCFMT_LEFT, 100);
-		m_lstReportResultTax.InsertColumn(5, _T("AMOUNT"), LVCFMT_RIGHT, 100);
-	}
-	else if (theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT) {
-		// TODO
-	}
-
+	m_lstReportResultTax.InsertColumn(0, _T("DATE COMPLETE"), LVCFMT_LEFT, 100);
+	m_lstReportResultTax.InsertColumn(1, _T("WORKORDER ID"), LVCFMT_LEFT, 100);
+	m_lstReportResultTax.InsertColumn(2, _T("SURNAME"), LVCFMT_LEFT, 100);
+	m_lstReportResultTax.InsertColumn(3, _T("PHONE"), LVCFMT_LEFT, 100);
+	m_lstReportResultTax.InsertColumn(4, _T("CELL PHONE"), LVCFMT_LEFT, 100);
+	m_lstReportResultTax.InsertColumn(5, _T("AMOUNT"), LVCFMT_RIGHT, 100);
+	
 	m_btnCreateReport.SetTextColor(RGB(255, 0, 0));
 }
 
@@ -286,6 +281,10 @@ void CReportTaxView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		pDC->DrawText(_T("Overzicht PIN transacties, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth()]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")),
 			rctHeader, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 	}
+	else if (theApp.GetFinanceTaxViewType() == VIEW_CASH_TRANSACTION_REPORT) {
+		pDC->DrawText(_T("Overzicht contante transacties, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth()]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")),
+			rctHeader, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	}
 	
 	// calculate new start print position
 	nPosY += HeaderTextLineDown(3);
@@ -382,7 +381,7 @@ void CReportTaxView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	pDC->SelectObject(pFont);
 	COleDateTime cdtNow = COleDateTime::GetCurrentTime();
 
-	pDC->TextOutW(nPosX, nPosY, _T("Dit overzicht is gegenereerd door Repair Cafe CureApp op ") + cdtNow.Format(_T("%d-%m-%Y")));
+	pDC->TextOutW(nPosX, nPosY, _T("Dit overzicht is gegenereerd door Repair Cafe Cure App op ") + cdtNow.Format(_T("%d-%m-%Y")));
 
 	// Destroy image
 	imgLogo.Destroy();
@@ -454,10 +453,11 @@ void CReportTaxView::OnShowWindow(BOOL bShow, UINT nStatus) noexcept
 		else if (theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT) {
 			m_strReportTaxKind = _T("PIN Transaction Report");
 		}
+		else if (theApp.GetFinanceTaxViewType() == VIEW_CASH_TRANSACTION_REPORT) {
+			m_strReportTaxKind = _T("Cash Transaction Report");
+		}
 		UpdateData(FALSE);
 	}
-
-	// TODO: Add your message handler code here
 }
 
 // OnBnClickedReportTaxPeriodCreate: Called when the create report button is clicked
@@ -488,6 +488,14 @@ void CReportTaxView::OnBnClickedReportTaxPeriodCreate() noexcept
 			_T("[CUSTOMER_CELL_PHONE], [INVOICE_TOTAL] FROM [dbo].[INVOICE], [dbo].[CUSTOMER] ")
 			_T("WHERE ([INVOICE_CREATE_DATE] >= N\'%s\' AND [INVOICE_CREATE_DATE] <= N\'%s\' AND [CUSTOMER_ID] = [INVOICE_CUSTOMER_ID] ")
 			_T("AND [CUSTOMER_PARTIAL_INVOICE] = 0 AND [INVOICE_PAYMENT_PIN] = 1)"),
+			static_cast<LPCTSTR>(m_cdtStartDate.Format(_T("%Y-%m-%d"))),
+			static_cast<LPCTSTR>(m_cdtEndDate.Format(_T("%Y-%m-%d"))));
+	}
+	else if (theApp.GetFinanceTaxViewType() == VIEW_CASH_TRANSACTION_REPORT) {
+		strSqlQuery.Format(_T("SELECT [INVOICE_CREATE_DATE], [INVOICE_WORKORDER_ID], [CUSTOMER_SURNAME], [CUSTOMER_PHONE], ")
+			_T("[CUSTOMER_CELL_PHONE], [INVOICE_TOTAL] FROM [dbo].[INVOICE], [dbo].[CUSTOMER] ")
+			_T("WHERE ([INVOICE_CREATE_DATE] >= N\'%s\' AND [INVOICE_CREATE_DATE] <= N\'%s\' AND [CUSTOMER_ID] = [INVOICE_CUSTOMER_ID] ")
+			_T("AND [CUSTOMER_PARTIAL_INVOICE] = 0 AND [INVOICE_PAYMENT_PIN] = 0)"),
 			static_cast<LPCTSTR>(m_cdtStartDate.Format(_T("%Y-%m-%d"))),
 			static_cast<LPCTSTR>(m_cdtEndDate.Format(_T("%Y-%m-%d"))));
 	}

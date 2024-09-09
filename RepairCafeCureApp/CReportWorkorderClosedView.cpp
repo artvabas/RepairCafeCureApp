@@ -35,9 +35,9 @@
 * jump into the close workorder to see the details with a option to print them.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.3 (alpha)
+* Version: 1.0.1.0 (beta)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 28s-06-2024, (dd-mm-yyyy)
+* Updated: 09-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -324,7 +324,7 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	pDC->SelectObject(pFont);
 	COleDateTime cdtNow = COleDateTime::GetCurrentTime();
 
-	pDC->TextOutW(nPosX, nPosY, _T("Dit overzicht is gegenereerd door Repair Cafe CureApp op ") + cdtNow.Format(_T("%d-%m-%Y")));
+	pDC->TextOutW(nPosX, nPosY, _T("Dit overzicht is gegenereerd door Repair Cafe Cure App op ") + cdtNow.Format(_T("%d-%m-%Y")));
 
 	// Destroy image
 	imgLogo.Destroy();

@@ -36,9 +36,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5 (alpha)
+* Version: 1.0.1.0 (beta)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 30-07-2024, (dd-mm-yyyy)
+* Updated: 25-08-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -58,6 +58,7 @@
 #include "CCustomerView.h"
 #include "CWorkorderView.h"
 #include "CReportTaxView.h"
+#include "CReportFinanceTotalView.h"
 #include "CReportWorkorderClosedView.h"
 
 #ifdef _DEBUG
@@ -99,6 +100,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_pCustomerView{ NULL }
 	, m_pWorkorderView{ NULL }
 	, m_pReportTaxView{ NULL }
+	, m_pReportFinanceTotalView{ NULL }
 	, m_pReportWorkorderClosedView{ NULL }
 	, m_dbConnection{ new CDatabaseConnection() }
 	, m_enuWorkorderViewType{ VIEW_WORKORDER_OPEN }
@@ -107,7 +109,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_bIsPrintPreview{ false }
 	, m_bIsAdmin{ false }
 {
-	SetAppID(_T("RepairCafeCureApp.AppID.1.0.0.4"));
+	SetAppID(_T("RepairCafeCureApp.AppID.1.0.1.0"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
 }
 
@@ -133,6 +135,8 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_REPORT_VIEW_FINANCE_TAX, &CRepairCafeCureApp::OnReportViewFinanceTax)
 	ON_COMMAND(ID_REPORT_WORKORDER_CLOSED, &CRepairCafeCureApp::OnReportWorkorderClosed)
 	ON_COMMAND(ID_REPORT_WORKORDER_PINTRANSACTION, &CRepairCafeCureApp::OnReportWorkorderPinTransaction)
+	ON_COMMAND(ID_REPORT_WORKORDER_CASHTRANSACTION, &CRepairCafeCureApp::OnReportWorkorderCashTransaction)
+	ON_COMMAND(ID_REPORT_WORKORDER__TOTALFLOW, &CRepairCafeCureApp::OnReportWorkorderTotalFlow)
 	ON_COMMAND(ID_APP_ADMIN, &CRepairCafeCureApp::OnAppAdmin)
 	ON_COMMAND(ID_ADMIN_MAINTENANCE_EMPLOYEES, &CRepairCafeCureApp::OnAdminMaintenanceEmployees)
 	ON_COMMAND(ID_ADMIN_MAINTENANCE_STOCK, &CRepairCafeCureApp::OnAdminMaintenanceStock)
@@ -201,6 +205,9 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pReportTaxView = (CView*)new CReportTaxView;
 	if (NULL == m_pReportTaxView) return FALSE;
 
+	m_pReportFinanceTotalView = (CView*)new CReportFinanceTotalView;
+	if (NULL == m_pReportFinanceTotalView) return FALSE;
+
 	m_pReportWorkorderClosedView = (CView*)new CReportWorkorderClosedView;
 	if (NULL == m_pReportWorkorderClosedView) return FALSE;
 
@@ -222,7 +229,8 @@ BOOL CRepairCafeCureApp::InitInstance()
 	UINT viewAssetID = AFX_IDW_PANE_FIRST + 1;
 	UINT viewWorkorderID = AFX_IDW_PANE_FIRST + 2;
 	UINT viewReportTaxID = AFX_IDW_PANE_FIRST + 3;
-	UINT viewReportWorkorderClosedID = AFX_IDW_PANE_FIRST + 4;
+	UINT viewReportFinanceTotalID = AFX_IDW_PANE_FIRST + 4;
+	UINT viewReportWorkorderClosedID = AFX_IDW_PANE_FIRST + 5;
 	CRect rect(0, 0, 0, 0); // Gets resized later.
 
 	// Create the new view. The view persists for
@@ -231,6 +239,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pAssetView->Create(NULL, _T("Asset"), WS_CHILD, rect, m_pMainWnd, viewAssetID, &newContext);
 	m_pWorkorderView->Create(NULL, _T("Workorder"), WS_CHILD, rect, m_pMainWnd, viewWorkorderID, &newContext);
 	m_pReportTaxView->Create(NULL, _T("Report Tax"), WS_CHILD, rect, m_pMainWnd, viewReportTaxID, &newContext);
+	m_pReportFinanceTotalView->Create(NULL, _T("Report Finance Total"), WS_CHILD, rect, m_pMainWnd, viewReportFinanceTotalID, &newContext);
 	m_pReportWorkorderClosedView->Create(NULL, _T("Report Workorder Closed"), WS_CHILD, rect, m_pMainWnd, viewReportWorkorderClosedID, &newContext);
 
 	// When a document template creates a view, the WM_INITIALUPDATE
@@ -239,6 +248,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pAssetView->SendMessage(WM_INITIALUPDATE, 0, 0);
 	m_pWorkorderView->SendMessage(WM_INITIALUPDATE, 0, 0);
 	m_pReportTaxView->SendMessage(WM_INITIALUPDATE, 0, 0);
+	m_pReportFinanceTotalView->SendMessage(WM_INITIALUPDATE, 0, 0);
 	m_pReportWorkorderClosedView->SendMessage(WM_INITIALUPDATE, 0, 0);
 
 	// The one and only window has been initialized, so show and update it
@@ -334,6 +344,23 @@ void CRepairCafeCureApp::OnReportWorkorderPinTransaction() noexcept
 	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Pin Transactions"));
 }
 
+void CRepairCafeCureApp::OnReportWorkorderCashTransaction() noexcept
+{
+	m_bIsPrintPreview = false;
+	m_eFinanceTaxViewType = VIEW_CASH_TRANSACTION_REPORT;
+	SwitchView(VIEW_REPORT_FINANCE_TAX);
+	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Cash Transactions"));
+}
+
+// OnReportWorkorderTotalFlow is called when user select the report-workorder-total-flow button on the ribbon
+// set type of view and change the view
+void CRepairCafeCureApp::OnReportWorkorderTotalFlow() noexcept
+{
+	SwitchView(VIEW_REPORT_FINANCE_TOTAL);
+	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Total Flow"));
+}
+
+
 // OnReportWorkorderClosed is called when user select the report-workorder-closed button on the ribbon
 // set type of view and change the view
 void CRepairCafeCureApp::OnReportWorkorderClosed() noexcept
@@ -402,13 +429,18 @@ void CRepairCafeCureApp::OnFilePrintSetup() noexcept
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 	if (pMainFrame) {
 		switch (GetActiveViewType()) {
-		case VIEW_WORKORDER: {
+			case VIEW_WORKORDER: {
 				CWorkorderView* pView = (CWorkorderView*)pMainFrame->GetActiveView();
 				pView->SetPrinterOrientation(GetDeviceMode());
 			}
 			break;
-		case VIEW_REPORT_FINANCE_TAX: {
+			case VIEW_REPORT_FINANCE_TAX: {
 				CReportTaxView* pView = (CReportTaxView*)pMainFrame->GetActiveView();
+				pView->SetPrinterOrientation(GetDeviceMode());
+			}
+			break;
+			case VIEW_REPORT_FINANCE_TOTAL: {
+				CReportFinanceTotalView* pView = (CReportFinanceTotalView*)pMainFrame->GetActiveView();
 				pView->SetPrinterOrientation(GetDeviceMode());
 			}
 			break;
@@ -443,6 +475,9 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView) const noexcept
 			break;
 		case VIEW_REPORT_WORKORDER_CLOSED:
 			pNewView = m_pReportWorkorderClosedView;
+			break;
+		case VIEW_REPORT_FINANCE_TOTAL:
+			pNewView = m_pReportFinanceTotalView;
 			break;
 	}
 
@@ -553,6 +588,7 @@ ViewType CRepairCafeCureApp::GetActiveViewType() const noexcept
 		else if (pActiveView == m_pCustomerView) vtView = VIEW_CUSTOMER;
 		else if (pActiveView == m_pWorkorderView) vtView = VIEW_WORKORDER;
 		else if (pActiveView == m_pReportTaxView) vtView = VIEW_REPORT_FINANCE_TAX;
+		else if (pActiveView == m_pReportFinanceTotalView) vtView = VIEW_REPORT_FINANCE_TOTAL;
 		else if (pActiveView == m_pReportWorkorderClosedView) vtView = VIEW_REPORT_WORKORDER_CLOSED;
 
 		return vtView;

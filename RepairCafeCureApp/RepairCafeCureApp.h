@@ -34,9 +34,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5 (alpha)
+* Version: 1.0.1.0 (beta)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 30-07-2024, (dd-mm-yyyy)
+* Updated: 25-08-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -56,11 +56,11 @@ using namespace artvabas::rcc::ui;
 using namespace artvabas::rcc::database;
 
 // The available views
-enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER, VIEW_REPORT_FINANCE_TAX, VIEW_REPORT_WORKORDER_CLOSED };
+enum ViewType { VIEW_ASSET, VIEW_CUSTOMER, VIEW_WORKORDER, VIEW_REPORT_FINANCE_TAX, VIEW_REPORT_FINANCE_TOTAL, VIEW_REPORT_WORKORDER_CLOSED };
 // The workorder status views
 enum WorkorderViewType { VIEW_WORKORDER_OPEN, VIEW_WORKORDER_PROGRESS, VIEW_WORKORDER_REPAIRED };
 // The report tax status
-enum FinanceTaxViewType { VIEW_CONTRIBUTON_REPORT, VIEW_PIN_TRANSACTION_REPORT };
+enum FinanceTaxViewType { VIEW_CONTRIBUTON_REPORT, VIEW_PIN_TRANSACTION_REPORT, VIEW_CASH_TRANSACTION_REPORT };
 
 class CRepairCafeCureApp : public CWinAppEx
 {
@@ -75,6 +75,7 @@ private:
 		CView* m_pAssetView;
 		CView* m_pWorkorderView;
 		CView* m_pReportTaxView;
+		CView* m_pReportFinanceTotalView;
 		CView* m_pReportWorkorderClosedView;
 
 		WorkorderViewType m_enuWorkorderViewType;
@@ -101,6 +102,8 @@ private:
 	afx_msg void OnWorkorderViewRepaired() noexcept;
 	afx_msg void OnReportViewFinanceTax() noexcept;
 	afx_msg void OnReportWorkorderPinTransaction() noexcept;
+	afx_msg void OnReportWorkorderCashTransaction() noexcept;
+	afx_msg void OnReportWorkorderTotalFlow() noexcept;
 	afx_msg void OnReportWorkorderClosed() noexcept;
 	afx_msg void OnAppAdmin() noexcept;
 	afx_msg void OnAdminMaintenanceEmployees() noexcept;
