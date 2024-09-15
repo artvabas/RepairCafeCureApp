@@ -36,9 +36,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.1.0 (beta)
+* Version: 1.0.2.5 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 08-09-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -184,25 +184,25 @@ void CWorkorderView::OnInitialUpdate()
 		CFormView::OnInitialUpdate();
 
 		m_lscWorkorderExisting.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-		m_lscWorkorderExisting.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 100);
-		m_lscWorkorderExisting.InsertColumn(1, _T("ASSET ID"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(2, _T("CUSTOMER ID"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(3, _T("INVOICE ID"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(4, _T("CREATION DATE"), LVCFMT_LEFT, 100);
-		m_lscWorkorderExisting.InsertColumn(5, _T("CREATED BY"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(6, _T("RESPONSIBLE"), LVCFMT_LEFT, 100);
-		m_lscWorkorderExisting.InsertColumn(7, _T("STATUS"), LVCFMT_LEFT, 100);
-		m_lscWorkorderExisting.InsertColumn(8, _T("CLOSED DATE"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(9, _T("HISTORY"), LVCFMT_LEFT, 0);
-		m_lscWorkorderExisting.InsertColumn(10, _T("ASSET"), LVCFMT_LEFT, 100);
-		m_lscWorkorderExisting.InsertColumn(11, _T("DESCRIPTION"), LVCFMT_LEFT, 600);
+		m_lscWorkorderExisting.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_WORKORDER_ID), LVCFMT_LEFT, 100);
+		m_lscWorkorderExisting.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_ASSET_ID), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_CUSTOMER_ID), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_INVOICE_ID), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_CREATION_DATE), LVCFMT_LEFT, 100);
+		m_lscWorkorderExisting.InsertColumn(5, theApp.ConvertIDToString(IDS_DBT_CREATED_BY), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(6, theApp.ConvertIDToString(IDS_DBT_RESPONSIBLE), LVCFMT_LEFT, 120);
+		m_lscWorkorderExisting.InsertColumn(7, theApp.ConvertIDToString(IDS_DBT_STATUS), LVCFMT_LEFT, 100);
+		m_lscWorkorderExisting.InsertColumn(8, theApp.ConvertIDToString(IDS_DBT_CLOSED_DATE), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(9, theApp.ConvertIDToString(IDS_DBT_HISTORY), LVCFMT_LEFT, 0);
+		m_lscWorkorderExisting.InsertColumn(10, theApp.ConvertIDToString(IDS_DBT_ASSET), LVCFMT_LEFT, 100);
+		m_lscWorkorderExisting.InsertColumn(11, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 600);
 
 		m_lscWorkorderSpareParts.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-		m_lscWorkorderSpareParts.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 0);
-		m_lscWorkorderSpareParts.InsertColumn(1, _T("DESCRIPTION"), LVCFMT_LEFT, 300);
-		m_lscWorkorderSpareParts.InsertColumn(2, _T("AMOUNT"), LVCFMT_LEFT, 100);
-		m_lscWorkorderSpareParts.InsertColumn(3, _T("UNIT PRICE"), LVCFMT_LEFT, 100);
-		m_lscWorkorderSpareParts.InsertColumn(4, _T("TOTAL"), LVCFMT_LEFT, 100);
+		m_lscWorkorderSpareParts.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_WORKORDER_ID), LVCFMT_LEFT, 0);
+		m_lscWorkorderSpareParts.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 300);
+		m_lscWorkorderSpareParts.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_AMOUNT), LVCFMT_LEFT, 100);
+		m_lscWorkorderSpareParts.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_UNIT_PRICE), LVCFMT_LEFT, 100);
+		m_lscWorkorderSpareParts.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_TOTAL), LVCFMT_LEFT, 100);
 
 		SetCustomFocusButton(&m_btnWorkorderParts, ColorButton::BLUE, false);
 

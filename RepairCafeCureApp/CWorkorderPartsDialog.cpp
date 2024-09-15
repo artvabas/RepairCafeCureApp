@@ -33,9 +33,9 @@
 * This class is the dialog of the adding parts to workorder dialog (CWorkorderPartsDialog)
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0
+* Version: 1.0.2.0 (beta)
 * Created: 15-11-2023, (dd-mm-yyyy)
-* Updated: 30-04-2024, (dd-mm-yyyy)
+* Updated: 15-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -385,10 +385,10 @@ void CWorkorderPartsDialog::OnBnClickedWorkorderDeleteAddedPart() noexcept
 bool CWorkorderPartsDialog::InitStockPartList()
 {
 	m_lscWorkorderStockPartList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_lscWorkorderStockPartList.InsertColumn(0, _T("PART ID"), LVCFMT_LEFT, 0);
-	m_lscWorkorderStockPartList.InsertColumn(1, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
-	m_lscWorkorderStockPartList.InsertColumn(2, _T("IN STOCK"), LVCFMT_LEFT, 0);
-	m_lscWorkorderStockPartList.InsertColumn(3, _T("UNIT PRICE"), LVCFMT_LEFT, 100);
+	m_lscWorkorderStockPartList.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_PART_ID), LVCFMT_LEFT, 0);
+	m_lscWorkorderStockPartList.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 200);
+	m_lscWorkorderStockPartList.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_IN_STOCK), LVCFMT_LEFT, 0);
+	m_lscWorkorderStockPartList.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_UNIT_PRICE), LVCFMT_LEFT, 100);
 
 	int nIndex;			// Index of the list control item.
 	int row(0);			// Row of the list control item.
@@ -463,11 +463,11 @@ bool CWorkorderPartsDialog::InitStockPartList()
 bool CWorkorderPartsDialog::InitAddedPartList()
 {
 	m_lscWorkorderAddedPartList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_lscWorkorderAddedPartList.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 0);
-	m_lscWorkorderAddedPartList.InsertColumn(1, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
-	m_lscWorkorderAddedPartList.InsertColumn(2, _T("AMOUNT"), LVCFMT_LEFT, 100);
-	m_lscWorkorderAddedPartList.InsertColumn(3, _T("UNIT PRICE"), LVCFMT_LEFT, 100);
-	m_lscWorkorderAddedPartList.InsertColumn(4, _T("TOTAL PRICE"), LVCFMT_LEFT, 100);
+	m_lscWorkorderAddedPartList.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_WORKORDER_ID), LVCFMT_LEFT, 0);
+	m_lscWorkorderAddedPartList.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 200);
+	m_lscWorkorderAddedPartList.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_AMOUNT), LVCFMT_LEFT, 100);
+	m_lscWorkorderAddedPartList.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_UNIT_PRICE), LVCFMT_LEFT, 100);
+	m_lscWorkorderAddedPartList.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_TOTAL), LVCFMT_LEFT, 100);
 
 	int nIndex;			// Index of the list control item.
 	int row(0);			// Row of the list control item.

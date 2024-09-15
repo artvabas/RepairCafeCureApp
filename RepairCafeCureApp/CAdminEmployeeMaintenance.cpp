@@ -34,7 +34,7 @@
 * It is a part of the administration of the application, for add new, change or delete employees.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5
+* Version: 1.0.2.5 (beta)
 * Created: 15-07-2024, (dd-mm-yyyy)
 * Updated: 21-07-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -84,9 +84,9 @@ BOOL CAdminEmployeeMaintenance::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	m_lstExistingEmployees.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_lstExistingEmployees.InsertColumn(0, _T("EMPLOYEE ID"), LVCFMT_LEFT, 0);
-	m_lstExistingEmployees.InsertColumn(1, _T("EMPLOYEE NAME"), LVCFMT_LEFT, 100);
-	m_lstExistingEmployees.InsertColumn(2, _T("ADMIN"), LVCFMT_LEFT, 100);
+	m_lstExistingEmployees.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_EMPLOYEE_ID), LVCFMT_LEFT, 0);
+	m_lstExistingEmployees.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_NAME), LVCFMT_LEFT, 100);
+	m_lstExistingEmployees.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_ADMIN), LVCFMT_LEFT, 100);
 
 	GetData();
 	UpdateData(FALSE);

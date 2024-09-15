@@ -34,9 +34,9 @@
 * It is a part of the administration of the application, for setting repaired workorders to progress.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5
+* Version: 1.0.2.5 (beta)
 * Created: 30-07-2024, (dd-mm-yyyy)
-* Updated: 30-07-2024, (dd-mm-yyyy)
+* Updated: 15-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -78,17 +78,17 @@ BOOL CAdminWorkorderToProgress::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	m_lstWorkorderRepaired.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_lstWorkorderRepaired.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 100);
-	m_lstWorkorderRepaired.InsertColumn(1, _T("ASSET ID"), LVCFMT_LEFT, 0);
-	m_lstWorkorderRepaired.InsertColumn(2, _T("CUSTOMER ID"), LVCFMT_LEFT,0);
-	m_lstWorkorderRepaired.InsertColumn(3, _T("INVOICE ID"), LVCFMT_LEFT, 0);
-	m_lstWorkorderRepaired.InsertColumn(4, _T("CREATED"), LVCFMT_LEFT, 100);
-	m_lstWorkorderRepaired.InsertColumn(5, _T("CREATED BY"), LVCFMT_LEFT, 0);
-	m_lstWorkorderRepaired.InsertColumn(6, _T("DESCRIPTION"), LVCFMT_LEFT, 100);
-	m_lstWorkorderRepaired.InsertColumn(7, _T("RESPONSIBLE"), LVCFMT_LEFT, 100);
-	m_lstWorkorderRepaired.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
-	m_lstWorkorderRepaired.InsertColumn(9, _T("CLOSED DATE"), LVCFMT_LEFT, 0);
-	m_lstWorkorderRepaired.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
+	m_lstWorkorderRepaired.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_WORKORDER_ID), LVCFMT_LEFT, 100);
+	m_lstWorkorderRepaired.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_ASSET_ID), LVCFMT_LEFT, 0);
+	m_lstWorkorderRepaired.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_CUSTOMER_ID), LVCFMT_LEFT, 0);
+	m_lstWorkorderRepaired.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_INVOICE_ID), LVCFMT_LEFT, 0);
+	m_lstWorkorderRepaired.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_CREATION_DATE), LVCFMT_LEFT, 100);
+	m_lstWorkorderRepaired.InsertColumn(5, theApp.ConvertIDToString(IDS_DBT_CREATED_BY), LVCFMT_LEFT, 0);
+	m_lstWorkorderRepaired.InsertColumn(6, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 100);
+	m_lstWorkorderRepaired.InsertColumn(7, theApp.ConvertIDToString(IDS_DBT_RESPONSIBLE), LVCFMT_LEFT, 100);
+	m_lstWorkorderRepaired.InsertColumn(8, theApp.ConvertIDToString(IDS_DBT_STATUS), LVCFMT_LEFT, 100);
+	m_lstWorkorderRepaired.InsertColumn(9, theApp.ConvertIDToString(IDS_DBT_CLOSED_DATE), LVCFMT_LEFT, 0);
+	m_lstWorkorderRepaired.InsertColumn(10, theApp.ConvertIDToString(IDS_DBT_HISTORY), LVCFMT_LEFT, 0);
 
 	GetData();
 	return TRUE;  

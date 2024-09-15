@@ -306,6 +306,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="cpp.hint" />
+    <None Include="res\mfcribbon-ms00001.mfcribbon-ms">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RepairCafeCureApp.rc">

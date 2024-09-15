@@ -33,9 +33,9 @@
 * This class is the view of the Asset form
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.4 (alpha)
+* Version: 1.0.2.5 (beta)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 05-07-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -126,15 +126,15 @@ void CAssetView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 
 	m_lstHistorySearchResults.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_lstHistorySearchResults.InsertColumn(0, _T("Asset Description"), LVCFMT_LEFT, 100);
-	m_lstHistorySearchResults.InsertColumn(1, _T("Asset Model Number"), LVCFMT_LEFT, 0);
-	m_lstHistorySearchResults.InsertColumn(2, _T("Asset Brand"), LVCFMT_LEFT, 0);
-	m_lstHistorySearchResults.InsertColumn(3, _T("Asset Disposed"), LVCFMT_LEFT, 0);
-	m_lstHistorySearchResults.InsertColumn(4, _T("Created Date"), LVCFMT_LEFT, 100);
-	m_lstHistorySearchResults.InsertColumn(5, _T("Created By"), LVCFMT_LEFT, 0);
-	m_lstHistorySearchResults.InsertColumn(6, _T("Responsible"), LVCFMT_LEFT, 100);
-	m_lstHistorySearchResults.InsertColumn(7, _T("Description"), LVCFMT_LEFT, 300);
-	m_lstHistorySearchResults.InsertColumn(8, _T("History Log"), LVCFMT_LEFT, 0);
+	m_lstHistorySearchResults.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_ASSET_DESCRIPTION), LVCFMT_LEFT, 130);
+	m_lstHistorySearchResults.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_ASSET_MODEL_NUMBER), LVCFMT_LEFT, 0);
+	m_lstHistorySearchResults.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_ASSET_BRAND), LVCFMT_LEFT, 0);
+	m_lstHistorySearchResults.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_ASSET_DISPOSED), LVCFMT_LEFT, 0);
+	m_lstHistorySearchResults.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_CREATION_DATE), LVCFMT_LEFT, 100);
+	m_lstHistorySearchResults.InsertColumn(5, theApp.ConvertIDToString(IDS_DBT_CREATED_BY), LVCFMT_LEFT, 0);
+	m_lstHistorySearchResults.InsertColumn(6, theApp.ConvertIDToString(IDS_DBT_RESPONSIBLE), LVCFMT_LEFT, 120);
+	m_lstHistorySearchResults.InsertColumn(7, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 300);
+	m_lstHistorySearchResults.InsertColumn(8, theApp.ConvertIDToString(IDS_DBT_LOG), LVCFMT_LEFT, 0);
 
 	m_btnHistorySearchSearch.SetTextColor(RGB(255, 0, 0));
 	m_btnHistorySearchClear.SetTextColor(RGB(0, 0, 255));

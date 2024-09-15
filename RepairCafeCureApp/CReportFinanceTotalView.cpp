@@ -35,9 +35,9 @@
 * The report is displayed in a list control and can be printed.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.1.0 (beta)
+* Version: 1.0.2.5 (beta)
 * Created: 25-08-2024, (dd-mm-yyyy)
-* Updated: 09-09-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -104,12 +104,12 @@ void CReportFinanceTotalView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 
 	m_lstTotalReportResults.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_lstTotalReportResults.InsertColumn(0, _T("DATE"), LVCFMT_LEFT, 100);
-	m_lstTotalReportResults.InsertColumn(1, _T("WORKORDER"), LVCFMT_LEFT, 100);
-	m_lstTotalReportResults.InsertColumn(2, _T("INVOICE"), LVCFMT_LEFT, 100);
-	m_lstTotalReportResults.InsertColumn(3, _T("TOTAL"), LVCFMT_RIGHT, 50);
-	m_lstTotalReportResults.InsertColumn(4, _T("PIN"), LVCFMT_RIGHT, 50);
-	m_lstTotalReportResults.InsertColumn(5, _T("CONTRIBUTION"), LVCFMT_RIGHT, 100);
+	m_lstTotalReportResults.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_DATE_COMPLETE), LVCFMT_LEFT, 100);
+	m_lstTotalReportResults.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_WORKORDER_ID), LVCFMT_LEFT, 100);
+	m_lstTotalReportResults.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_INVOICE_ID), LVCFMT_LEFT, 100);
+	m_lstTotalReportResults.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_TOTAL), LVCFMT_RIGHT, 60);
+	m_lstTotalReportResults.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_PIN), LVCFMT_RIGHT, 50);
+	m_lstTotalReportResults.InsertColumn(5, theApp.ConvertIDToString(IDS_DBT_CONTRIBUTION), LVCFMT_RIGHT, 100);
 }
 
 // OnPreparePrinting, is called by the framework tp prepare the printing job

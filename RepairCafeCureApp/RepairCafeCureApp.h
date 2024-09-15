@@ -34,9 +34,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.1.0 (beta)
+* Version: 1.0.2.0 (beta)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 25-08-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -116,7 +116,8 @@ public:
 	inline WorkorderViewType GetWorkorderViewType() const noexcept { return m_enuWorkorderViewType; }
 	inline FinanceTaxViewType GetFinanceTaxViewType() const noexcept { return m_eFinanceTaxViewType; }
 	CView* SwitchView(ViewType vtView) const noexcept;
-	void SetStatusBarText(UINT nStrID) const noexcept;
+	CString ConvertIDToString(const UINT& nID) const noexcept;
+	void SetStatusBarText(const UINT& nStrID) const noexcept;
 	CString GetSelectedEmployeeName() const noexcept;
 	ViewType GetActiveViewType() const noexcept;
 	void IsIdle() const noexcept;
