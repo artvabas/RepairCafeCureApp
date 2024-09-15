@@ -34,9 +34,9 @@
 * It is a part of the administration of the application, for add new, change or delete stock parts.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5
+* Version: 1.0.2.5 (beta)
 * Created: 21-07-2024, (dd-mm-yyyy)
-* Updated: 30-07-2024, (dd-mm-yyyy)
+* Updated: 15-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * License: GPLv3
@@ -84,10 +84,10 @@ BOOL CAdminSparePartsStockMaintenance::OnInitDialog()
 	__super::OnInitDialog();
 
 	m_lstSparePartStock.SetExtendedStyle(LVS_EX_FULLROWSELECT);
-	m_lstSparePartStock.InsertColumn(0, _T("SPARE PART ID"), LVCFMT_LEFT, 0);
-	m_lstSparePartStock.InsertColumn(1, _T("DESCRIPTION"), LVCFMT_LEFT, 200);
-	m_lstSparePartStock.InsertColumn(2, _T("IN STOCK"), LVCFMT_LEFT, 0);
-	m_lstSparePartStock.InsertColumn(3, _T("UNIT PRICE"), LVCFMT_LEFT, 100);
+	m_lstSparePartStock.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_PART_ID), LVCFMT_LEFT, 0);
+	m_lstSparePartStock.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 200);
+	m_lstSparePartStock.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_IN_STOCK), LVCFMT_LEFT, 0);
+	m_lstSparePartStock.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_UNIT_PRICE), LVCFMT_LEFT, 100);
 
 	GetData();
 

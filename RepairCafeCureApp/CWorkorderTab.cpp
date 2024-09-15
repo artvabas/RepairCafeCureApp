@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.2.5 (beta)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 30-04-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -112,17 +112,17 @@ BOOL CWorkorderTab::OnInitDialog() {
 	CDialogEx::OnInitDialog();
 
 	m_ctrWorkordersHistoryList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_ctrWorkordersHistoryList.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 0);
-	m_ctrWorkordersHistoryList.InsertColumn(1, _T("ASSET ID"), LVCFMT_LEFT, 0);
-	m_ctrWorkordersHistoryList.InsertColumn(2, _T("CUSTOMER ID"), LVCFMT_LEFT, 0);
-	m_ctrWorkordersHistoryList.InsertColumn(3, _T("INVOICE ID"), LVCFMT_LEFT, 0);
-	m_ctrWorkordersHistoryList.InsertColumn(4, _T("CREATION DATE"), LVCFMT_LEFT, 100);
-	m_ctrWorkordersHistoryList.InsertColumn(5, _T("CREATED BY"), LVCFMT_LEFT, 200);
-	m_ctrWorkordersHistoryList.InsertColumn(6, _T("DESCRIPTION"), LVCFMT_LEFT, 0);
-	m_ctrWorkordersHistoryList.InsertColumn(7, _T("RESPOSIBLE"), LVCFMT_LEFT, 200);
-	m_ctrWorkordersHistoryList.InsertColumn(8, _T("STATUS"), LVCFMT_LEFT, 100);
-	m_ctrWorkordersHistoryList.InsertColumn(9, _T("CLOSE DATE"), LVCFMT_LEFT, 0);
-	m_ctrWorkordersHistoryList.InsertColumn(10, _T("HISTORY"), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_WORKORDER_ID), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_ASSET_ID), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_CUSTOMER_ID), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_CUSTOMER_ID), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_CREATION_DATE), LVCFMT_LEFT, 100);
+	m_ctrWorkordersHistoryList.InsertColumn(5, theApp.ConvertIDToString(IDS_DBT_CREATED_BY), LVCFMT_LEFT, 200);
+	m_ctrWorkordersHistoryList.InsertColumn(6, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(7, theApp.ConvertIDToString(IDS_DBT_RESPONSIBLE), LVCFMT_LEFT, 200);
+	m_ctrWorkordersHistoryList.InsertColumn(8, theApp.ConvertIDToString(IDS_DBT_STATUS), LVCFMT_LEFT, 100);
+	m_ctrWorkordersHistoryList.InsertColumn(9, theApp.ConvertIDToString(IDS_DBT_CLOSED_DATE), LVCFMT_LEFT, 0);
+	m_ctrWorkordersHistoryList.InsertColumn(10, theApp.ConvertIDToString(IDS_DBT_HISTORY), LVCFMT_LEFT, 0);
 
 	return TRUE;
 }

@@ -29,16 +29,60 @@
 #define IDB_BUTTONS                     119
 #define IDS_STATUSBAR_PRINTING_FAIL     119
 #define IDB_FILELARGE                   120
+#define IDS_CAPTION_SELECT_NAME         120
 #define IDB_FILESMALL                   121
+#define IDS_DBT_WORKORDER_ID            121
 #define IDR_POPUP_EDIT                  122
+#define IDS_DBT_ASSET_ID                122
 #define ID_STATUSBAR_PANE1              123
+#define IDS_DBT_CUSTOMER_ID             123
 #define ID_STATUSBAR_PANE2              124
+#define IDS_DBT_INVOICE_ID              124
 #define IDS_STATUS_PANE1                125
 #define IDS_STATUS_PANE2                126
 #define IDR_MAINFRAME                   127
 #define IDR_MAINFRAME_256               128
+#define IDS_DBT_CREATION_DATE           128
+#define IDS_DBT_CREATED_BY              129
 #define IDR_PASTE_MENU                  130
+#define IDS_DBT_RESPONSIBLE             130
 #define IDR_WINDOWS_MENU                131
+#define IDS_DBT_STATUS                  131
+#define IDS_DBT_CLOSED_DATE             132
+#define IDS_DBT_HISTORY                 133
+#define IDS_DBT_ASSET                   134
+#define IDS_DBT_DESCRIPTION             135
+#define IDS_DBT_AMOUNT                  136
+#define IDS_DBT_UNIT_PRICE              137
+#define IDS_DBT_TOTAL                   138
+#define IDS_DBT_WORKORDER_DESCRIPTION   139
+#define IDS_DBT_ASSET_DESCRIPTION       140
+#define IDS_DBT_DATE_COMPLETE           141
+#define IDS_DBT_SURNAME                 142
+#define IDS_DBT_PHONE                   143
+#define IDS_DBT_CELL_PHONE              144
+#define IDS_DBT_AMOUNT_MONEY            145
+#define IDS_DBT_PIN                     146
+#define IDS_DBT_CONTRIBUTION            147
+#define IDS_DBT_NAME                    148
+#define IDS_DBT_EMAIL                   149
+#define IDS_DBT_COMMENT                 150
+#define IDS_DBT_LOG                     151
+#define IDS_DBT_PARTIAL_INVOICE         152
+#define IDS_DBT_ASSET_MODEL_NUMBER      153
+#define IDS_DBT_ASSET_BRAND             154
+#define IDS_DBT_ASSET_DISPOSED          155
+#define IDS_DBt_PART_ID                 156
+#define IDS_DBT_PART_ID                 156
+#define IDS_DBt_PART_ID                 156
+#define IDS_DBT_PART_ID                 156
+#define IDS_DBT_IN_STOCK                157
+#define IDS_DBT_EMPLOYEE_ID             158
+#define IDS_DBT_ADMIN                   159
+#define IDS_WORKORDER                   160
+#define IDS_ASSET                       161
+#define IDS_INVOICE                     162
+#define IDS_CUSTOMER                    163
 #define ID_TOOLS_OPTIONS                220
 #define ID_VIEW_CAPTION_BAR             221
 #define IDB_INFO                        230
@@ -276,13 +320,14 @@
 #define ID_ADMIN_MAINTENANCE_WORKORDER_PROGRESS 32802
 #define ID_REPORT_WORKORDER_CASHTRANSACTION 32803
 #define ID_REPORT_WORKORDER__TOTALFLOW  32804
+#define ID_ACCELERATOR32807             32807
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        377
-#define _APS_NEXT_COMMAND_VALUE         32805
+#define _APS_NEXT_COMMAND_VALUE         32810
 #define _APS_NEXT_CONTROL_VALUE         1184
 #define _APS_NEXT_SYMED_VALUE           318
 #endif

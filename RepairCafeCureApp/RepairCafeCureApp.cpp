@@ -36,9 +36,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.1.0 (beta)
+* Version: 1.0.2.5 (beta)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 25-08-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -486,11 +486,11 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView) const noexcept
 		((CFrameWndEx*)m_pMainWnd)->SetActiveView(pNewView);
 		((CFrameWndEx*)m_pMainWnd)->RecalcLayout();
 		pNewView->Invalidate();
-}
+	}
 	UINT temp = ::GetWindowWord(pActiveView->m_hWnd, GWW_ID);
 	::SetWindowWord(pActiveView->m_hWnd, GWW_ID, ::GetWindowWord(pNewView->m_hWnd, GWW_ID));
 	::SetWindowWord(pNewView->m_hWnd, GWW_ID, temp);
-	}
+
 #else
 	if (pNewView != NULL) {
 		UINT temp = ::GetWindowLong(pActiveView->m_hWnd, GWL_ID);
@@ -507,17 +507,21 @@ CView* CRepairCafeCureApp::SwitchView(ViewType vtView) const noexcept
 	return pNewView;// pActiveView;
 }
 
-// SetStatusBarText is used to set the status bar text
-// - nStrID, the ID from string table
-void CRepairCafeCureApp::SetStatusBarText(UINT nStrID) const noexcept
+CString CRepairCafeCureApp::ConvertIDToString(const UINT& nID) const noexcept
 {
 	BOOL bNameValid;
 	CString strName;
-	bNameValid = strName.LoadString(nStrID);
+	bNameValid = strName.LoadString(nID);
 	ASSERT(bNameValid);
+	return strName;
+}
 
+// SetStatusBarText is used to set the status bar text
+// - nStrID, the ID from string table
+void CRepairCafeCureApp::SetStatusBarText(const UINT& nStrID) const noexcept
+{
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-	if ( pMainFrame != NULL ) pMainFrame->m_wndStatusBar.SetInformation(strName);
+	if ( pMainFrame != NULL ) pMainFrame->m_wndStatusBar.SetInformation(ConvertIDToString(nStrID));
 }
 
 // GetSelectedEmployeeName is used to get teh selected employee,

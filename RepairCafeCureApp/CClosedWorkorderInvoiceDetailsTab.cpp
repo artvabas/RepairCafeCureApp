@@ -37,7 +37,7 @@
 * What is selected in the listview of the CReportWorkorderClosedView and passed to this form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.3 (alpha)
+* Version: 1.0.2.5 (beta)
 * Created: 17-06-2024, (dd-mm-yyyy)
 * Updated: 30-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -84,10 +84,10 @@ BOOL CClosedWorkorderInvoiceDetailsTab::OnInitDialog()
 
 	// Set up the list control
 	m_lstInvoiceSummary.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_lstInvoiceSummary.InsertColumn(0, _T("Description"), LVCFMT_LEFT, 200);
-	m_lstInvoiceSummary.InsertColumn(1, _T("Amount"), LVCFMT_LEFT, 100);
-	m_lstInvoiceSummary.InsertColumn(2, _T("Unit Price"), LVCFMT_LEFT, 100);
-	m_lstInvoiceSummary.InsertColumn(3, _T("Total Price"), LVCFMT_LEFT, 100);
+	m_lstInvoiceSummary.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_DESCRIPTION), LVCFMT_LEFT, 200);
+	m_lstInvoiceSummary.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_AMOUNT), LVCFMT_LEFT, 100);
+	m_lstInvoiceSummary.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_UNIT_PRICE), LVCFMT_LEFT, 100);
+	m_lstInvoiceSummary.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_TOTAL), LVCFMT_LEFT, 100);
 
 	theApp.SetStatusBarText(IDS_STATUSBAR_LOADING);
 	theApp.BeginWaitCursor();

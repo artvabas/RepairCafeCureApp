@@ -36,9 +36,9 @@
 * The asset details tab contains the asset details form, the workorder tab contains the workorder form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.3 (Alpha)
+* Version: 1.0.2.5 (beta)
 * Created: 17-06-2024, (dd-mm-yyyy)
-* Updated: 28-06-2024, (dd-mm-yyyy)
+* Updated: 15-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -109,10 +109,10 @@ void CClosedWorkorderDetailsTabCtrl::Init() noexcept
 	m_tabPages[2]->Create(IDD_CLOSED_WORKORDER_INVOICE_DETAILS_TAB, this);
 	m_tabPages[3]->Create(IDD_CLOSED_WORKORDER_CUSTOMER_DETAILS_TAB, this);
 
-	InsertItem(0, _T("Workorder"));
-	InsertItem(1, _T("Asset"));
-	InsertItem(2, _T("Invoice"));
-	InsertItem(3, _T("Customer"));
+	InsertItem(0, theApp.ConvertIDToString(IDS_WORKORDER));
+	InsertItem(1, theApp.ConvertIDToString(IDS_ASSET));
+	InsertItem(2, theApp.ConvertIDToString(IDS_INVOICE));
+	InsertItem(3, theApp.ConvertIDToString(IDS_CUSTOMER));
 
 	SetRectangle();
 }

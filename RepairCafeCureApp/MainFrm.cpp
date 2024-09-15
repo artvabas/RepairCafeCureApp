@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.1.0 (beta)
+* Version: 1.0.2.5 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 25-08-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -244,23 +244,17 @@ void CMainFrame::OnCaptionBarComboBoxEmployeeNameChange()
 {
 	if ( m_pCmbCaptionBarEmployeeName == nullptr ) return;
 
-	BOOL bNameValid;
-	CString strTemp;
 	auto *pView = ((CFrameWnd*)AfxGetMainWnd())->GetActiveView();
 
 	if ( m_pCmbCaptionBarEmployeeName->GetCurSel() != 0 ) {
 		theApp.m_bIsIdle = false;
 		pView->SendMessage(WM_UPDATEUISTATE, 1);
-		bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_UNLOCK);
-		ASSERT(bNameValid);
-		m_wndStatusBar.SetInformation(strTemp);
+		m_wndStatusBar.SetInformation(theApp.ConvertIDToString(IDS_STATUSBAR_IDLE_UNLOCK));
 	} else {
 		theApp.m_bIsIdle = true;
 		theApp.SetAdmin(false);
 		pView->SendMessage(WM_UPDATEUISTATE, 0);
-		bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_LOCK);
-		ASSERT(bNameValid);
-		m_wndStatusBar.SetInformation(strTemp);
+		m_wndStatusBar.SetInformation(theApp.ConvertIDToString(IDS_STATUSBAR_IDLE_LOCK));
 		m_wndRibbonBar.HideAllContextCategories();
 		m_wndRibbonBar.ForceRecalcLayout();
 	}
@@ -277,34 +271,20 @@ BOOL CMainFrame::CreateCaptionBar()
 		return FALSE;
 	}
 
-	BOOL bNameValid;
-
-	CString strTemp, strTemp2;
-
-	bNameValid = strTemp.LoadString(IDS_CAPTION_TEXT);
-	ASSERT(bNameValid);
-	m_wndCaptionBar.SetText(strTemp, CMFCCaptionBar::ALIGN_LEFT);
-
+	m_wndCaptionBar.SetText(theApp.ConvertIDToString(IDS_CAPTION_TEXT), CMFCCaptionBar::ALIGN_LEFT);
 	m_wndCaptionBar.SetBitmap(IDB_INFO, RGB(255, 255, 255), FALSE, CMFCCaptionBar::ALIGN_LEFT);
-	bNameValid = strTemp.LoadString(IDS_CAPTION_IMAGE_TIP);
-	ASSERT(bNameValid);
-	bNameValid = strTemp2.LoadString(IDS_CAPTION_IMAGE_TEXT);
-	ASSERT(bNameValid);
-	m_wndCaptionBar.SetImageToolTip(strTemp, strTemp2);
+	m_wndCaptionBar.SetImageToolTip(theApp.ConvertIDToString(IDS_CAPTION_IMAGE_TIP), 
+		theApp.ConvertIDToString(IDS_CAPTION_IMAGE_TEXT));
 
 	// Combo box for employee names
-	m_pCmbCaptionBarEmployeeName->Create(WS_CHILD | WS_VISIBLE | EBS_READONLY | CBS_DROPDOWN, CRect(350, 6, 550, 100), &m_wndCaptionBar,
+	m_pCmbCaptionBarEmployeeName->Create(WS_CHILD | WS_VISIBLE | EBS_READONLY | CBS_DROPDOWN, CRect(380, 6, 550, 100), &m_wndCaptionBar,
 		IDC_CAPTION_COMBOBOX_EMPLOYEE_NAME);
 
-	bNameValid = strTemp.LoadString(IDS_STATUSBAR_LOADING);
-	ASSERT(bNameValid);
-	m_wndStatusBar.SetInformation(strTemp);
+	m_wndStatusBar.SetInformation(theApp.ConvertIDToString(IDS_STATUSBAR_LOADING));
 
 	GetEmployeeList();
 
-	bNameValid = strTemp.LoadString(IDS_STATUSBAR_IDLE_LOCK);
-	ASSERT(bNameValid);
-	m_wndStatusBar.SetInformation(strTemp);
+	m_wndStatusBar.SetInformation(theApp.ConvertIDToString(IDS_STATUSBAR_IDLE_LOCK));
 	return TRUE;
 }
 
@@ -361,11 +341,12 @@ CString CMainFrame::GetSelectedEmployee() const noexcept {
 void CMainFrame::GetEmployeeList() noexcept
 {
 	theApp.BeginWaitCursor();
-
+	
 	m_pCmbCaptionBarEmployeeName->ResetContent();
 	m_vecEmployeeList.clear();
 	// Add names to comboBox
-	m_pCmbCaptionBarEmployeeName->AddString(_T(">> Select your name <<"));
+
+	m_pCmbCaptionBarEmployeeName->AddString(theApp.ConvertIDToString(IDS_CAPTION_SELECT_NAME));
 
 	CSqlNativeAVB sql{ theApp.GetDatabaseConnection()->ConnectionString() };
 

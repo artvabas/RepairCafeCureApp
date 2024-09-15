@@ -35,9 +35,9 @@
 * jump into the close workorder to see the details with a option to print them.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.1.0 (beta)
+* Version: 1.0.2.5 (beta)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 09-09-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -93,15 +93,15 @@ void CReportWorkorderClosedView::OnInitialUpdate()
 
 	m_lstWorkorderClosedReport.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 
-	m_lstWorkorderClosedReport.InsertColumn(0, _T("WORKORDER ID"), LVCFMT_LEFT, 150);
-	m_lstWorkorderClosedReport.InsertColumn(1, _T("WORKORDER DESCRIPTION"), LVCFMT_LEFT, 300);
-	m_lstWorkorderClosedReport.InsertColumn(2, _T("EMPLOYEE RESPONSIBLE"), LVCFMT_LEFT, 150);
-	m_lstWorkorderClosedReport.InsertColumn(3, _T("WORKORDER CLOSED DATE"), LVCFMT_LEFT, 150);
-	m_lstWorkorderClosedReport.InsertColumn(4, _T("WORKORDER STATUS"), LVCFMT_LEFT, 150);
-	m_lstWorkorderClosedReport.InsertColumn(5, _T("ASSET ID"), LVCFMT_LEFT, 0);
-	m_lstWorkorderClosedReport.InsertColumn(6, _T("ASSET DESCRIPTION"), LVCFMT_LEFT, 150);
-	m_lstWorkorderClosedReport.InsertColumn(7, _T("CUSTOMER ID"), LVCFMT_LEFT, 0);
-	m_lstWorkorderClosedReport.InsertColumn(8, _T("INVOICE ID"), LVCFMT_LEFT, 0);
+	m_lstWorkorderClosedReport.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_WORKORDER_ID), LVCFMT_LEFT, 150);
+	m_lstWorkorderClosedReport.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_WORKORDER_DESCRIPTION), LVCFMT_LEFT, 300);
+	m_lstWorkorderClosedReport.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_RESPONSIBLE), LVCFMT_LEFT, 150);
+	m_lstWorkorderClosedReport.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_CLOSED_DATE), LVCFMT_LEFT, 150);
+	m_lstWorkorderClosedReport.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_STATUS), LVCFMT_LEFT, 150);
+	m_lstWorkorderClosedReport.InsertColumn(5, theApp.ConvertIDToString(IDS_DBT_ASSET), LVCFMT_LEFT, 0);
+	m_lstWorkorderClosedReport.InsertColumn(6, theApp.ConvertIDToString(IDS_DBT_ASSET_DESCRIPTION), LVCFMT_LEFT, 150);
+	m_lstWorkorderClosedReport.InsertColumn(7, theApp.ConvertIDToString(IDS_DBT_CUSTOMER_ID), LVCFMT_LEFT, 0);
+	m_lstWorkorderClosedReport.InsertColumn(8, theApp.ConvertIDToString(IDS_DBT_INVOICE_ID), LVCFMT_LEFT, 0);
 }
 
 // Is called before printing, for preparing the print job

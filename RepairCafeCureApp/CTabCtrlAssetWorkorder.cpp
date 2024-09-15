@@ -40,7 +40,7 @@
 * THis class is also responsible for the communication between the two forms.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.2 (Alpha)
+* Version: 1.0.2.5 (Alpha)
 * Created: 04-11-2023, (dd-mm-yyyy)
 * Updated: 18-06-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -146,8 +146,8 @@ void CTabCtrlAssetWorkorder::Init() noexcept
 	m_tabPages[0]->Create(IDD_ASSET_TAB, this);
 	m_tabPages[1]->Create(IDD_WORKORDER_TAB, this);
 
-	InsertItem(0, _T("Asset"));
-	InsertItem(1, _T("Workorder"));
+	InsertItem(0, theApp.ConvertIDToString(IDS_ASSET));
+	InsertItem(1, theApp.ConvertIDToString(IDS_WORKORDER));
 
 	SetRectangle();
 }

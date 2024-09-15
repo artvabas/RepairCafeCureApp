@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.0.5 (alpha)
+* Version: 1.0.2.5 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 15-07-2024, (dd-mm-yyyy)
+* Updated: 14-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -177,15 +177,15 @@ void CCustomerView::OnInitialUpdate()
 
 	m_ctlExistingCustomersList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 
-	m_ctlExistingCustomersList.InsertColumn(0, _T("ID"), LVCFMT_LEFT, 0);
-	m_ctlExistingCustomersList.InsertColumn(1, _T("SURNAME"), LVCFMT_LEFT, 150);
-	m_ctlExistingCustomersList.InsertColumn(2, _T("NAME"), LVCFMT_LEFT, 90);
-	m_ctlExistingCustomersList.InsertColumn(3, _T("CELLPHONE"), LVCFMT_LEFT, 90);
-	m_ctlExistingCustomersList.InsertColumn(4, _T("PHONE"), LVCFMT_LEFT, 90);
-	m_ctlExistingCustomersList.InsertColumn(5, _T("EMAIL"), LVCFMT_LEFT, 150);
-	m_ctlExistingCustomersList.InsertColumn(6, _T("COMMENT"), LVCFMT_LEFT, 0);
-	m_ctlExistingCustomersList.InsertColumn(7, _T("LOG"), LVCFMT_LEFT, 0);
-	m_ctlExistingCustomersList.InsertColumn(8, _T("PARTIAL INVOICE"), LVCFMT_LEFT, 0);
+	m_ctlExistingCustomersList.InsertColumn(0, theApp.ConvertIDToString(IDS_DBT_CUSTOMER_ID), LVCFMT_LEFT, 0);
+	m_ctlExistingCustomersList.InsertColumn(1, theApp.ConvertIDToString(IDS_DBT_SURNAME), LVCFMT_LEFT, 150);
+	m_ctlExistingCustomersList.InsertColumn(2, theApp.ConvertIDToString(IDS_DBT_NAME), LVCFMT_LEFT, 90);
+	m_ctlExistingCustomersList.InsertColumn(3, theApp.ConvertIDToString(IDS_DBT_CELL_PHONE), LVCFMT_LEFT, 90);
+	m_ctlExistingCustomersList.InsertColumn(4, theApp.ConvertIDToString(IDS_DBT_PHONE), LVCFMT_LEFT, 100);
+	m_ctlExistingCustomersList.InsertColumn(5, theApp.ConvertIDToString(IDS_DBT_EMAIL), LVCFMT_LEFT, 150);
+	m_ctlExistingCustomersList.InsertColumn(6, theApp.ConvertIDToString(IDS_DBT_COMMENT), LVCFMT_LEFT, 0);
+	m_ctlExistingCustomersList.InsertColumn(7, theApp.ConvertIDToString(IDS_DBT_LOG), LVCFMT_LEFT, 0);
+	m_ctlExistingCustomersList.InsertColumn(8, theApp.ConvertIDToString(IDS_DBT_PARTIAL_INVOICE), LVCFMT_LEFT, 0);
 
 	// Disable all child controls of the view.
 	OnUpdateUIState(UIS_INITIALIZE, 0);
