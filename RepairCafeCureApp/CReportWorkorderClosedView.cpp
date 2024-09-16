@@ -35,9 +35,9 @@
 * jump into the close workorder to see the details with a option to print them.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.2.5 (beta)
+* Version: 1.0.3.5 (beta)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 14-09-2024, (dd-mm-yyyy)
+* Updated: 16-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -50,11 +50,13 @@
 #include "CSqlNativeAVB.h"
 #include "DatabaseTables.h"
 #include "CClosedWorkorderDetails.h"
+#include "CPrintHelper.h"
 
 using namespace artvabas::rcc::ui;
 using namespace artvabas::sql;
 using namespace artvabas::rcc::ui::dialogs;
 using namespace artvabas::database::tables::closedworkorders;
+using namespace artvabas::rcc::support;
 
 IMPLEMENT_DYNCREATE(CReportWorkorderClosedView, CFormView)
 
@@ -126,152 +128,41 @@ void CReportWorkorderClosedView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 // Is called for printing the view
 void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 {
-	typedef unsigned int pixel;
-	const pixel pixMargin = 100; // 1 inch margin
-	const pixel pixFontHeightHeader = 120;
-	const pixel pixFontHeightBody = 80;
-
 	const wchar_t* wzsMonth[] = { L"januari", L"februari", L"maart", L"april", L"mei",  L"juni",
 								 L"juli", L"augustus", L"september", L"oktober", L"november", L"december" };
-
-	CFont fontBoldHeader;
-	VERIFY(fontBoldHeader.CreateFont(
-		pixFontHeightHeader,      // nHeight
-		0,                        // nWidth
-		0,                        // nEscapement
-		0,                        // nOrientation
-		FW_BOLD,				  // nWeight
-		FALSE,                    // bItalic
-		FALSE,                    // bUnderline
-		0,                        // cStrikeOut
-		ANSI_CHARSET,             // nCharSet
-		OUT_DEFAULT_PRECIS,       // nOutPrecision
-		CLIP_DEFAULT_PRECIS,      // nClipPrecision
-		DEFAULT_QUALITY,          // nQuality
-		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-		_T("Cascadia Mono")));    // lpszFacename
-
-	CFont fontPlainBody;
-	VERIFY(fontPlainBody.CreateFont(
-		pixFontHeightBody,        // nHeight
-		0,                        // nWidth
-		0,                        // nEscapement
-		0,                        // nOrientation
-		FW_NORMAL,                // nWeight
-		FALSE,                    // bItalic
-		FALSE,                    // bUnderline
-		0,                        // cStrikeOut
-		ANSI_CHARSET,             // nCharSet
-		OUT_DEFAULT_PRECIS,       // nOutPrecision
-		CLIP_DEFAULT_PRECIS,      // nClipPrecision
-		DEFAULT_QUALITY,          // nQuality
-		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-		_T("Cascadia Mono")));    // lpszFacename
-
-	CFont fontBoldBody;
-	VERIFY(fontBoldBody.CreateFont(
-		pixFontHeightBody,        // nHeight
-		0,                        // nWidth
-		0,                        // nEscapement
-		0,                        // nOrientation
-		FW_BOLD,		          // nWeight
-		FALSE,                     // bItalic
-		FALSE,                    // bUnderline
-		0,                        // cStrikeOut
-		ANSI_CHARSET,             // nCharSet
-		OUT_DEFAULT_PRECIS,       // nOutPrecision
-		CLIP_DEFAULT_PRECIS,      // nClipPrecision
-		DEFAULT_QUALITY,          // nQuality
-		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-		_T("Cascadia Mono")));    // lpszFacename
-
-	// Lambda functions for calculating pixels movements
-	auto TotalTabInPixels = [pixMargin](unsigned int nTotalTabs) -> pixel {
-		return pixMargin * nTotalTabs;
-		};
-
-	auto HeaderTextLineDown = [pixFontHeightHeader](unsigned int nTotalLines) -> pixel {
-		return pixFontHeightHeader * nTotalLines;
-		};
-
-	auto BodyTextLineDown = [pixFontHeightBody](unsigned int nTotalLines) -> pixel {
-		return pixFontHeightBody * nTotalLines;
-		};
-
-	// Get printer device resolutions
-	const int nHorRes = pDC->GetDeviceCaps(HORZRES);	// get printable width
-	const int nVerRes = pDC->GetDeviceCaps(VERTRES);	// get printable height
-	const int nLogPixelsX = pDC->GetDeviceCaps(LOGPIXELSX);	// get device resolution along X
-	const int nLogPixelsY = pDC->GetDeviceCaps(LOGPIXELSY);	// get device resolution along Y
-
-	CImage imgLogo;
-	imgLogo.Load(_T("logo.bmp"));
-	CFont* pFont = nullptr;
-	unsigned long middleDocBody = 0UL;
-
+	CPrintHelper PH{ pDC };
 	pDC->m_bPrinting = TRUE;
 	pDC->StartPage();
 
-	// Print border
-	CRect rctBorder(0, 0, nHorRes, nVerRes);
-	rctBorder.DeflateRect(nLogPixelsX / 2, nLogPixelsY / 2);
-	pDC->Draw3dRect(rctBorder, RGB(0, 0, 0), RGB(0, 0, 0));
+	PH.PrintLogo();
 
-	/* Common print jobs */
-
-	// Set print start position
-	int nPosX = rctBorder.TopLeft().x + 10;
-	int nPosY = rctBorder.TopLeft().y + 10;
-
-	// Print logo
-	imgLogo.StretchBlt(pDC->m_hDC, nPosX, nPosY, static_cast<int>(imgLogo.GetWidth() * 6.8), static_cast<int>(imgLogo.GetHeight() * 6.8), 0, 0, imgLogo.GetWidth(), imgLogo.GetHeight(), SRCCOPY);
-
-	// Calculate new start print position
-	nPosY += static_cast<int>(imgLogo.GetHeight() * 6.8) + 10;
-
-	// Print header
-	pFont = &fontBoldHeader;
-
-	// Print Header rectangle
-	CRect rctHeader(nPosX + 60, nPosY, nPosX + static_cast<int>(imgLogo.GetWidth() * 6.8) - 60, nPosY + HeaderTextLineDown(2));
-	pDC->FillRect(rctHeader, &CBrush(RGB(0, 102, 255)));
-	pDC->Draw3dRect(rctHeader, RGB(0, 102, 255), RGB(0, 102, 255));
-
-	// Print header text
-	pDC->SelectObject(pFont);
-	pDC->SetTextColor(RGB(255, 255, 255));
-
-
-	pDC->DrawText(_T("Overzicht gesloten werkorders"),	rctHeader, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	PH.PrintHeader(_T("Overzicht gesloten werkorders"));
 	
-	// calculate new start print position
-	nPosY += HeaderTextLineDown(3);
-
-	CRect rctWorkorderID(nPosX, nPosY, nPosX + TotalTabInPixels(4), nPosY + BodyTextLineDown(20));
+	CRect rctWorkorderID(*PH.m_pxPos, *PH.m_pyPos, *PH.m_pxPos + PH.TotalTabInPixels(4), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctWorkorderID, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctWorkorderDescription(rctWorkorderID.right, nPosY, rctWorkorderID.right + TotalTabInPixels(14), nPosY + BodyTextLineDown(20));
+	CRect rctWorkorderDescription(rctWorkorderID.right, *PH.m_pyPos, rctWorkorderID.right + PH.TotalTabInPixels(14), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctWorkorderDescription, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctWorkorderResponsible(rctWorkorderDescription.right, nPosY, rctWorkorderDescription.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(20));
+	CRect rctWorkorderResponsible(rctWorkorderDescription.right, *PH.m_pyPos, rctWorkorderDescription.right + PH.TotalTabInPixels(5), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctWorkorderResponsible, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctWorkorderCloseDate(rctWorkorderResponsible.right, nPosY, rctWorkorderResponsible.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(20));
+	CRect rctWorkorderCloseDate(rctWorkorderResponsible.right, *PH.m_pyPos, rctWorkorderResponsible.right + PH.TotalTabInPixels(5), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctWorkorderCloseDate, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctWorkorderStatus(rctWorkorderCloseDate.right, nPosY, rctWorkorderCloseDate.right + TotalTabInPixels(4), nPosY + BodyTextLineDown(20));
+	CRect rctWorkorderStatus(rctWorkorderCloseDate.right, *PH.m_pyPos, rctWorkorderCloseDate.right + PH.TotalTabInPixels(4), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctWorkorderStatus, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctAssetDescription(rctWorkorderStatus.right, nPosY, rctWorkorderStatus.right + TotalTabInPixels(10), nPosY + BodyTextLineDown(20));
+	CRect rctAssetDescription(rctWorkorderStatus.right, *PH.m_pyPos, rctWorkorderStatus.right + PH.TotalTabInPixels(10), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctAssetDescription, RGB(255, 255, 255), RGB(255, 255, 255));
 
 	// Print Table Header
-	pFont = &fontBoldBody;
-	pDC->SelectObject(pFont);
+	PH.m_pFont = &PH.m_fontBoldBody;
+	pDC->SelectObject(PH.m_pFont);
 
 	// print work comment area
-	pFont = &fontBoldBody;
-	pDC->SelectObject(pFont);
+	PH.m_pFont = &PH.m_fontBoldBody;
+	pDC->SelectObject(PH.m_pFont);
 
 	pDC->SetTextColor(RGB(0, 0, 0));
 	pDC->DrawText(_T("Werkorder:"), rctWorkorderID, DT_LEFT | DT_TABSTOP);
@@ -282,11 +173,11 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	pDC->DrawText(_T("Apparaat:"), rctAssetDescription, DT_LEFT | DT_TABSTOP);
 
 	// Print Table Body
-	pFont = &fontPlainBody;
-	pDC->SelectObject(pFont);
+	PH.m_pFont = &PH.m_fontPlainBody;
+	pDC->SelectObject(PH.m_pFont);
 
 	// Print body text
-	nPosY += BodyTextLineDown(1);
+	*PH.m_pyPos += PH.BodyTextLineDown(1);
 
 	// Print table body
 	for (int i = 0; i < m_lstWorkorderClosedReport.GetItemCount(); i++) {
@@ -297,40 +188,28 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		CString strWorkorderStatus = m_lstWorkorderClosedReport.GetItemText(i, 4);
 		CString strAssetDescription = m_lstWorkorderClosedReport.GetItemText(i, 6);
 
-		CRect rctWorkorderID(nPosX, nPosY, nPosX + TotalTabInPixels(4), nPosY + BodyTextLineDown(1));
+		CRect rctWorkorderID(*PH.m_pxPos, *PH.m_pyPos, *PH.m_pxPos + PH.TotalTabInPixels(4), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strWorkorderID, rctWorkorderID, DT_LEFT | DT_TABSTOP);
 
-		CRect rctWorkorderDescription(rctWorkorderID.right, nPosY, rctWorkorderID.right + TotalTabInPixels(14), nPosY + BodyTextLineDown(1));
+		CRect rctWorkorderDescription(rctWorkorderID.right, *PH.m_pyPos, rctWorkorderID.right + PH.TotalTabInPixels(14), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strWorkorderDescription, rctWorkorderDescription, DT_LEFT | DT_TABSTOP);
 
-		CRect rctWorkorderResponsible(rctWorkorderDescription.right, nPosY, rctWorkorderDescription.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(1));
+		CRect rctWorkorderResponsible(rctWorkorderDescription.right, *PH.m_pyPos, rctWorkorderDescription.right + PH.TotalTabInPixels(5), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strWorkorderResponsible, rctWorkorderResponsible, DT_LEFT | DT_TABSTOP);
 
-		CRect rctWorkorderCloseDate(rctWorkorderResponsible.right, nPosY, rctWorkorderResponsible.right + TotalTabInPixels(5), nPosY + BodyTextLineDown(1));
+		CRect rctWorkorderCloseDate(rctWorkorderResponsible.right, *PH.m_pyPos, rctWorkorderResponsible.right + PH.TotalTabInPixels(5), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strWorkorderCloseDate, rctWorkorderCloseDate, DT_LEFT | DT_TABSTOP);
 
-		CRect rctWorkorderStatus(rctWorkorderCloseDate.right, nPosY, rctWorkorderCloseDate.right + TotalTabInPixels(4), nPosY + BodyTextLineDown(1));
+		CRect rctWorkorderStatus(rctWorkorderCloseDate.right, *PH.m_pyPos, rctWorkorderCloseDate.right + PH.TotalTabInPixels(4), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strWorkorderStatus, rctWorkorderStatus, DT_LEFT | DT_TABSTOP);
 
-		CRect rctAssetDescription(rctWorkorderStatus.right, nPosY, rctWorkorderStatus.right + TotalTabInPixels(10), nPosY + BodyTextLineDown(1));
+		CRect rctAssetDescription(rctWorkorderStatus.right, *PH.m_pyPos, rctWorkorderStatus.right + PH.TotalTabInPixels(10), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strAssetDescription, rctAssetDescription, DT_LEFT | DT_TABSTOP);
 
-		nPosY += BodyTextLineDown(1);
+		*PH.m_pyPos += PH.BodyTextLineDown(1);
 	}
 
-	// Print footer
-	nPosY += BodyTextLineDown(1);
-	pFont = &fontPlainBody;
-	pDC->SelectObject(pFont);
-	COleDateTime cdtNow = COleDateTime::GetCurrentTime();
-
-	pDC->TextOutW(nPosX, nPosY, _T("Dit overzicht is gegenereerd door Repair Cafe Cure App op ") + cdtNow.Format(_T("%d-%m-%Y")));
-
-	// Destroy image
-	imgLogo.Destroy();
-	fontBoldHeader.DeleteObject();
-	fontPlainBody.DeleteObject();
-	fontBoldBody.DeleteObject();
+	PH.PrintFooter();
 
 	CFormView::OnPrint(pDC, pInfo);
 }

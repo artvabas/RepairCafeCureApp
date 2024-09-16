@@ -204,6 +204,9 @@
     <ClInclude Include="CAdminWorkorderToProgress.h">
       <Filter>Header Files\artvabas\rcc\ui\dialogs\admin</Filter>
     </ClInclude>
+    <ClInclude Include="CPrintHelper.h">
+      <Filter>Header Files\artvabas\rcc\support</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -295,6 +298,9 @@
     </ClCompile>
     <ClCompile Include="CAdminWorkorderToProgress.cpp">
       <Filter>Source Files\artvabas\rcc\ui\dialog\admin</Filter>
+    </ClCompile>
+    <ClCompile Include="CPrintHelper.cpp">
+      <Filter>Source Files\artvabas\rcc\support</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
