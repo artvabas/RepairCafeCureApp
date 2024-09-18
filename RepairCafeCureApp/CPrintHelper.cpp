@@ -1,3 +1,46 @@
+/*
+Copyright(C) 2023/24  artvabas
+
+This program is free software : you can redistribute it and /or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.If not, see < https://www.gnu.org/licenses/>
+
+To see the license for this source code, please visit :
+< https ://github.com/artvabas/RepairCafeCureApp/blob/master/LICENSE.txt>
+
+	For more information, please visit :
+< https ://artvabas.com>
+	< https ://github.com/artvabas/RepairCafeCureApp>
+
+	For contacts, please use the contact form at :
+< https ://artvabas.com/contact>
+
+	*/
+
+	/*
+	* This file is part of RepairCafeCureApp.
+	* File: CPrintHelper.cpp, implements the class CPrintHelper.
+	*
+	* This class is used to print the general header, footer and logo on a portrait printout.
+	* The body of the printout is to be implemented in the class which defines this.
+	*
+	* Target: Windows 10/11 64bit
+	* Version: 1.0.3.5 (beta)
+	* Created: 16-09-2023, (dd-mm-yyyy)
+	* Updated: 16-09-2024, (dd-mm-yyyy)
+	* Creator: artvabasDev / artvabas
+	*
+	* License: GPLv3
+	*/
 #include "pch.h"
 #include "CPrintHelper.h"
 
@@ -72,6 +115,8 @@ CPrintHelper::~CPrintHelper()
 	m_fontBoldBody.DeleteObject();
 }
 
+// Print logo method, prints the logo on the top of the page
+// The logo is a stretched bitmap image, the width of the image is stretched to the width of the page.
 void CPrintHelper::PrintLogo()
 {
 	//CImage imgLogo;
@@ -99,6 +144,9 @@ void CPrintHelper::PrintLogo()
 	*m_pyPos += static_cast<int>(m_imgLogo.GetHeight() * 6.8) + 10;
 }
 
+// Print header method, prints the header on the top of the page
+// The header is a rectangle with the header text in the middle
+// - strHeader: the header text to be printed
 void CPrintHelper::PrintHeader(const CString& strHeader)
 {
 	// Print header
@@ -119,6 +167,8 @@ void CPrintHelper::PrintHeader(const CString& strHeader)
 	*m_pyPos += HeaderTextLineDown(3);
 }
 
+// Print footer method, prints the footer on the bottom of the page
+// - strFooter: the footer text to be printed
 void CPrintHelper::PrintFooter(const CString& strFooter)
 {
 	*m_pyPos += BodyTextLineDown(1);

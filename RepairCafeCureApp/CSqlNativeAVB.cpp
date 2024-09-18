@@ -35,9 +35,9 @@ To see the license for this source code, please visit :
     * It can also handle errors and close the connection.
     *
     * Target: Windows 10/11 64bit
-    * Version: 0.0.1.0 (Alpha)
+    * Version: 0.0.3.5 (beta)
     * Created: 18-10-2023, (dd-mm-yyyy)
-    * Updated: 1-05-2024, (dd-mm-yyyy)
+    * Updated: 16-09-2024, (dd-mm-yyyy)
     * Creator: artvabasDev / artvabas
     *
     * License: GPLv3
@@ -60,6 +60,7 @@ CSqlNativeAVB::~CSqlNativeAVB()
     CloseConnection();
 }
 
+
 // ExecuteQuery - Execute a query on the database
 // - pszQuery: the query to execute
 bool CSqlNativeAVB::ExecuteQuery(SQLWCHAR* pszQuery) noexcept
@@ -67,13 +68,6 @@ bool CSqlNativeAVB::ExecuteQuery(SQLWCHAR* pszQuery) noexcept
     auto retCode = SQLExecDirectW(m_hStatement, pszQuery, SQL_NTS);
 
     return CheckReturnCodeForClosing(retCode);
-}
-
-// ExecuteReceiveQuery - Execute a query on the database and return the result
-// - pszQuery: the query to execute
-SQLINTEGER artvabas::sql::CSqlNativeAVB::ExecuteReceiveQuery(SQLWCHAR* pszQuery) const noexcept
-{
-    return SQLExecDirectW(m_hStatement, pszQuery, SQL_NTS);
 }
 
 // GetLastAddedID - Get the last added ID from the database

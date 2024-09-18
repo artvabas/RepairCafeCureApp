@@ -37,9 +37,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.2.5 (beta)
+* Version: 1.0.3.5 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 14-09-2024, (dd-mm-yyyy)
+* Updated: 18-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -271,8 +271,10 @@ void CCustomerView::OnClickedCustomViewButtonSearch()
 		if ( retcode == SQL_SUCCESS ) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if ( retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					MessageBoxW(theApp.ConvertIDToString(IDS_MSGBT_ERROR_FETCH_CUSTOMER), theApp.ConvertIDToString(IDS_MSGBC_ERROR_CONNECT_DS), MB_ICONERROR);
+					break;
+				}
 				if ( retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO ) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
