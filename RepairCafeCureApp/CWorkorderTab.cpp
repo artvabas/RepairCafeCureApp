@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.2.5 (beta)
+* Version: 1.0.3.5 (beta)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 14-09-2024, (dd-mm-yyyy)
+* Updated: 19-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -104,6 +104,7 @@ void CWorkorderTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_WOTAB_WORKORDER_HISTORY_LOG, m_strHistoryWorkorderLog);
 	DDX_Control(pDX, IDC_WOTAB_CREATE, m_btnWorkorderCreate);
 	DDX_Control(pDX, IDC_WOTAB_WORKORDERS_HISTORY_LIST, m_ctrWorkordersHistoryList);
+	DDX_Control(pDX, IDC_WOTAB_DESCRIPTION, m_ctrWorkorderDescription);
 }
 
 // OnInitDialog: Called after the constructor and before the dialog is displayed.
@@ -155,7 +156,7 @@ BOOL CWorkorderTab::PreTranslateMessage(MSG* pMsg) {
 void CWorkorderTab::OnEnChangeWoTabDescription() noexcept
 {
 	UpdateData(TRUE);
-	if ( m_strWorkorderDescription.IsEmpty() ) {
+	if ( m_strWorkorderDescription.IsEmpty()) {
 		m_btnWorkorderCreate.EnableWindow(FALSE);
 		SetCustomFocusButton(&m_btnWorkorderCreate, BLACK, false);
 	} else {
@@ -252,6 +253,13 @@ void CWorkorderTab::InitWithAssetDetailsRecords()
 	m_strAssetBrand = m_pAssetDetailsRecords->m_strBrand;
 	m_strHistoryWorkorderDescription.Empty();
 	m_strHistoryWorkorderLog.Empty();
+
+	if (m_uiAssetID == 0) {
+		m_strWorkorderDescription.Empty();
+		m_btnWorkorderCreate.EnableWindow(FALSE);
+		m_ctrWorkorderDescription.EnableWindow(FALSE);
+	}
+	else m_ctrWorkorderDescription.EnableWindow(TRUE);
 
 	m_ctrWorkordersHistoryList.DeleteAllItems(); 
 	int nIndex{};			// Index of the list control item.
