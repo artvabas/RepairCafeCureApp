@@ -391,9 +391,6 @@
     <Image Include="res\Contribution.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\bitmap1.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="res\HistorySearch.bmp">
       <Filter>Resource Files</Filter>
     </Image>
@@ -407,6 +404,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\FinanceFlowTotal.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\logoblank.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

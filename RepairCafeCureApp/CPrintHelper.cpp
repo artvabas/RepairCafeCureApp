@@ -43,6 +43,7 @@ To see the license for this source code, please visit :
 	*/
 #include "pch.h"
 #include "CPrintHelper.h"
+#include "resource.h"
 
 using namespace artvabas::rcc::support;
 
@@ -123,7 +124,8 @@ CPrintHelper::~CPrintHelper()
 void CPrintHelper::PrintLogo()
 {
 	//CImage imgLogo;
-	m_imgLogo.Load(_T("logo.bmp"));
+	HRESULT result = m_imgLogo.Load(_T("logo.bmp"));
+	if ( result != S_OK) m_imgLogo.LoadFromResource(AfxGetInstanceHandle(), IDB_LOGO);
 
 	// Get printer device resolutions
 	const int nHorRes = m_pDC->GetDeviceCaps(HORZRES);	// get printable width

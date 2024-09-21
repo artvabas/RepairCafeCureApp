@@ -161,8 +161,8 @@
 #define IDD_ADMIN_WORKORDER_PROGRESS    372
 #define IDD_FORMVIEW                    373
 #define IDD_REPORT_FINANCE_TOTAL_FORM   373
-#define IDB_BITMAP1                     376
 #define IDB_REPORTTOTAL                 376
+#define IDB_LOGO                        377
 #define IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH 1001
 #define IDC_CUSTVIEW_BUTTON_SEARCH      1002
 #define IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER 1003
@@ -359,7 +359,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        377
+#define _APS_NEXT_RESOURCE_VALUE        378
 #define _APS_NEXT_COMMAND_VALUE         32810
 #define _APS_NEXT_CONTROL_VALUE         1184
 #define _APS_NEXT_SYMED_VALUE           318

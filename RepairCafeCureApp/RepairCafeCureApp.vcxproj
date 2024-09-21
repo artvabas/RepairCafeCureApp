@@ -278,7 +278,6 @@
     <ResourceCompile Include="RepairCafeCureApp.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\bitmap1.bmp" />
     <Image Include="res\buttons.bmp" />
     <Image Include="res\CloseWorkorders.bmp" />
     <Image Include="res\Contribution.bmp" />
@@ -289,6 +288,7 @@
     <Image Include="res\HistorySearch.bmp" />
     <Image Include="res\info.bmp" />
     <Image Include="res\LogoAVBIcon.ico" />
+    <Image Include="res\logoblank.bmp" />
     <Image Include="res\main.bmp" />
     <Image Include="res\maintenancelarge.bmp" />
     <Image Include="res\maintenancesmall.bmp" />

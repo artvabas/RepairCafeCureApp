@@ -33,15 +33,16 @@ To see the license for this source code, please visit :
 	* This class is used to print a workorder in a combi or invoice format.
 	*
 	* Target: Windows 10/11 64bit
-	* Version: 1.0.0.1 (Alpha)
+	* Version: 1.0.3.5 (beta)
 	* Created: 18-10-2023, (dd-mm-yyyy)
-	* Updated: 10-06-2024, (dd-mm-yyyy)
+	* Updated: 21-09-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* License: GPLv3
 	*/
 #include "pch.h"
 #include "CPrintWorkorder.h"
+#include "resource.h"
 
 using namespace artvabas::rcc::support;
 
@@ -158,7 +159,8 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 	const int nLogPixelsY = pDC->GetDeviceCaps(LOGPIXELSY);	// get device resolution along Y
 
 	CImage imgLogo;
-	auto b = imgLogo.Load(_T("logo.bmp"));
+	HRESULT result = imgLogo.Load(_T("logo.bmp"));
+	if (result != S_OK) imgLogo.LoadFromResource(AfxGetInstanceHandle(), IDB_LOGO);
 	CFont* pFont = nullptr;
 	unsigned long middleDocBody = 0UL;
 
@@ -474,7 +476,8 @@ void CPrintWorkorder::PrintInvoice(CDC* pDC) const noexcept
 	const int nLogPixelsY = pDC->GetDeviceCaps(LOGPIXELSY);	// get device resolution along Y
 
 	CImage imgLogo;
-	imgLogo.Load(_T("logo.bmp"));
+	HRESULT result = imgLogo.Load(_T("logo.bmp"));
+	if (result != S_OK) imgLogo.LoadFromResource(AfxGetInstanceHandle(), IDB_LOGO);
 	CFont* pFont = nullptr;
 	unsigned long middleDocBody = 0UL;
 
