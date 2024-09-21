@@ -37,7 +37,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.3.5 (beta)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 18-09-2024, (dd-mm-yyyy)
+* Updated: 21-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -134,6 +134,11 @@ BOOL CReportTaxView::PreTranslateMessage(MSG* pMsg)
 // @param pInfo: A pointer to a CPrintInfo structure
 BOOL CReportTaxView::OnPreparePrinting(CPrintInfo* pInfo)
 {
+	// Calculate total pages to print, 55 items each page
+	int nPages = m_lstReportResultTax.GetItemCount() / 55;
+	if (m_lstReportResultTax.GetItemCount() % 55 > 0) nPages++;
+	pInfo->SetMaxPage(nPages);
+
 	return DoPreparePrinting(pInfo);
 }
 
@@ -220,7 +225,12 @@ void CReportTaxView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	// Print body text
 	*PH.m_pyPos += PH.BodyTextLineDown(1);
 
-	for (int i = 0; i < m_lstReportResultTax.GetItemCount(); i++) {
+	// 55 items each page
+	int nPage = pInfo->m_nCurPage;
+	int i = (nPage - 1) * 55;
+	if (i > 0) i += (nPage - 1);
+
+	for ( i; i < m_lstReportResultTax.GetItemCount(); i++) {
 		CString strDate = m_lstReportResultTax.GetItemText(i, 0);
 		CString strWorkorder = m_lstReportResultTax.GetItemText(i, 1);
 		CString strSurName = m_lstReportResultTax.GetItemText(i, 2);
@@ -247,27 +257,36 @@ void CReportTaxView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		pDC->DrawText(strContribution, rctContribution, DT_RIGHT | DT_TABSTOP);
 
 		*PH.m_pyPos += PH.BodyTextLineDown(1);
+
+		// reach 55 items per page
+		if (*PH.m_pyPos == PH.m_pixEndPage) {
+			break;
+		}
 	}
 
-	// Print report footer
-	*PH.m_pyPos += PH.BodyTextLineDown(1);
+	// If last page, then print totals
+	if (pInfo->m_nCurPage == pInfo->GetMaxPage()) {
+		
+		// Print report footer
+		*PH.m_pyPos += PH.BodyTextLineDown(1);
 
-	PH.m_pFont = &PH.m_fontBoldHeader;
-	pDC->SelectObject(PH.m_pFont);
-	pDC->SetBkColor(RGB(255, 255, 255));
-	pDC->SetTextColor(RGB(0, 0, 0));
+		PH.m_pFont = &PH.m_fontBoldHeader;
+		pDC->SelectObject(PH.m_pFont);
+		pDC->SetBkColor(RGB(255, 255, 255));
+		pDC->SetTextColor(RGB(0, 0, 0));
 
-	CRect rctTotal(rctHomePhone.right, *PH.m_pyPos, rctHomePhone.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
-	pDC->Draw3dRect(rctTotal, RGB(255, 255, 255), RGB(255, 255, 255));
+		CRect rctTotal(rctHomePhone.right, *PH.m_pyPos, rctHomePhone.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
+		pDC->Draw3dRect(rctTotal, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctTotalAmount(rctTotal.right, *PH.m_pyPos, rctTotal.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
-	pDC->Draw3dRect(rctTotalAmount, RGB(255, 255, 255), RGB(255, 255, 255));
+		CRect rctTotalAmount(rctTotal.right, *PH.m_pyPos, rctTotal.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
+		pDC->Draw3dRect(rctTotalAmount, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	pDC->DrawText(_T("Totaal:"), rctTotal, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalAmountContribution, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Totaal:"), rctTotal, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalAmountContribution, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+	}
 
 	// Print footer
-	PH.PrintFooter();
+	PH.PrintFooter(pInfo->m_nCurPage);
 	
 	CFormView::OnPrint(pDC, pInfo);
 }

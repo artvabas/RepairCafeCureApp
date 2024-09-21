@@ -36,7 +36,7 @@ To see the license for this source code, please visit :
 	* Target: Windows 10/11 64bit
 	* Version: 1.0.3.5 (beta)
 	* Created: 16-09-2023, (dd-mm-yyyy)
-	* Updated: 16-09-2024, (dd-mm-yyyy)
+	* Updated: 21-09-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* License: GPLv3
@@ -55,6 +55,9 @@ CPrintHelper::CPrintHelper(CDC* pDC)
 	, m_pxPos{ std::make_unique<long>(0) }
 	, m_pyPos{ std::make_unique<long>(0) }
 	, m_imgLogo{ CImage() }
+	, m_pixEndPage{ 6239 }
+	, m_pixPageXPos{ 4000 }
+
 {
 	VERIFY(m_fontBoldHeader.CreateFont(
 		m_pixFontHeightHeader,      // nHeight
@@ -169,7 +172,7 @@ void CPrintHelper::PrintHeader(const CString& strHeader)
 
 // Print footer method, prints the footer on the bottom of the page
 // - strFooter: the footer text to be printed
-void CPrintHelper::PrintFooter(const CString& strFooter)
+void CPrintHelper::PrintFooter(const int nPage, const CString& strFooter)
 {
 	*m_pyPos += BodyTextLineDown(1);
 	m_pFont = &m_fontPlainBody;
@@ -182,5 +185,15 @@ void CPrintHelper::PrintFooter(const CString& strFooter)
 	}
 	else {
 		m_pDC->TextOutW(*m_pxPos, *m_pyPos, strFooter);
+	}
+	CString strPage; strPage.Format(_T("Pagina %d"), nPage);
+	if (*m_pyPos > m_pixEndPage) {
+		*m_pyPos += BodyTextLineDown(1);
+		m_pDC->TextOutW(m_pixPageXPos, *m_pyPos,  strPage);
+	}
+	else {
+		*m_pyPos = m_pixEndPage;
+		*m_pyPos += BodyTextLineDown(2);
+		m_pDC->TextOutW(m_pixPageXPos, *m_pyPos, strPage);
 	}
 }

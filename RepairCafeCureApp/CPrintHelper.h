@@ -36,7 +36,7 @@ To see the license for this source code, please visit :
 	* Target: Windows 10/11 64bit
 	* Version: 1.0.3.5 (beta)
 	* Created: 16-09-2023, (dd-mm-yyyy)
-	* Updated: 16-09-2024, (dd-mm-yyyy)
+	* Updated: 21-09-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* License: GPLv3
@@ -57,12 +57,14 @@ namespace artvabas::rcc::support
 		CFont m_fontBoldBody;
 		std::unique_ptr<long>(m_pxPos);
 		std::unique_ptr<long>(m_pyPos);
+		const unsigned int m_pixEndPage;
 
 	private:
 		typedef unsigned int pixel;
 		const pixel m_pixMargin;
 		const pixel m_pixFontHeightHeader;
 		const pixel m_pixFontHeightBody;
+		const pixel m_pixPageXPos;
 		CImage m_imgLogo;
 
 	public:
@@ -76,6 +78,6 @@ namespace artvabas::rcc::support
 
 		void PrintLogo();
 		void PrintHeader(const CString& strHeader);
-		void PrintFooter(const CString& strFooter = _T(""));
+		void PrintFooter(const int nPage, const CString& strFooter = _T(""));
 	};
 }

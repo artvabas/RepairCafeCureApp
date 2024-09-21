@@ -37,7 +37,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.3.5 (beta)
 * Created: 25-08-2024, (dd-mm-yyyy)
-* Updated: 18-09-2024, (dd-mm-yyyy)
+* Updated: 21-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -119,6 +119,11 @@ void CReportFinanceTotalView::OnInitialUpdate()
 // Returns: TRUE if the print job is prepared successfully; otherwise FALSE
 BOOL CReportFinanceTotalView::OnPreparePrinting(CPrintInfo* pInfo)
 {
+	// Calculate total pages to print, 55 items each page
+	int nPages = m_lstTotalReportResults.GetItemCount() / 50;
+	if (m_lstTotalReportResults.GetItemCount() % 50 > 0) nPages++;
+	pInfo->SetMaxPage(nPages);
+
 	return DoPreparePrinting(pInfo);
 }
 
@@ -197,7 +202,12 @@ void CReportFinanceTotalView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	// Print body text
 	*PH.m_pyPos += PH.BodyTextLineDown(1);
 
-	for (int i = 0; i < m_lstTotalReportResults	.GetItemCount(); i++) {
+	// 55 items each page
+	int nPage = pInfo->m_nCurPage;
+	int i = (nPage - 1) * 50;
+	if (i > 0) i += (nPage - 1);
+
+	for ( i; i < m_lstTotalReportResults	.GetItemCount(); i++) {
 		CString strDate = m_lstTotalReportResults.GetItemText(i, 0);
 		CString strWorkorder = m_lstTotalReportResults.GetItemText(i, 1);
 		CString strInvoice = m_lstTotalReportResults.GetItemText(i, 2);
@@ -224,57 +234,63 @@ void CReportFinanceTotalView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		pDC->DrawText(strContribution, rctContribution, DT_RIGHT | DT_TABSTOP);
 
 		*PH.m_pyPos += PH.BodyTextLineDown(1);
+
+		// reach 50 items per page virtual 55
+		if (*PH.m_pyPos + PH.BodyTextLineDown(5) == PH.m_pixEndPage) {
+			break;
+		}
 	}
 
-	// Print peport footer
-	*PH.m_pyPos += PH.BodyTextLineDown(1);
+	if (pInfo->m_nCurPage == pInfo->GetMaxPage()) {
+		*PH.m_pyPos += PH.BodyTextLineDown(1);
 
-	PH.m_pFont = &PH.m_fontBoldBody;
-	pDC->SelectObject(PH.m_pFont);
-	pDC->SetBkColor(RGB(255, 255, 255));
-	pDC->SetTextColor(RGB(0, 0, 0));
+		PH.m_pFont = &PH.m_fontBoldBody;
+		pDC->SelectObject(PH.m_pFont);
+		pDC->SetBkColor(RGB(255, 255, 255));
+		pDC->SetTextColor(RGB(0, 0, 0));
 
-	CRect rctTotalAll(rctTotal.right, *PH.m_pyPos, rctTotal.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
-	pDC->Draw3dRect(rctTotal, RGB(255, 255, 255), RGB(255, 255, 255));
+		CRect rctTotalAll(rctTotal.right, *PH.m_pyPos, rctTotal.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
+		pDC->Draw3dRect(rctTotal, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctTotalAmount(rctTotalAll.right, *PH.m_pyPos, rctTotalAll.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
-	pDC->Draw3dRect(rctTotalAmount, RGB(255, 255, 255), RGB(255, 255, 255));
+		CRect rctTotalAmount(rctTotalAll.right, *PH.m_pyPos, rctTotalAll.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
+		pDC->Draw3dRect(rctTotalAmount, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	pDC->DrawText(_T("Factuur contant:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalInvoiceCash, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Factuur contant:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalInvoiceCash, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
-	rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
 
-	pDC->DrawText(_T("Factuur pin:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalInvoicePin, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Factuur pin:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalInvoicePin, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
-	rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
 
-	pDC->DrawText(_T("Factuur total:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalInvoice, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Factuur total:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalInvoice, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(2));
-	rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(2));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(2));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(2));
 
-	pDC->DrawText(_T("Bijdrage contant:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalContributionCash, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Bijdrage contant:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalContributionCash, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
-	rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
 
-	pDC->DrawText(_T("Bijdrage pin:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalContributionPin, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Bijdrage pin:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalContributionPin, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
-	rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
 
-	pDC->DrawText(_T("Bijdrage totaal:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalContribution, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Bijdrage totaal:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalContribution, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	*PH.m_pyPos += PH.BodyTextLineDown(7);
-	PH.PrintFooter();
+		//*PH.m_pyPos += PH.BodyTextLineDown(7);
+	}
+	PH.PrintFooter(pInfo->m_nCurPage);
 
 	CFormView::OnPrint(pDC, pInfo);
 }

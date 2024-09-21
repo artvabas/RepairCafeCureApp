@@ -37,7 +37,7 @@
 * Target: Windows 10/11 64bit
 * Version: 1.0.3.5 (beta)
 * Created: 02-06-2023, (dd-mm-yyyy)
-* Updated: 18-09-2024, (dd-mm-yyyy)
+* Updated: 21-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -109,6 +109,10 @@ void CReportWorkorderClosedView::OnInitialUpdate()
 // Is called before printing, for preparing the print job
 BOOL CReportWorkorderClosedView::OnPreparePrinting(CPrintInfo* pInfo)
 {
+	int nPages = m_lstWorkorderClosedReport.GetItemCount() / 55;
+	if (m_lstWorkorderClosedReport.GetItemCount() % 55 > 0) nPages++;
+	pInfo->SetMaxPage(nPages);
+
 	return DoPreparePrinting(pInfo);
 }
 
@@ -133,6 +137,7 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	CPrintHelper PH{ pDC };
 	pDC->m_bPrinting = TRUE;
 	pDC->StartPage();
+	
 
 	PH.PrintLogo();
 
@@ -157,8 +162,8 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	pDC->Draw3dRect(rctAssetDescription, RGB(255, 255, 255), RGB(255, 255, 255));
 
 	// Print Table Header
-	PH.m_pFont = &PH.m_fontBoldBody;
-	pDC->SelectObject(PH.m_pFont);
+	//PH.m_pFont = &PH.m_fontBoldBody;
+	//pDC->SelectObject(PH.m_pFont);
 
 	// print work comment area
 	PH.m_pFont = &PH.m_fontBoldBody;
@@ -179,8 +184,12 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	// Print body text
 	*PH.m_pyPos += PH.BodyTextLineDown(1);
 
+	int nPage = pInfo->m_nCurPage;
+	int i = ( nPage - 1) * 55;
+	if (i > 0) i += (nPage - 1);
+	
 	// Print table body
-	for (int i = 0; i < m_lstWorkorderClosedReport.GetItemCount(); i++) {
+	for ( i;  i < m_lstWorkorderClosedReport.GetItemCount(); i++) {
 		CString strWorkorderID = m_lstWorkorderClosedReport.GetItemText(i, 0);
 		CString strWorkorderDescription = m_lstWorkorderClosedReport.GetItemText(i, 1);
 		CString strWorkorderResponsible = m_lstWorkorderClosedReport.GetItemText(i, 2);
@@ -207,9 +216,13 @@ void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		pDC->DrawText(strAssetDescription, rctAssetDescription, DT_LEFT | DT_TABSTOP);
 
 		*PH.m_pyPos += PH.BodyTextLineDown(1);
-	}
 
-	PH.PrintFooter();
+		if (*PH.m_pyPos == PH.m_pixEndPage) {
+			break;
+		}
+	}
+	
+	PH.PrintFooter(pInfo->m_nCurPage);
 
 	CFormView::OnPrint(pDC, pInfo);
 }
