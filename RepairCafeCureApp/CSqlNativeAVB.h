@@ -35,9 +35,9 @@ To see the license for this source code, please visit :
 	* It can also handle errors and close the connection.
 	*
 	* Target: Windows 10/11 64bit
-	* Version: 1.0.1.0
+	* Version: 1.0.3.5 (Beta)
 	* Created: 18-10-2023, (dd-mm-yyyy)
-	* Updated: 1-05-2024, (dd-mm-yyyy)
+	* Updated: 16-09-2024, (dd-mm-yyyy)
 	* Creator: artvabasDev / artvabas
 	*
 	* License: GPLv3
@@ -63,7 +63,6 @@ namespace artvabas::sql
 
 		bool CreateSQLConnection();
 		bool ExecuteQuery(SQLWCHAR* pszQuery) noexcept;
-		SQLINTEGER ExecuteReceiveQuery(SQLWCHAR* pszQuery) const noexcept;
 		SQLINTEGER GetLastAddedID(SQLWCHAR* pszQuery) noexcept;
 		bool CheckReturnCodeForClosing(SQLRETURN RetCode);
 

@@ -36,9 +36,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.2.5 (beta)
+* Version: 1.0.3.5 (beta)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 14-09-2024, (dd-mm-yyyy)
+* Updated: 23-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -70,6 +70,7 @@
 #include "CAdminEmployeeMaintenance.h"
 #include "CAdminSparepartsStockMaintenance.h"
 #include "CAdminWorkorderToProgress.h"
+#include "CAdminCombiReceipt.h"
 using namespace artvabas::rcc::security::admin;
 using namespace artvabas::rcc::dialog::admin;
 #endif
@@ -91,7 +92,7 @@ static void __stdcall TimerCallback(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 	if (dwTimeIdle > static_cast<unsigned long long>(1000 * 60) * 2 && !theApp.m_bIsIdle) {
 		theApp.IsIdle();
 		theApp.SetAdmin(false);
-		auto result = MessageBoxW(theApp.m_pMainWnd->m_hWnd, _T("Automatically Locked the app!"), _T("Repair Cafe Cure App is Idle"), MB_OK);
+		MessageBoxW(theApp.m_pMainWnd->m_hWnd, theApp.ConvertIDToString(IDS_MSGBT_IDLE), theApp.ConvertIDToString(IDS_MSGBC_IDLE), MB_ICONINFORMATION);
 	} 
 }
 
@@ -109,7 +110,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_bIsPrintPreview{ false }
 	, m_bIsAdmin{ false }
 {
-	SetAppID(_T("RepairCafeCureApp.AppID.1.0.1.0"));
+	SetAppID(_T("RepairCafeCureApp.AppID.1.0.3.5"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
 }
 
@@ -141,6 +142,7 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_ADMIN_MAINTENANCE_EMPLOYEES, &CRepairCafeCureApp::OnAdminMaintenanceEmployees)
 	ON_COMMAND(ID_ADMIN_MAINTENANCE_STOCK, &CRepairCafeCureApp::OnAdminMaintenanceStock)
 	ON_COMMAND(ID_ADMIN_MAINTENANCE_WORKORDER_PROGRESS, &CRepairCafeCureApp::OnAdminMaintenanceWorkorderProgress)
+	ON_COMMAND(ID_ADMIN_SETTINGS_COMBI, &CRepairCafeCureApp::OnAdminSettingsCombi)
 END_MESSAGE_MAP()
 
 /* Overrides  methods */
@@ -252,7 +254,7 @@ BOOL CRepairCafeCureApp::InitInstance()
 	m_pReportWorkorderClosedView->SendMessage(WM_INITIALUPDATE, 0, 0);
 
 	// The one and only window has been initialized, so show and update it
-	m_pMainWnd->SetWindowTextW(_T("Repair Cafe Cure App - Customer"));
+	m_pMainWnd->SetWindowTextW(ConvertIDToString(IDS_WT_CUSTOMER));
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	
 	return TRUE;
@@ -272,7 +274,7 @@ int CRepairCafeCureApp::ExitInstance()
 void CRepairCafeCureApp::OnCustomerView() noexcept
 {
 	SwitchView(VIEW_CUSTOMER);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Customer"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_CUSTOMER));
 
 	// Get a pointer to the main frame window.
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
@@ -285,7 +287,7 @@ void CRepairCafeCureApp::OnCustomerView() noexcept
 void CRepairCafeCureApp::OnAssetView() noexcept
 {
 	SwitchView(VIEW_ASSET);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - History"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_HISTORY));
 }
 
 // OnWorkorderViewOpen is called when user select the workorder-open button on the ribbon
@@ -294,7 +296,7 @@ void CRepairCafeCureApp::OnWorkorderViewOpen() noexcept
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_OPEN;
 	SwitchView(VIEW_WORKORDER);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Open workorder"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_WORKORDER_OPEN));
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	if ( pMainFrm != NULL ) pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
@@ -306,7 +308,7 @@ void CRepairCafeCureApp::OnWorkorderViewProgress() noexcept
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_PROGRESS;
 	SwitchView(VIEW_WORKORDER);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Workorder in progress"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_WORKORDER_PROGRESS));
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	if ( pMainFrm != NULL ) pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
@@ -318,7 +320,7 @@ void CRepairCafeCureApp::OnWorkorderViewRepaired() noexcept
 {
 	m_enuWorkorderViewType = VIEW_WORKORDER_REPAIRED;
 	SwitchView(VIEW_WORKORDER);
-	theApp.m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Repaired workorder")); 
+	theApp.m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_WORKORDER_REPAIRED));
 
 	CMainFrame* pMainFrm = (CMainFrame*)AfxGetMainWnd();
 	if ( pMainFrm != NULL ) pMainFrm->OnCaptionBarComboBoxEmployeeNameChange();
@@ -331,7 +333,7 @@ void CRepairCafeCureApp::OnReportViewFinanceTax() noexcept
 	m_bIsPrintPreview = false;
 	m_eFinanceTaxViewType = VIEW_CONTRIBUTON_REPORT;
 	SwitchView(VIEW_REPORT_FINANCE_TAX);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Contribution"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_REPORT_CONTRIBUTION));
 }
 
 // OnReportWorkorderPinTransaction is called when user select the report-workorder-pintransaction button on the ribbon
@@ -341,7 +343,7 @@ void CRepairCafeCureApp::OnReportWorkorderPinTransaction() noexcept
 	m_bIsPrintPreview = false;
 	m_eFinanceTaxViewType = VIEW_PIN_TRANSACTION_REPORT;
 	SwitchView(VIEW_REPORT_FINANCE_TAX);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Pin Transactions"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_REPORT_PIN));
 }
 
 void CRepairCafeCureApp::OnReportWorkorderCashTransaction() noexcept
@@ -349,7 +351,7 @@ void CRepairCafeCureApp::OnReportWorkorderCashTransaction() noexcept
 	m_bIsPrintPreview = false;
 	m_eFinanceTaxViewType = VIEW_CASH_TRANSACTION_REPORT;
 	SwitchView(VIEW_REPORT_FINANCE_TAX);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Cash Transactions"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_REPORT_CASH));
 }
 
 // OnReportWorkorderTotalFlow is called when user select the report-workorder-total-flow button on the ribbon
@@ -357,7 +359,7 @@ void CRepairCafeCureApp::OnReportWorkorderCashTransaction() noexcept
 void CRepairCafeCureApp::OnReportWorkorderTotalFlow() noexcept
 {
 	SwitchView(VIEW_REPORT_FINANCE_TOTAL);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Finance Total Flow"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_REPORT_TOTAL));
 }
 
 
@@ -366,7 +368,7 @@ void CRepairCafeCureApp::OnReportWorkorderTotalFlow() noexcept
 void CRepairCafeCureApp::OnReportWorkorderClosed() noexcept
 {
 	SwitchView(VIEW_REPORT_WORKORDER_CLOSED);
-	m_pMainWnd->SetWindowText(_T("Repair Cafe Cure App - Report Workorder Closed"));
+	m_pMainWnd->SetWindowText(ConvertIDToString(IDS_WT_WORKORDER_CLOSED));
 }
 
 // OnAppAdmin is called when user select the admin button on the ribbon
@@ -421,6 +423,15 @@ void CRepairCafeCureApp::OnAdminMaintenanceWorkorderProgress() noexcept
 #endif // !_DEBUG
 }
 
+// OnAdminSettingsCombi is called when user select the settings-combi button on the ribbon
+// Show the admin combi receipt dialog
+void CRepairCafeCureApp::OnAdminSettingsCombi() noexcept
+{
+#ifndef _DEBUG
+	CAdminCombiReceipt dlg;
+	dlg.DoModal();
+#endif // !_DEBUG
+}
 
 // OnFilePrintSetup is called when user select the print setup button on the ribbon
 // Set the printer orientation for the selected view

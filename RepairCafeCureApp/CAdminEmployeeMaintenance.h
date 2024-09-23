@@ -28,7 +28,7 @@
 
 /*
 * This file is part of RepairCafeCureApp.
-* File: CAdminEmployeeMaintenance.cpp, defines class CAdminEmployeeMaintenance
+* File: CAdminEmployeeMaintenance.h, defines class CAdminEmployeeMaintenance
 *
 * This class is the dialog for maintaining the employees with their roles.
 * It is a part of the administration of the application, for add new, change or delete employees.

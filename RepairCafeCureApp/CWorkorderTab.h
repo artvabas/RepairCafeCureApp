@@ -39,9 +39,9 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 0.0.1.0 (alpha)
+* Version: 1.0.3.5 (beta)
 * Created: 04-11-2023, (dd-mm-yyyy)
-* Updated: 30-04-2024, (dd-mm-yyyy)
+* Updated: 19-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -79,6 +79,7 @@ namespace artvabas::rcc::ui::dialogs {
 
 		CMFCButton m_btnWorkorderCreate;
 		CListCtrl m_ctrWorkordersHistoryList;
+		CEdit m_ctrWorkorderDescription;
 
 	public:
 		CWorkorderTab(CTabCtrlAssetWorkorder* pTabControl, CWnd* pParent = nullptr) noexcept;

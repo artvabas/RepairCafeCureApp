@@ -38,9 +38,9 @@
 * The caption bar is created in the OnCreate method.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.2.5 (beta)
+* Version: 1.0.3.5 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
-* Updated: 14-09-2024, (dd-mm-yyyy)
+* Updated: 16-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -366,8 +366,10 @@ void CMainFrame::GetEmployeeList() noexcept
 		if (retcode == SQL_SUCCESS) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-					AfxMessageBox(_T("Error fetching data from Employee Table!"), MB_ICONEXCLAMATION);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					MessageBoxW(theApp.ConvertIDToString(IDS_MSGBT_ERROR_FETCH_EMPLOYEE), theApp.ConvertIDToString(IDS_MSGBC_ERROR_CONNECT_DS), MB_ICONERROR);
+					break;
+				}
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 					SQLGetData(hstmt, EMPLOYEE.EMPLOYEE_NAME, SQL_C_CHAR, szName, 50, &cbName);
 					strName = static_cast<CString>(szName);

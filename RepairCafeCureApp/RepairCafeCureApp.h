@@ -34,9 +34,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.2.0 (beta)
+* Version: 1.0.3.5 (beta)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 14-09-2024, (dd-mm-yyyy)
+* Updated: 23-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -109,6 +109,7 @@ private:
 	afx_msg void OnAdminMaintenanceEmployees() noexcept;
 	afx_msg void OnAdminMaintenanceStock() noexcept;
 	afx_msg void OnAdminMaintenanceWorkorderProgress() noexcept;
+	afx_msg void OnAdminSettingsCombi() noexcept;
 	afx_msg void OnFilePrintSetup() noexcept;
 
 public:
@@ -127,7 +128,6 @@ public:
 	inline bool IsAdmin() const noexcept { return m_bIsAdmin; }
 	inline void SetAdmin(bool bIsAdmin) noexcept { m_bIsAdmin = bIsAdmin; }
 	void ShowContextCategory(const UINT nID, const BOOL bShow = 1) const noexcept;
-
 
 private:
 	HANDLE DefineDeviceMode() noexcept;

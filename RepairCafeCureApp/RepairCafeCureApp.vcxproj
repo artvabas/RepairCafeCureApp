@@ -191,6 +191,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CAdminCombiReceipt.h" />
     <ClInclude Include="CAdminEmployeeMaintenance.h" />
     <ClInclude Include="CAdminLogin.h" />
     <ClInclude Include="CAdminSparePartsStockMaintenance.h" />
@@ -206,6 +207,7 @@
     <ClInclude Include="CContributionPaymentDialog.h" />
     <ClInclude Include="CCustomerView.h" />
     <ClInclude Include="CDatabaseConnection.h" />
+    <ClInclude Include="CPrintHelper.h" />
     <ClInclude Include="CPrintWorkorder.h" />
     <ClInclude Include="CReportFinanceTotalView.h" />
     <ClInclude Include="CReportTaxView.h" />
@@ -229,6 +231,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CAdminCombiReceipt.cpp" />
     <ClCompile Include="CAdminEmployeeMaintenance.cpp" />
     <ClCompile Include="CAdminLogin.cpp" />
     <ClCompile Include="CAdminSparePartsStockMaintenance.cpp" />
@@ -244,6 +247,7 @@
     <ClCompile Include="CContributionPaymentDialog.cpp" />
     <ClCompile Include="CCustomerView.cpp" />
     <ClCompile Include="CDatabaseConnection.cpp" />
+    <ClCompile Include="CPrintHelper.cpp" />
     <ClCompile Include="CPrintWorkorder.cpp" />
     <ClCompile Include="CReportFinanceTotalView.cpp" />
     <ClCompile Include="CReportTaxView.cpp" />
@@ -276,7 +280,6 @@
     <ResourceCompile Include="RepairCafeCureApp.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\bitmap1.bmp" />
     <Image Include="res\buttons.bmp" />
     <Image Include="res\CloseWorkorders.bmp" />
     <Image Include="res\Contribution.bmp" />
@@ -287,6 +290,7 @@
     <Image Include="res\HistorySearch.bmp" />
     <Image Include="res\info.bmp" />
     <Image Include="res\LogoAVBIcon.ico" />
+    <Image Include="res\logoblank.bmp" />
     <Image Include="res\main.bmp" />
     <Image Include="res\maintenancelarge.bmp" />
     <Image Include="res\maintenancesmall.bmp" />

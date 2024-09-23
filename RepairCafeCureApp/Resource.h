@@ -74,8 +74,6 @@
 #define IDS_DBT_ASSET_DISPOSED          155
 #define IDS_DBt_PART_ID                 156
 #define IDS_DBT_PART_ID                 156
-#define IDS_DBt_PART_ID                 156
-#define IDS_DBT_PART_ID                 156
 #define IDS_DBT_IN_STOCK                157
 #define IDS_DBT_EMPLOYEE_ID             158
 #define IDS_DBT_ADMIN                   159
@@ -83,6 +81,41 @@
 #define IDS_ASSET                       161
 #define IDS_INVOICE                     162
 #define IDS_CUSTOMER                    163
+#define IDS_MSGBT_IDLE                  164
+#define IDS_MSGBC_IDLE                  165
+#define IDS_WT_CUSTOMER                 166
+#define IDS_WT_HISTORY                  167
+#define IDS_WT_WORKORDER_OPEN           168
+#define IDS_WT_WORKORDER_PROGRESS       169
+#define IDS_WT_WORKORDER_REPAIRED       170
+#define IDS_WT_REPORT_CONTRIBUTION      171
+#define IDS_WT_REPORT_PIN               172
+#define IDS_WT_REPORT_CASH              173
+#define IDS_WT_REPORT_TOTAL             174
+#define IDS_WT_WORKORDER_CLOSED         175
+#define IDS_MSGBT_ERROR_FETCH_EMPLOYEE  176
+#define IDS_MSGBC_ERROR_CONNECT_DS      177
+#define IDS_MSGBT_ERROR_FETCH_WOPARTS   178
+#define IDS_MSGBT_ERROR_FETCH_ASSET     179
+#define IDS_MSGBT_ERROR_FETCH_CUSTOMER  180
+#define IDS_MSGB_ADMIN_CREATE_PASS      181
+#define IDS_MSGBT_ERROR_FETCH_WOCLOSED  182
+#define IDS_MSGBT_ERROR_FETCH_TAXREPORT 183
+#define IDS_MSGBT_ERROR_FETCH_FINANCE_TOTAL 184
+#define IDS_MSGBT_ERROR_FETCH_HISSEARCH 185
+#define IDS_MSGBC_ADMIN_MASTER          186
+#define IDS_MSGB_ADMIN_MASTER           186
+#define IDS_MSGB_ADMIN_INVALID_MK       187
+#define IDS_MSGBC_ADMIN_CREATE_CRD      188
+#define IDS_MSGB_ADMIN_PSW_CREATED      189
+#define IDS_MSGB_ADMIN_PSW_NOT_SAME     190
+#define IDS_MSGBC_ADMIN_LOGIN           191
+#define IDS_MSGB_ADMIN_WRONG_LOGIN      192
+#define IDS_MSGBC_ADMIN_CRD_CHANGED     193
+#define IDS_MSGB_ADMIN_ALL_CRED_REQUIRED 194
+#define IDS_MSGB_ADMIN_CURRENT_PSW_INCORRECT 195
+#define IDS_MSGB_ADMIN_NW_RETYPE_NOTEQUAL 197
+#define IDS_MSGB_ADMIN_PSW_IS_CHANGED   198
 #define ID_TOOLS_OPTIONS                220
 #define ID_VIEW_CAPTION_BAR             221
 #define IDB_INFO                        230
@@ -128,8 +161,9 @@
 #define IDD_ADMIN_WORKORDER_PROGRESS    372
 #define IDD_FORMVIEW                    373
 #define IDD_REPORT_FINANCE_TOTAL_FORM   373
-#define IDB_BITMAP1                     376
 #define IDB_REPORTTOTAL                 376
+#define IDB_LOGO                        377
+#define IDD_ADMIN_PRINT_RECEIPT         378
 #define IDC_CUSTVIEW_EDITBOX_SURNAME_SEARCH 1001
 #define IDC_CUSTVIEW_BUTTON_SEARCH      1002
 #define IDC_CUSTVIEW_BUTTON_ADD_NEW_CUSTOMER 1003
@@ -298,6 +332,9 @@
 #define IDC_FINANCE_TOTAL_FLOW_TOTAL_CONTRIBUTION_PIN 1181
 #define IDC_FINANCE_TOTAL_FLOW_TOTAL_INVOICE 1182
 #define IDC_FINANCE_TOTAL_FLOW_TOTAL_CONTRIBUTION 1183
+#define IDC_ADMIN_COMBI_UMBRELLA_NAME   1184
+#define IDC_ADMIN_COMBI_ORGANIZATION    1185
+#define IDC_ADMIN_COMBI_ADMIN_COSTS     1186
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_CUSTOMER_VIEW                32773
 #define ID_APP_VIEW                     32775
@@ -321,14 +358,16 @@
 #define ID_REPORT_WORKORDER_CASHTRANSACTION 32803
 #define ID_REPORT_WORKORDER__TOTALFLOW  32804
 #define ID_ACCELERATOR32807             32807
+#define ID_ADMIN_SETTINGS_COMBI         32810
+#define ID_BUTTON2                      32811
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        377
-#define _APS_NEXT_COMMAND_VALUE         32810
-#define _APS_NEXT_CONTROL_VALUE         1184
+#define _APS_NEXT_RESOURCE_VALUE        380
+#define _APS_NEXT_COMMAND_VALUE         32812
+#define _APS_NEXT_CONTROL_VALUE         1187
 #define _APS_NEXT_SYMED_VALUE           318
 #endif
 #endif

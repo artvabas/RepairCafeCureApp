@@ -35,9 +35,9 @@
 * The report is displayed in a list control and can be printed.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.2.5 (beta)
+* Version: 1.0.3.5 (beta)
 * Created: 25-08-2024, (dd-mm-yyyy)
-* Updated: 14-09-2024, (dd-mm-yyyy)
+* Updated: 21-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Database connection class
@@ -47,10 +47,12 @@
 #include "RepairCafeCureApp.h"
 #include "CReportFinanceTotalView.h"
 #include "DatabaseTables.h"
+#include "CPrintHelper.h"
 
 using namespace artvabas::rcc::ui;
 using namespace artvabas::sql;
 using namespace artvabas::database::tables::reportfinancetotal;
+using namespace artvabas::rcc::support;
 
 IMPLEMENT_DYNCREATE(CReportFinanceTotalView, CFormView)
 
@@ -117,6 +119,11 @@ void CReportFinanceTotalView::OnInitialUpdate()
 // Returns: TRUE if the print job is prepared successfully; otherwise FALSE
 BOOL CReportFinanceTotalView::OnPreparePrinting(CPrintInfo* pInfo)
 {
+	// Calculate total pages to print, 55 items each page
+	int nPages = m_lstTotalReportResults.GetItemCount() / 50;
+	if (m_lstTotalReportResults.GetItemCount() % 50 > 0) nPages++;
+	pInfo->SetMaxPage(nPages);
+
 	return DoPreparePrinting(pInfo);
 }
 
@@ -143,152 +150,42 @@ void CReportFinanceTotalView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 // - pInfo: a pointer to a CPrintInfo structure that contains information about the print job
 void CReportFinanceTotalView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 {
-	typedef unsigned int pixel;
-	const pixel pixMargin = 100; // 1 inch margin
-	const pixel pixFontHeightHeader = 120;
-	const pixel pixFontHeightBody = 80;
-
 	const wchar_t* wzsMonth[] = { L"januari", L"februari", L"maart", L"april", L"mei",  L"juni",
 								 L"juli", L"augustus", L"september", L"oktober", L"november", L"december" };
-
-	CFont fontBoldHeader;
-	VERIFY(fontBoldHeader.CreateFont(
-		pixFontHeightHeader,      // nHeight
-		0,                        // nWidth
-		0,                        // nEscapement
-		0,                        // nOrientation
-		FW_BOLD,				  // nWeight
-		FALSE,                    // bItalic
-		FALSE,                    // bUnderline
-		0,                        // cStrikeOut
-		ANSI_CHARSET,             // nCharSet
-		OUT_DEFAULT_PRECIS,       // nOutPrecision
-		CLIP_DEFAULT_PRECIS,      // nClipPrecision
-		DEFAULT_QUALITY,          // nQuality
-		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-		_T("Cascadia Mono")));    // lpszFacename
-
-	CFont fontPlainBody;
-	VERIFY(fontPlainBody.CreateFont(
-		pixFontHeightBody,        // nHeight
-		0,                        // nWidth
-		0,                        // nEscapement
-		0,                        // nOrientation
-		FW_NORMAL,                // nWeight
-		FALSE,                    // bItalic
-		FALSE,                    // bUnderline
-		0,                        // cStrikeOut
-		ANSI_CHARSET,             // nCharSet
-		OUT_DEFAULT_PRECIS,       // nOutPrecision
-		CLIP_DEFAULT_PRECIS,      // nClipPrecision
-		DEFAULT_QUALITY,          // nQuality
-		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-		_T("Cascadia Mono")));    // lpszFacename
-
-	CFont fontBoldBody;
-	VERIFY(fontBoldBody.CreateFont(
-		pixFontHeightBody,        // nHeight
-		0,                        // nWidth
-		0,                        // nEscapement
-		0,                        // nOrientation
-		FW_BOLD,		          // nWeight
-		FALSE,                     // bItalic
-		FALSE,                    // bUnderline
-		0,                        // cStrikeOut
-		ANSI_CHARSET,             // nCharSet
-		OUT_DEFAULT_PRECIS,       // nOutPrecision
-		CLIP_DEFAULT_PRECIS,      // nClipPrecision
-		DEFAULT_QUALITY,          // nQuality
-		DEFAULT_PITCH | FF_SWISS, // nPitchAndFamily
-		_T("Cascadia Mono")));    // lpszFacename
-
-	// Lambda functions for calculating pixels movements
-	auto TotalTabInPixels = [pixMargin](unsigned int nTotalTabs) -> pixel {
-		return pixMargin * nTotalTabs;
-		};
-
-	auto HeaderTextLineDown = [pixFontHeightHeader](unsigned int nTotalLines) -> pixel {
-		return pixFontHeightHeader * nTotalLines;
-		};
-
-	auto BodyTextLineDown = [pixFontHeightBody](unsigned int nTotalLines) -> pixel {
-		return pixFontHeightBody * nTotalLines;
-		};
-
-	// Get printer device resolutions
-	const int nHorRes = pDC->GetDeviceCaps(HORZRES);	// get printable width
-	const int nVerRes = pDC->GetDeviceCaps(VERTRES);	// get printable height
-	const int nLogPixelsX = pDC->GetDeviceCaps(LOGPIXELSX);	// get device resolution along X
-	const int nLogPixelsY = pDC->GetDeviceCaps(LOGPIXELSY);	// get device resolution along Y
-
-	CImage imgLogo;
-	imgLogo.Load(_T("logo.bmp"));
-	CFont* pFont = nullptr;
-	unsigned long middleDocBody = 0UL;
-
+	CPrintHelper PH{ pDC };
 	pDC->m_bPrinting = TRUE;
 	pDC->StartPage();
 
-	// Print border
-	CRect rctBorder(0, 0, nHorRes, nVerRes);
-	rctBorder.DeflateRect(nLogPixelsX / 2, nLogPixelsY / 2);
-	pDC->Draw3dRect(rctBorder, RGB(0, 0, 0), RGB(0, 0, 0));
+	PH.PrintLogo();
 
-	/* Common print jobs */
-
-	// Set print start position
-	int nPosX = rctBorder.TopLeft().x + 10;
-	int nPosY = rctBorder.TopLeft().y + 10;
-
-	// Print logo
-	imgLogo.StretchBlt(pDC->m_hDC, nPosX, nPosY, static_cast<int>(imgLogo.GetWidth() * 6.8), static_cast<int>(imgLogo.GetHeight() * 6.8), 0, 0, imgLogo.GetWidth(), imgLogo.GetHeight(), SRCCOPY);
-
-	// Calculate new start print position
-	nPosY += static_cast<int>(imgLogo.GetHeight() * 6.8) + 10;
-
-	// Print header
-	pFont = &fontBoldHeader;
-
-	// Print Header rectangle
-	CRect rctHeader(nPosX + 60, nPosY, nPosX + static_cast<int>(imgLogo.GetWidth() * 6.8) - 60, nPosY + HeaderTextLineDown(2));
-	pDC->FillRect(rctHeader, &CBrush(RGB(0, 102, 255)));
-	pDC->Draw3dRect(rctHeader, RGB(0, 102, 255), RGB(0, 102, 255));
-
-	// Print header text
-	pDC->SelectObject(pFont);
-	pDC->SetTextColor(RGB(255, 255, 255));
-
-	pDC->DrawText(_T("Totaal overzicht alle transacties, maand ") + static_cast<CString>(wzsMonth[m_dtStart.GetMonth()]) + _T(" van ") + m_dtStart.Format(_T("%Y")),
-		rctHeader, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-
-	// calculate new start print position
-	nPosY += HeaderTextLineDown(3);
-
-	CRect rctDate(nPosX, nPosY, nPosX + TotalTabInPixels(6), nPosY + BodyTextLineDown(20));
+	PH.PrintHeader(_T("Totaal overzicht alle transacties, maand ") + static_cast<CString>(wzsMonth[m_dtStart.GetMonth()]) + _T(" van ") + m_dtStart.Format(_T("%Y")));
+	
+	// Print body text
+	CRect rctDate(*PH.m_pxPos, *PH.m_pyPos, *PH.m_pxPos + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctDate, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctWorkorder(rctDate.right, nPosY, rctDate.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(20));
+	CRect rctWorkorder(rctDate.right, *PH.m_pyPos, rctDate.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctWorkorder, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctInvoice(rctWorkorder.right, nPosY, rctWorkorder.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(20));
+	CRect rctInvoice(rctWorkorder.right, *PH.m_pyPos, rctWorkorder.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctInvoice, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctTotal(rctInvoice.right, nPosY, rctInvoice.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(20));
+	CRect rctTotal(rctInvoice.right, *PH.m_pyPos, rctInvoice.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctTotal, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctPin(rctTotal.right, nPosY, rctTotal.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(20));
+	CRect rctPin(rctTotal.right, *PH.m_pyPos, rctTotal.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctPin, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctContribution(rctPin.right, nPosY, rctPin.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(20));
+	CRect rctContribution(rctPin.right, *PH.m_pyPos, rctPin.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
 	pDC->Draw3dRect(rctContribution, RGB(255, 255, 255), RGB(255, 255, 255));
 
 	// Print Table Header
-	pFont = &fontBoldBody;
-	pDC->SelectObject(pFont);
+	PH.m_pFont = &PH.m_fontBoldBody;
+	pDC->SelectObject(PH.m_pFont);
 
 	// print work comment area
-	pFont = &fontBoldBody;
-	pDC->SelectObject(pFont);
+	PH.m_pFont = &PH.m_fontBoldBody;
+	pDC->SelectObject(PH.m_pFont);
 
 	pDC->SetTextColor(RGB(0, 0, 0));
 	pDC->DrawText(_T("Datum:"), rctDate, DT_LEFT | DT_TABSTOP);
@@ -299,13 +196,18 @@ void CReportFinanceTotalView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	pDC->DrawText(_T("Bijdrage:"), rctContribution, DT_RIGHT | DT_TABSTOP);
 
 	// Print Table Body
-	pFont = &fontPlainBody;
-	pDC->SelectObject(pFont);
+	PH.m_pFont = &PH.m_fontPlainBody;
+	pDC->SelectObject(PH.m_pFont);
 
 	// Print body text
-	nPosY += BodyTextLineDown(1);
+	*PH.m_pyPos += PH.BodyTextLineDown(1);
 
-	for (int i = 0; i < m_lstTotalReportResults	.GetItemCount(); i++) {
+	// 55 items each page
+	int nPage = pInfo->m_nCurPage;
+	int i = (nPage - 1) * 50;
+	if (i > 0) i += (nPage - 1);
+
+	for ( i; i < m_lstTotalReportResults	.GetItemCount(); i++) {
 		CString strDate = m_lstTotalReportResults.GetItemText(i, 0);
 		CString strWorkorder = m_lstTotalReportResults.GetItemText(i, 1);
 		CString strInvoice = m_lstTotalReportResults.GetItemText(i, 2);
@@ -313,89 +215,82 @@ void CReportFinanceTotalView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 		CString strPin = m_lstTotalReportResults.GetItemText(i, 4);
 		CString strContribution = m_lstTotalReportResults.GetItemText(i, 5);
 
-		CRect rctDate(nPosX, nPosY, nPosX + TotalTabInPixels(6), nPosY + BodyTextLineDown(1));
+		CRect rctDate(*PH.m_pxPos, *PH.m_pyPos, *PH.m_pxPos + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strDate, rctDate, DT_LEFT | DT_TABSTOP);
 
-		CRect rctWorkorder(rctDate.right, nPosY, rctDate.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(1));
+		CRect rctWorkorder(rctDate.right, *PH.m_pyPos, rctDate.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strWorkorder, rctWorkorder, DT_LEFT | DT_TABSTOP);
 
-		CRect rctInvoice(rctWorkorder.right, nPosY, rctWorkorder.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(1));
+		CRect rctInvoice(rctWorkorder.right, *PH.m_pyPos, rctWorkorder.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strInvoice, rctInvoice, DT_LEFT | DT_TABSTOP);
 
-		CRect rctTotal(rctInvoice.right, nPosY, rctInvoice.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(1));
+		CRect rctTotal(rctInvoice.right, *PH.m_pyPos, rctInvoice.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strTotal, rctTotal, DT_LEFT | DT_TABSTOP);
 
-		CRect rctPin(rctTotal.right, nPosY, rctTotal.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(1));
+		CRect rctPin(rctTotal.right, *PH.m_pyPos, rctTotal.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strPin, rctPin, DT_LEFT | DT_TABSTOP);
 
-		CRect rctContribution(rctPin.right, nPosY, rctPin.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(1));
+		CRect rctContribution(rctPin.right, *PH.m_pyPos, rctPin.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(1));
 		pDC->DrawText(strContribution, rctContribution, DT_RIGHT | DT_TABSTOP);
 
-		nPosY += BodyTextLineDown(1);
+		*PH.m_pyPos += PH.BodyTextLineDown(1);
+
+		// reach 50 items per page virtual 55
+		if (*PH.m_pyPos + PH.BodyTextLineDown(5) == PH.m_pixEndPage) {
+			break;
+		}
 	}
 
-	// Print footer
-	nPosY += BodyTextLineDown(1);
+	if (pInfo->m_nCurPage == pInfo->GetMaxPage()) {
+		*PH.m_pyPos += PH.BodyTextLineDown(1);
 
-	pFont = &fontBoldBody;
-	pDC->SelectObject(pFont);
-	pDC->SetBkColor(RGB(255, 255, 255));
-	pDC->SetTextColor(RGB(0, 0, 0));
+		PH.m_pFont = &PH.m_fontBoldBody;
+		pDC->SelectObject(PH.m_pFont);
+		pDC->SetBkColor(RGB(255, 255, 255));
+		pDC->SetTextColor(RGB(0, 0, 0));
 
-	CRect rctTotalAll(rctTotal.right, nPosY, rctTotal.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(20));
-	pDC->Draw3dRect(rctTotal, RGB(255, 255, 255), RGB(255, 255, 255));
+		CRect rctTotalAll(rctTotal.right, *PH.m_pyPos, rctTotal.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
+		pDC->Draw3dRect(rctTotal, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	CRect rctTotalAmount(rctTotalAll.right, nPosY, rctTotalAll.right + TotalTabInPixels(6), nPosY + BodyTextLineDown(20));
-	pDC->Draw3dRect(rctTotalAmount, RGB(255, 255, 255), RGB(255, 255, 255));
+		CRect rctTotalAmount(rctTotalAll.right, *PH.m_pyPos, rctTotalAll.right + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
+		pDC->Draw3dRect(rctTotalAmount, RGB(255, 255, 255), RGB(255, 255, 255));
 
-	pDC->DrawText(_T("Factuur contant:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalInvoiceCash, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Factuur contant:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalInvoiceCash, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	//nPosY += BodyTextLineDown(1);
-	rctTotalAll.OffsetRect(0, BodyTextLineDown(1));
-	rctTotalAmount.OffsetRect(0, BodyTextLineDown(1));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
 
-	pDC->DrawText(_T("Factuur pin:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalInvoicePin, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Factuur pin:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalInvoicePin, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, BodyTextLineDown(1));
-	rctTotalAmount.OffsetRect(0, BodyTextLineDown(1));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
 
-	pDC->DrawText(_T("Factuur total:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalInvoice, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Factuur total:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalInvoice, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, BodyTextLineDown(2));
-	rctTotalAmount.OffsetRect(0, BodyTextLineDown(2));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(2));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(2));
 
-	pDC->DrawText(_T("Bijdrage contant:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalContributionCash, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Bijdrage contant:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalContributionCash, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, BodyTextLineDown(1));
-	rctTotalAmount.OffsetRect(0, BodyTextLineDown(1));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
 
-	pDC->DrawText(_T("Bijdrage pin:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalContributionPin, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Bijdrage pin:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalContributionPin, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	rctTotalAll.OffsetRect(0, BodyTextLineDown(1));
-	rctTotalAmount.OffsetRect(0, BodyTextLineDown(1));
+		rctTotalAll.OffsetRect(0, PH.BodyTextLineDown(1));
+		rctTotalAmount.OffsetRect(0, PH.BodyTextLineDown(1));
 
-	pDC->DrawText(_T("Bijdrage totaal:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
-	pDC->DrawText(m_strTotalContribution, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(_T("Bijdrage totaal:"), rctTotalAll, DT_RIGHT | DT_TABSTOP);
+		pDC->DrawText(m_strTotalContribution, rctTotalAmount, DT_RIGHT | DT_TABSTOP);
 
-	nPosY += BodyTextLineDown(8);
-	pFont = &fontPlainBody;
-	pDC->SelectObject(pFont);
-	COleDateTime cdtNow = COleDateTime::GetCurrentTime();
-
-	pDC->TextOutW(nPosX, nPosY, _T("Dit overzicht is gegenereerd door Repair Cafe Cure App op ") + cdtNow.Format(_T("%d-%m-%Y")));
-
-	// Destroy image
-	imgLogo.Destroy();
-	fontBoldHeader.DeleteObject();
-	fontPlainBody.DeleteObject();
-	fontBoldBody.DeleteObject();
-
-	CFormView::OnPrint(pDC, pInfo);
+		//*PH.m_pyPos += PH.BodyTextLineDown(7);
+	}
+	PH.PrintFooter(pInfo->m_nCurPage);
 
 	CFormView::OnPrint(pDC, pInfo);
 }
@@ -493,8 +388,10 @@ void CReportFinanceTotalView::OnBnClickedFinanceTotalFlowCreate() noexcept
 		if (retcode == SQL_SUCCESS) {
 			while (TRUE) {
 				retcode = SQLFetch(hstmt);
-				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-					AfxMessageBox(_T("Error fetching data from Asset Table!"), MB_ICONEXCLAMATION);
+				if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO) {
+					MessageBoxW(theApp.ConvertIDToString(IDS_MSGBT_ERROR_FETCH_FINANCE_TOTAL), theApp.ConvertIDToString(IDS_MSGBC_ERROR_CONNECT_DS), MB_ICONERROR);
+					break;
+				}
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
