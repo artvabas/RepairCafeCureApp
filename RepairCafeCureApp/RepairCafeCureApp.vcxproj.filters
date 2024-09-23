@@ -207,6 +207,9 @@
     <ClInclude Include="CPrintHelper.h">
       <Filter>Header Files\artvabas\rcc\support</Filter>
     </ClInclude>
+    <ClInclude Include="CAdminCombiReceipt.h">
+      <Filter>Header Files\artvabas\rcc\ui\dialogs\admin</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RepairCafeCureApp.cpp">
@@ -301,6 +304,9 @@
     </ClCompile>
     <ClCompile Include="CPrintHelper.cpp">
       <Filter>Source Files\artvabas\rcc\support</Filter>
+    </ClCompile>
+    <ClCompile Include="CAdminCombiReceipt.cpp">
+      <Filter>Source Files\artvabas\rcc\ui\dialog\admin</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

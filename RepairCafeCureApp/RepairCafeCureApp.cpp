@@ -36,9 +36,9 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.2.5 (beta)
+* Version: 1.0.3.5 (beta)
 * Created: 11-10-2023, (dd-mm-yyyy)
-* Updated: 14-09-2024, (dd-mm-yyyy)
+* Updated: 23-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
 *
 * Description: Main application class for RepairCafeCureApp
@@ -70,6 +70,7 @@
 #include "CAdminEmployeeMaintenance.h"
 #include "CAdminSparepartsStockMaintenance.h"
 #include "CAdminWorkorderToProgress.h"
+#include "CAdminCombiReceipt.h"
 using namespace artvabas::rcc::security::admin;
 using namespace artvabas::rcc::dialog::admin;
 #endif
@@ -141,6 +142,7 @@ BEGIN_MESSAGE_MAP(CRepairCafeCureApp, CWinAppEx)
 	ON_COMMAND(ID_ADMIN_MAINTENANCE_EMPLOYEES, &CRepairCafeCureApp::OnAdminMaintenanceEmployees)
 	ON_COMMAND(ID_ADMIN_MAINTENANCE_STOCK, &CRepairCafeCureApp::OnAdminMaintenanceStock)
 	ON_COMMAND(ID_ADMIN_MAINTENANCE_WORKORDER_PROGRESS, &CRepairCafeCureApp::OnAdminMaintenanceWorkorderProgress)
+	ON_COMMAND(ID_ADMIN_SETTINGS_COMBI, &CRepairCafeCureApp::OnAdminSettingsCombi)
 END_MESSAGE_MAP()
 
 /* Overrides  methods */
@@ -421,6 +423,15 @@ void CRepairCafeCureApp::OnAdminMaintenanceWorkorderProgress() noexcept
 #endif // !_DEBUG
 }
 
+// OnAdminSettingsCombi is called when user select the settings-combi button on the ribbon
+// Show the admin combi receipt dialog
+void CRepairCafeCureApp::OnAdminSettingsCombi() noexcept
+{
+#ifndef _DEBUG
+	CAdminCombiReceipt dlg;
+	dlg.DoModal();
+#endif // !_DEBUG
+}
 
 // OnFilePrintSetup is called when user select the print setup button on the ribbon
 // Set the printer orientation for the selected view
