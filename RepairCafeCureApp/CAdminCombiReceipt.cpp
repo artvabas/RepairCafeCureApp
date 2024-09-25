@@ -86,7 +86,7 @@ BOOL CAdminCombiReceipt::OnInitDialog()
 
 	// Load init settings
 	TCHAR szPath[MAX_PATH]{};
-	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
+	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath))) {
 		PathAppendW(szPath, _T("artvabas\\repairCafeCureApp\\rccacr.ini"));
 		// Does destination exist?
 		if (GetFileAttributesW(szPath)) {
@@ -112,7 +112,7 @@ void CAdminCombiReceipt::OnBnClickedOk() noexcept
 	UpdateData(TRUE);
 	// Save init settings
 	TCHAR szPath[MAX_PATH]{};
-	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
+	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath))) {
 		PathAppendW(szPath, _T("artvabas\\repairCafeCureApp\\rccacr.ini"));
 		// Does destination exist?
 		if (GetFileAttributesW(szPath)) {

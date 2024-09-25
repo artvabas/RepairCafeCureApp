@@ -282,8 +282,8 @@ void CPrintWorkorder::PrintCombi(CDC* pDC) const noexcept
 	CString strCompany{};
 	CString strCompanyOff{}; // Company official name
 	CString strAdminCoverage{};
-	TCHAR szPath[MAX_PATH]{};
-	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, szPath))) {
+	TCHAR szPath[MAX_PATH]{};		// CSIDL_TOKEN CSIDL_APPDATA
+	if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath))) {
 		PathAppendW(szPath, _T("artvabas\\repairCafeCureApp\\rccacr.ini"));
 		// Does destination exist?
 		if (GetFileAttributesW(szPath)) {
