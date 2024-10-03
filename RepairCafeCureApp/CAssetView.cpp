@@ -33,7 +33,7 @@
 * This class is the view of the Asset form
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.3.5 (beta)
+* Version: 1.0.4.5 (beta)
 * Created: 04-11-2023, (dd-mm-yyyy)
 * Updated: 18-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -246,8 +246,6 @@ void CAssetView::OnClickedHistorySearch()
 					MessageBoxW(theApp.ConvertIDToString(IDS_MSGBT_ERROR_FETCH_HISSEARCH), theApp.ConvertIDToString(IDS_MSGBC_ERROR_CONNECT_DS), MB_ICONERROR);
 					break;
 				}
-				MessageBoxW(theApp.ConvertIDToString(IDS_MSGBT_ERROR_FETCH_CUSTOMER), theApp.ConvertIDToString(IDS_MSGBC_ERROR_CONNECT_DS), MB_ICONERROR);
-				break;
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
 					auto CheckForNull = [](SQLCHAR* szName, SQLLEN cbName) -> CString {
