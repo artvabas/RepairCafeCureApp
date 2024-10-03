@@ -36,7 +36,7 @@
 * Controls are enabled and disabled depending on the state of the form.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.3.5 (beta)
+* Version: 1.0.4.5 (beta)
 * Created: 18-10-2023, (dd-mm-yyyy)
 * Updated: 18-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -775,8 +775,9 @@ bool CWorkorderView::SetPrinterOrientation(HANDLE h, CDC* dc)
 
 	switch (m_ePrinterOrientation) {
 	case PORTRAIT:
+		devMode->dmPaperSize = DMPAPER_A4;
 		devMode->dmOrientation = DMORIENT_PORTRAIT;  // portrait mode
-		devMode->dmFields |= DM_ORIENTATION;
+		devMode->dmFields |= (DM_ORIENTATION | DM_PAPERSIZE);
 		break;
 
 	case LANDSCAPE:

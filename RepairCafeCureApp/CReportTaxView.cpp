@@ -35,7 +35,7 @@
 * The report is displayed in a list control and can be printed.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.3.5 (beta)
+* Version: 1.0.4.5 (beta)
 * Created: 02-06-2023, (dd-mm-yyyy)
 * Updated: 21-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -175,13 +175,13 @@ void CReportTaxView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 	PH.PrintLogo();
 
 	if (theApp.GetFinanceTaxViewType() == VIEW_CONTRIBUTON_REPORT) {
-		PH.PrintHeader(_T("Overzicht vrijwillige bijdrage, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth()]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")));
+		PH.PrintHeader(_T("Overzicht vrijwillige bijdrage, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth() - 1]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")));
 	}
 	else if (theApp.GetFinanceTaxViewType() == VIEW_PIN_TRANSACTION_REPORT) {
-		PH.PrintHeader(_T("Overzicht PIN transacties, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth()]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")));
+		PH.PrintHeader(_T("Overzicht PIN transacties, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth() -1 ]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")));
 	}
 	else if (theApp.GetFinanceTaxViewType() == VIEW_CASH_TRANSACTION_REPORT) {
-		PH.PrintHeader(_T("Overzicht contante transacties, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth()]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")));
+		PH.PrintHeader(_T("Overzicht contante transacties, maand ") + static_cast<CString>(wzsMonth[m_cdtStartDate.GetMonth() -1 ]) + _T(" van ") + m_cdtStartDate.Format(_T("%Y")));
 	}
 	
 	CRect rctDate(*PH.m_pxPos, *PH.m_pyPos, *PH.m_pxPos + PH.TotalTabInPixels(6), *PH.m_pyPos + PH.BodyTextLineDown(20));
@@ -489,8 +489,9 @@ bool CReportTaxView::SetPrinterOrientation(HANDLE h, CDC* dc) const noexcept
 
 	switch (m_ePrinterOrientation) {
 	case PORTRAIT:
+		devMode->dmPaperSize = DMPAPER_A4;
 		devMode->dmOrientation = DMORIENT_PORTRAIT;  // portrait mode
-		devMode->dmFields |= DM_ORIENTATION;
+		devMode->dmFields |= (DM_ORIENTATION | DM_PAPERSIZE);
 		break;
 
 	case LANDSCAPE:

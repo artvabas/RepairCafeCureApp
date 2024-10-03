@@ -36,7 +36,7 @@
 * to switch between the views.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.3.5 (beta)
+* Version: 1.0.4.5 (beta)
 * Created: 11-10-2023, (dd-mm-yyyy)
 * Updated: 23-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -110,7 +110,7 @@ CRepairCafeCureApp::CRepairCafeCureApp() noexcept
 	, m_bIsPrintPreview{ false }
 	, m_bIsAdmin{ false }
 {
-	SetAppID(_T("RepairCafeCureApp.AppID.1.0.3.5"));
+	SetAppID(_T("RepairCafeCureApp.AppID.1.0.4.5"));
 	SetTimer(NULL, 1, (1000 * 60), TimerCallback);
 }
 

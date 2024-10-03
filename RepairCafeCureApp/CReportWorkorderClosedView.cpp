@@ -35,7 +35,7 @@
 * jump into the close workorder to see the details with a option to print them.
 *
 * Target: Windows 10/11 64bit
-* Version: 1.0.3.5 (beta)
+* Version: 1.0.4.5 (beta)
 * Created: 02-06-2023, (dd-mm-yyyy)
 * Updated: 21-09-2024, (dd-mm-yyyy)
 * Creator: artvabasDev / artvabas
@@ -132,13 +132,10 @@ void CReportWorkorderClosedView::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
 // Is called for printing the view
 void CReportWorkorderClosedView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 {
-	const wchar_t* wzsMonth[] = { L"januari", L"februari", L"maart", L"april", L"mei",  L"juni",
-								 L"juli", L"augustus", L"september", L"oktober", L"november", L"december" };
 	CPrintHelper PH{ pDC };
 	pDC->m_bPrinting = TRUE;
 	pDC->StartPage();
 	
-
 	PH.PrintLogo();
 
 	PH.PrintHeader(_T("Overzicht gesloten werkorders"));
@@ -369,8 +366,9 @@ bool CReportWorkorderClosedView::SetPrinterOrientation(HANDLE h, CDC* dc) const 
 
 	switch (m_ePrinterOrientation) {
 	case PORTRAIT:
+		devMode->dmPaperSize = DMPAPER_A4;
 		devMode->dmOrientation = DMORIENT_PORTRAIT;  // portrait mode
-		devMode->dmFields |= DM_ORIENTATION;
+		devMode->dmFields |= (DM_ORIENTATION | DM_PAPERSIZE);
 		break;
 
 	case LANDSCAPE:
